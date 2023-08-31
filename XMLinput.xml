@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<person>
+    <name xml:lang="en">Ailish</name>
+    <age>18</age>
+    <items>
+        <item>Bread</item>
+        <item>Milk</item>
+    </items>
+    <properties>
+        <inteligence>100</inteligence>
+        <knowledge>100</knowledge>
+    </properties>
+</person>

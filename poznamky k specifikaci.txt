@@ -1,0 +1,14 @@
+- format specific Ur a tím pádem i query trochu zabraňuje znovu využívání queries pro jiné formáty (šlo by sladit?)
+- líbí se mi ten modulární design. kdokoliv kdo poskytne mapování na Ur bude moc systém využívat.
+- event based přístup se mi taky líbí a otevírá možnost pro streamování
+
+
+Ur pro XML: 
+- problém s reprezentací polí - v jsonu nemůže být více stejných klíčů (vlastně nejen polí, kdykoliv je použito víc stejných XML značek) 
+    - vyřešeno vytvořením řazeného pole pro duplikované tagy
+- atributy vyřešeny speciálním "@attributes" klíčem ve kterém je pole všech atributů
+
+Ur pro CSV:
+- jak chceme podporovat více tabulek? to pouze z CSV vyzjistit nejde. Budeme používat CSVW context?
+- zatím pouze pro jednu (plochou) tabulku. (items a properties by měly být ve vlastních tabulkách)
+- každý řádek jako objekt v číslovaném poly označeném speciálním klíčem "@rows"

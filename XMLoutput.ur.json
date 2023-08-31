@@ -1,0 +1,46 @@
+{
+    "@version": ["1.0"],
+    "@encoding": ["UTF-8"],
+    "person": [{
+        "@type": ["object"],
+        "name": [{
+            "@attributes": [{
+                "xml:lang": [{
+                    "@type": ["string"],
+                    "@value": ["en"]
+                }]
+            }],
+            "@type": ["string"],
+            "@value": ["Ailish"]
+        }],
+        "age": [{
+            "@type": ["number"],
+            "@value": ["18"]
+        }],
+        "items": [{
+            "type": ["object"],
+            "item": [{
+                "@type": ["array"],
+                "0": [{
+                    "@type": ["string"],
+                    "@value": ["Bread"]
+                }],
+                "1": [{
+                    "@type": ["string"],
+                    "@value": ["Milk"]
+                }]
+            }]
+        }],
+        "properties": [{
+            "@type": ["object"],
+            "inteligence": [{
+                "@type": ["number"],
+                "@value": ["100"]
+            }],
+            "knowledge": [{
+                "@type": ["number"],
+                "@value": ["100"]
+            }]
+        }]
+    }]
+}
