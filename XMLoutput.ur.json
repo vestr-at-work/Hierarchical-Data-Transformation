@@ -19,16 +19,13 @@
         }],
         "items": [{
             "type": ["object"],
-            "item": [{
-                "@type": ["array"],
-                "0": [{
-                    "@type": ["string"],
-                    "@value": ["Bread"]
-                }],
-                "1": [{
-                    "@type": ["string"],
-                    "@value": ["Milk"]
-                }]
+            "@0:item": [{
+                "@type": ["string"],
+                "@value": ["Bread"]
+            }],
+            "@1:item": [{
+                "@type": ["string"],
+                "@value": ["Milk"]
             }]
         }],
         "properties": [{

@@ -1,4 +1,6 @@
 - format specific Ur a tím pádem i query trochu zabraňuje znovu využívání queries pro jiné formáty (šlo by sladit?)
+- chápu pohled, že prakticky všechno je pole nula, jednoho či více prvků, usnadní nám to psaní. teoreticky by ale šlo tento přísup zanechat a jen ho aplikovat implicitně. tj. nepsat hranaté závorky úplně všude, ale přistupovat k jako kdyby tam byly.
+- jak tento přístup funguje pro hodnoty, které mají mít pouze jednu hodnotu? není to naopak zmatečné? 
 - líbí se mi ten modulární design. kdokoliv kdo poskytne mapování na Ur bude moc systém využívat.
 - event based přístup se mi taky líbí a otevírá možnost pro streamování
 
