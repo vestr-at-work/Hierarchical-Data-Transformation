@@ -49,3 +49,122 @@ Inspiroval bych se JOLTem a přidal funkce pro práci s hodnotami (predikáty ap
 
 Transformace bude z Ur do Ur a následně předvod z transformovaného Ur do výstupu.
 To znamená, že uživatelé budou muset být seznámeni s Ur a jeho jednotlivými specifiky pro jednotlivé formáty, aby dokázali správně transformovat (mohli bychom pak sepsat návody v dokumentaci pro každý převod z formátu do formátu (jen zmínit úskalí na která si dát pozor a jak se s nimi vypořádat)).
+Trochu jde do protikladu s tím, že by Ur byla jen vnitřní reprezentace.
+
+K transformaci je možné připsat komentář pod klíč "@comment" pro vysvětlení transformace.  
+
+Pro XML vstup:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<person>
+    <name xml:lang="en">Ailish</name>
+    <age>18</age>
+    <items>
+        <item>Bread</item>
+        <item>Milk</item>
+    </items>
+    <properties>
+        <inteligence>100</inteligence>
+        <knowledge>100</knowledge>
+    </properties>
+</person>
+```
+
+s Ur reprezentací:
+
+```json
+{
+    "@version": ["1.0"],
+    "@encoding": ["UTF-8"],
+    "person": [{
+        "@type": ["object"],
+        "name": [{
+            "@attributes": [{
+                "xml:lang": [{
+                    "@type": ["string"],
+                    "@value": ["en"]
+                }]
+            }],
+            "@type": ["string"],
+            "@value": ["Ailish"]
+        }],
+        "age": [{
+            "@type": ["number"],
+            "@value": ["18"]
+        }],
+        "items": [{
+            "type": ["object"],
+            "@0:item": [{
+                "@type": ["string"],
+                "@value": ["Bread"]
+            }],
+            "@1:item": [{
+                "@type": ["string"],
+                "@value": ["Milk"]
+            }]
+        }],
+        "properties": [{
+            "@type": ["object"],
+            "inteligence": [{
+                "@type": ["number"],
+                "@value": ["100"]
+            }],
+            "knowledge": [{
+                "@type": ["number"],
+                "@value": ["100"]
+            }]
+        }]
+    }]
+}
+```
+
+Můžeme napsat transformaci, která nám vybere jméno a věk u osoby a jejich hodnoty vloží do objektu s přejmenovanými klíči.
+
+Transformace:
+
+```json
+{
+    "@operations": [
+        {
+            "@operation": "take-values",
+            "@comment": "Take the name and age of a person.",
+            "@specs": {
+                "person": [{
+                    "name": [{
+                        "@attributes": [{
+                            "xml:lang": [{}]
+                        }]
+                    }],
+                    "age": [{}]
+                }]
+            }
+        },
+        {
+            "@operation": "shift-values",
+            "@comment": "Work with the name and age of a person and shift its position to output object called 'human' with a 'given-name' and 'years-on-earth'.",
+            "@specs": {
+                "person": [{
+                    "name": [{
+                        "@attributes": [{
+                            "xml:lang": [{
+                                "@value": ["@path:human.given-name.xml:lang"]
+                            }]
+                        }],
+                        "@value": ["@path:human.given-name"]
+                    }],
+                    "age": [{
+                        "@value": ["@path:human.years-on-earth"]
+                    }]
+                }]
+            }
+        }
+    ]
+}
+```
+
+JOLT podporuje Shift hodnot, nastavení Defaultních hodnot, Remove hodnot, Cardinality hodnot, Sort a přímo java kód.
+
+Podporoval bych Shift, Default hodnoty, Remove/Take hodnot, Sort a asi i Cardinality. Místo javy bych podporoval predikáty v Shift a Remove/Take operacích.
+
+Výše je vidět příklad Take a Shift.
