@@ -168,3 +168,5 @@ JOLT podporuje Shift hodnot, nastavení Defaultních hodnot, Remove hodnot, Card
 Podporoval bych Shift, Default hodnoty, Remove/Take hodnot, Sort a asi i Cardinality. Místo javy bych podporoval predikáty v Shift a Remove/Take operacích.
 
 Výše je vidět příklad Take a Shift.
+
+Wild cards pomocí "*" a potom v cestě adresované pomocí "&1", "&2", atd.
