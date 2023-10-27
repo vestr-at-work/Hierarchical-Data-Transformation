@@ -18,6 +18,10 @@
 
 - primárně pracuje pouze s formátem, takže nemá způsob jak např. porovnat název nějakého labelu s konstatním řetězcem a vypsat na výstup pouze pokud se rovná. mohli bychom se inspirovat se základem, ale přidat i funkce na práci s daty?
 
+- https://docs.google.com/presentation/d/1sAiuiFC4Lzz4-064sg1p8EQt2ev0o442MfEbvrpD1ls/edit#slide=id.g9798b391_00
+
+- https://github.com/bazaarvoice/jolt/blob/master/jolt-core/src/main/java/com/bazaarvoice/jolt/Removr.java
+
 ## JSON Transforms
 
 - deklarativní(ish)
@@ -28,6 +32,7 @@
 
 - využívá JSPath: chceme využívat již existující dotazovací jazyk? vlastně ani nemůžeme, protože Ur není úplně validní JSON. musíme mít vlastní(!) JSON Transforms velmi spoléhá na JSPath (např. s funkcemi jako je filtrování a podobně)
 
+- https://github.com/ColinEberhardt/json-transforms
 -----------------
 
 ## Návrh
