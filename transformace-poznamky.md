@@ -33,6 +33,7 @@
 - využívá JSPath: chceme využívat již existující dotazovací jazyk? vlastně ani nemůžeme, protože Ur není úplně validní JSON. musíme mít vlastní(!) JSON Transforms velmi spoléhá na JSPath (např. s funkcemi jako je filtrování a podobně)
 
 - https://github.com/ColinEberhardt/json-transforms
+
 -----------------
 
 ## Návrh
@@ -138,10 +139,10 @@ Transformace:
                 "person": [{
                     "name": [{
                         "@attributes": [{
-                            "xml:lang": [{}]
+                            "xml:lang": []
                         }]
                     }],
-                    "age": [{}]
+                    "age": []
                 }]
             }
         },
@@ -153,13 +154,13 @@ Transformace:
                     "name": [{
                         "@attributes": [{
                             "xml:lang": [{
-                                "@value": ["@path:human.given-name.xml:lang"]
+                                "@path": ["human.given-name.xml:lang"]
                             }]
                         }],
-                        "@value": ["@path:human.given-name"]
+                        "@path": ["human.given-name"]
                     }],
                     "age": [{
-                        "@value": ["@path:human.years-on-earth"]
+                        "@path": ["human.years-on-earth"]
                     }]
                 }]
             }
@@ -170,8 +171,44 @@ Transformace:
 
 JOLT podporuje Shift hodnot, nastavení Defaultních hodnot, Remove hodnot, Cardinality hodnot, Sort a přímo java kód.
 
-Podporoval bych Shift, Default hodnoty, Remove/Take hodnot, Sort a asi i Cardinality. Místo javy bych podporoval predikáty v Shift a Remove/Take operacích.
+Podporoval bych Shift, Default hodnoty, Remove/Take hodnot, Sort a asi i Cardinality. Místo javy bych podporoval predikáty v Remove/Take (a Shift?) operacích.
 
 Výše je vidět příklad Take a Shift.
 
-Wild cards pomocí "*" a potom v cestě adresované pomocí "&1", "&2", atd.
+JOLT používá wildcards pomocí "*" a potom v cestě adresované pomocí "&1", "&2", atd. (kanonicky &(0,1) - aka jdi o 0 pater výš ve stromu a vezmi první wildcard v klíči) pro využití v hodnotě výstupu. 
+A adresované  pomocí "$(0,1)" atd. pro využití v klíči výstupu.
+
+> Co mít, místo symbolů, které se člověk naučit, pojmenované proměnné pro lepší překlednost? např: @var:personType a potom odkaz pomocí &var:personType nebo tak něco?
+
+Take:
+
+"[]" v hodnotě ze vstupu pro daný leaf klíč kopíruje hodnotu ze vstupu na výstup.
+> (Možný sugar potom je, že by "[{}]" v hodnotě bralo celý objekt daného klíče.)
+
+Když by se hodnota měla zkopírovat na výstup jen při splnění nějaké podmínky, tak by v leaf klíči byl array s jedním objektem s klíčem "@predicate" a logickým výrazem.
+Např (upravená část z příkladu výše):
+
+```json
+{
+    "@operation": "take-values",
+    "@comment": "Take the name and age of a person.",
+    "@specs": {
+        "person": [{
+            "name": [{
+                "@attributes": [{
+                    "xml:lang": [{
+						"@predicate": ["@value == 'en'"]
+					}]
+                }]
+            }],
+            "age": [{
+				"@predicate": ["..name.@attributes.xml:lang.@value == 'en'"]
+			}]
+        }]
+    }
+}
+``` 
+
+> Pokud bychom chtěli podporovat streamování, tak určitě nemůžeme podporovat predikáty, které testují hodnotu jinou, než @value.
+
+> Jak řešit symboly "@", které se využívají v UR a ne v transformaci? Asi ignorovat
