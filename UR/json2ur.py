@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Transformation of JSON to Unified represention
+# Transformation of JSON to Unified representation
 #
 # Implementation heavily inspired by Petr Škoda 
 # for original see https://github.com/skodapetr/hierarchical-data-transformations/blob/main/python/json-to-ur.py

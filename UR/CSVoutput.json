@@ -1,0 +1,76 @@
+{
+  "@type": [
+    "object"
+  ],
+  "@rows": [
+    {
+      "0": [
+        {
+          "@type": [
+            "object"
+          ],
+          "name": [
+            {
+              "@type": [
+                "string"
+              ],
+              "@value": [
+                "Ailish"
+              ]
+            }
+          ],
+          "age": [
+            {
+              "@type": [
+                "number"
+              ],
+              "@value": [
+                "18"
+              ]
+            }
+          ],
+          "item1": [
+            {
+              "@type": [
+                "string"
+              ],
+              "@value": [
+                "Bread"
+              ]
+            }
+          ],
+          "item2": [
+            {
+              "@type": [
+                "string"
+              ],
+              "@value": [
+                "Milk"
+              ]
+            }
+          ],
+          "inteligence": [
+            {
+              "@type": [
+                "number"
+              ],
+              "@value": [
+                "100"
+              ]
+            }
+          ],
+          "knowledge": [
+            {
+              "@type": [
+                "number"
+              ],
+              "@value": [
+                "100"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
