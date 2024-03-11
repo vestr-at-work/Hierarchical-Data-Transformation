@@ -1,17 +1,17 @@
 package cz.cuni.mff.hdt.sink;
 
-interface Sink {
+public interface Sink {
+    public void openObject();
 
-  void openObject();
+    public void closeObject();
 
-  void closeObject();
+    public void openArray();
 
-  void openArray();
+    public void closeArray();
 
-  void closeArray();
+    public void setNextKey(String key);
 
-  void setNextKey(String key);
+    public void writeValue(String value);
 
-  void writeValue(String value);
-
+    public void flush();
 }

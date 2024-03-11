@@ -1,8 +1,8 @@
 package cz.cuni.mff.hdt.source;
 
-interface Reference {
+public interface Reference {
   /**
    * Anounce that we no longer need this reference.
    */
-  void close();
+  public void close();
 }

@@ -1,10 +1,10 @@
 package cz.cuni.mff.hdt.source;
 
-interface DocumentSource {
+public interface DocumentSource {
 
   /**
    * Return next EntityReference or null when there is nothing more to iterate.
    */
-  Reference next();
+  public Reference next();
 
 }
