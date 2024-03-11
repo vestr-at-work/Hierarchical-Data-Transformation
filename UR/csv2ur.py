@@ -19,6 +19,8 @@ def main():
         ur = get_unified_representation(csv_reader)
         print(json.dumps(ur, indent=2))
         
+# TODO: Add support for @header key
+
 def get_unified_representation(csv_reader):
     fields = next(csv_reader)
     rows = {}

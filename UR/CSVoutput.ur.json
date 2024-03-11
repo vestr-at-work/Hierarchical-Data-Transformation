@@ -1,5 +1,31 @@
 {
     "@type": ["object"],
+    "@header": [{
+		"0": [{
+			"@type": ["string"],
+			"@value": ["name"]
+		}],
+		"1": [{
+			"@type": ["string"],
+			"@value": ["age"]
+		}],
+		"2": [{
+			"@type": ["string"],
+			"@value": ["item1"]
+		}],
+		"3": [{
+			"@type": ["string"],
+			"@value": ["item2"]
+		}],
+		"4": [{
+			"@type": ["string"],
+			"@value": ["inteligence"]
+		}],
+		"5": [{
+			"@type": ["string"],
+			"@value": ["knowledge"]
+		}]
+    }],
     "@rows": [{
         "0": [{
             "@type": ["object"],
