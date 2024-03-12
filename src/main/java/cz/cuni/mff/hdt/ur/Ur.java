@@ -1,6 +1,6 @@
 package cz.cuni.mff.hdt.ur;
 
-public static class Ur {
+public class Ur {
     public static final String KEY_TYPE = "@type";
     public static final String KEY_VALUE = "@value";
     public static final String KEY_CSV_ROWS = "@rows";
@@ -10,7 +10,10 @@ public static class Ur {
     public static final String KEY_XML_ATTRIBUTES = "@attributes";
 
     public static final String VALUE_OBJECT = "object";
+    public static final String VALUE_ARRAY = "array";
     public static final String VALUE_STRING = "string";
     public static final String VALUE_NUMBER = "number";
     public static final String VALUE_BOOLEAN = "boolean";
+
+    public static enum Type { Object, Array, String, Number, Boolean };
 }

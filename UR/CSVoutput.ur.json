@@ -1,6 +1,6 @@
 {
-    "@type": ["object"],
     "@header": [{
+    	"@type": ["array"],
 		"0": [{
 			"@type": ["string"],
 			"@value": ["name"]
@@ -27,6 +27,7 @@
 		}]
     }],
     "@rows": [{
+    	"@type": ["array"],
         "0": [{
             "@type": ["object"],
             "name": [{

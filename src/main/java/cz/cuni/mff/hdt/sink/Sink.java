@@ -1,5 +1,7 @@
 package cz.cuni.mff.hdt.sink;
 
+import java.io.IOException;
+
 public interface Sink {
     public void openObject();
 
@@ -11,7 +13,7 @@ public interface Sink {
 
     public void setNextKey(String key);
 
-    public void writeValue(String value);
+    public void writeValue(String value) throws IOException;
 
     public void flush();
 }

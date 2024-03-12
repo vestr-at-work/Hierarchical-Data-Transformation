@@ -1,11 +1,16 @@
+cz/cuni/mff/hdt/ur/Ur$Type.class
+cz/cuni/mff/hdt/ur/Ur.class
 cz/cuni/mff/hdt/sink/csv/CsvSink.class
 cz/cuni/mff/hdt/source/ArrayReference.class
 cz/cuni/mff/hdt/source/ValueReference.class
 cz/cuni/mff/hdt/source/Reference.class
+cz/cuni/mff/hdt/source/PropertySource.class
+cz/cuni/mff/hdt/sink/csv/CsvSink$State.class
+cz/cuni/mff/hdt/sink/csv/CsvSink$1.class
 cz/cuni/mff/hdt/source/ArraySource.class
 cz/cuni/mff/hdt/source/EntityReference.class
 cz/cuni/mff/hdt/program/Program.class
 cz/cuni/mff/hdt/sink/Sink.class
 cz/cuni/mff/hdt/source/EntitySource.class
-cz/cuni/mff/hdt/source/PropertySource.class
 cz/cuni/mff/hdt/source/DocumentSource.class
+cz/cuni/mff/hdt/sink/csv/CsvSink$Token.class
