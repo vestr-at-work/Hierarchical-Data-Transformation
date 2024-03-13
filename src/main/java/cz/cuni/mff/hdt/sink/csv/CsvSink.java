@@ -13,12 +13,16 @@ public class CsvSink implements Sink {
     private enum State { Outside, InHeader, InRows };
     private enum Token { Unknown, Type, Value };
 
+    private final Integer _ROWS_BASE_INDENTATION = 2;
+    private final Integer _HEADER_BASE_INDENTATION = 1;
+
     private Writer _writer;
     private String _key = null;
     private Ur.Type _type = null;
     private Integer _column = 0;
     private State _state = State.Outside;
-    private Boolean _firstValue = true;
+    private Boolean _nextValueFirstInRow = true;
+    private Boolean _firstRowInFile = true;
     private Integer _objectIndentationLevel = 0;
     private Token _nextValue = Token.Unknown;
 
@@ -34,14 +38,23 @@ public class CsvSink implements Sink {
     @Override
     public void closeObject() {
         _objectIndentationLevel--;
+        if (_state == State.InRows && _objectIndentationLevel == _ROWS_BASE_INDENTATION) {
+            _nextValueFirstInRow = true;
+        }
+        if (_state == State.InHeader && _objectIndentationLevel == _HEADER_BASE_INDENTATION) {
+            _nextValueFirstInRow = true;
+            _firstRowInFile = false;
+        }
     }
 
     @Override
     public void openArray() {
         if (_key.equals(Ur.KEY_CSV_HEADER)) {
+            _nextValueFirstInRow = true;
             _state = State.InHeader;
         }
         else if (_key.equals(Ur.KEY_CSV_HEADER)) {
+            _nextValueFirstInRow = true;
             _state = State.InRows;
         }
         else if (_key.equals(Ur.KEY_TYPE)) {
@@ -53,9 +66,7 @@ public class CsvSink implements Sink {
     }
 
     @Override
-    public void closeArray() {
-
-    }
+    public void closeArray() {}
 
     @Override
     public void setNextKey(String key) {
@@ -70,6 +81,7 @@ public class CsvSink implements Sink {
                 break;
             case Value:
                 writeValueToken(value);
+                _nextValueFirstInRow = false;
                 _type = null;
                 _nextValue = Token.Unknown;
                 break;
@@ -116,8 +128,13 @@ public class CsvSink implements Sink {
     }
 
     private void writeSeparator() throws IOException {
-        //TODO dummpy implementation
-        _writer.write(",");
+        if (!_nextValueFirstInRow) {
+            _writer.write(",");
+            return;
+        }
+        if (!_firstRowInFile) {
+            _writer.write("\n");
+        }
     }
 
     private void writeBoolean(String value) throws IOException {

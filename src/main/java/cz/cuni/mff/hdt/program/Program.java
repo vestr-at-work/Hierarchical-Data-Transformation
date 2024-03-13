@@ -11,6 +11,7 @@ public class Program {
 
         try {
             sink.openObject();
+            // header
             sink.setNextKey("@header");
             sink.openArray();
             sink.openObject();
@@ -33,6 +34,40 @@ public class Program {
             sink.closeArray();
             sink.closeObject();
             sink.closeArray();
+            sink.closeObject();
+            // row
+            sink.setNextKey("@header");
+            sink.openArray();
+            sink.openObject();
+            sink.setNextKey("@type");
+            sink.openArray();
+            sink.writeValue("array");
+            sink.closeArray();
+            sink.setNextKey("0");
+            sink.openArray();
+            sink.openObject();
+            sink.setNextKey("@type");
+            sink.openArray();
+            sink.writeValue("object");
+            sink.closeArray();
+            sink.setNextKey("name");
+            sink.openArray();
+            sink.openObject();
+            sink.setNextKey("@type");
+            sink.openArray();
+            sink.writeValue("string");
+            sink.closeArray();
+            sink.setNextKey("@value");
+            sink.openArray();
+            sink.writeValue("Ailish");
+            sink.closeArray();
+            sink.closeObject();
+            sink.closeArray();
+            sink.closeObject();
+            sink.closeArray();
+            sink.closeObject();
+            sink.closeArray();
+
             sink.closeObject();
             sink.flush();
         }
