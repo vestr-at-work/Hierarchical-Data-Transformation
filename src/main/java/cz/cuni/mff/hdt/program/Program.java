@@ -8,7 +8,7 @@ public class Program {
         //System.out.println("Hello world!");
 
         var writer = new StringWriter();
-        var sink = new JsonSink(writer, false);
+        var sink = new JsonSink(writer, true);
 
         try {
             sink.openObject();
@@ -44,6 +44,19 @@ public class Program {
             sink.setNextKey("@type");
             sink.openArray();
             sink.writeValue("object");
+            sink.closeArray();
+            sink.setNextKey("age");
+            sink.openArray();
+            sink.openObject();
+            sink.setNextKey("@type");
+            sink.openArray();
+            sink.writeValue("number");
+            sink.closeArray();
+            sink.setNextKey("@value");
+            sink.openArray();
+            sink.writeValue("18");
+            sink.closeArray();
+            sink.closeObject();
             sink.closeArray();
             sink.setNextKey("age");
             sink.openArray();

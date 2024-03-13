@@ -35,6 +35,8 @@ public class JsonSink extends UrSink {
     private Token _nextValue = Token.Unknown;
     private Stack<StateHolder> _nesting = new Stack<StateHolder>();
     private Boolean _prettyPrint;
+    private StringBuilder _indentationPrefix = new StringBuilder();
+    private Boolean _afterKey = false;
 
     public JsonSink(Writer writer, Boolean prettyPrint) {
         _writer = writer;
@@ -80,9 +82,13 @@ public class JsonSink extends UrSink {
     }
 
     private void writeKey() throws IOException {
+        if (_key == null) {
+            return;
+        }
         writeSeparator();
         writeString(_key);
         _writer.write(":");
+        _afterKey = true;
     }
 
     // TODO should be somewhere else
@@ -130,12 +136,12 @@ public class JsonSink extends UrSink {
                 _nesting.push(new StateHolder(State.InValue));
                 break;
             case Object:
-                _nesting.push(new StateHolder(State.InObject));
                 writeOpenObject();
+                _nesting.push(new StateHolder(State.InObject));
                 break;
             case Array:
-                _nesting.push(new StateHolder(State.InArray));
                 writeOpenArray();
+                _nesting.push(new StateHolder(State.InArray));
                 break;
             default:
                 // impossible
@@ -143,22 +149,22 @@ public class JsonSink extends UrSink {
     }
 
     private void writeOpenObject() throws IOException {
-        // TODO add pretty print
+        writeSeparator();
         _writer.write("{");
     }
 
     private void writeOpenArray() throws IOException {
-        // TODO add pretty print
+        writeSeparator();
         _writer.write("[");
     }
 
     private void writeCloseObject() throws IOException {
-        // TODO add pretty print
+        writeNextLine();
         _writer.write("}");
     }
 
     private void writeCloseArray() throws IOException {
-        // TODO add pretty print
+        writeNextLine();
         _writer.write("]");
     }
 
@@ -183,13 +189,18 @@ public class JsonSink extends UrSink {
         if (stateHolder.state == State.Unknown) {
             return;
         }
-        if (stateHolder.writeSeparator) {
+        if (stateHolder.writeSeparator && !_afterKey) {
             _writer.write(",");
         }
+        writeNextLine();
+        stateHolder.writeSeparator = true;
+        _afterKey = false;
+    }
+
+    private void writeNextLine() throws IOException {
         if (_prettyPrint) {
             _writer.write("\n");
         }
-        stateHolder.writeSeparator = true;
     }
 
 
