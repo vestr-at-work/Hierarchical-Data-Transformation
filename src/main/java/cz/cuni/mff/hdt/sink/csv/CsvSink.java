@@ -18,7 +18,6 @@ public class CsvSink extends UrSink {
 
     private String _key = null;
     private Ur.Type _type = null;
-    private Integer _column = 0;
     private State _state = State.Outside;
     private Boolean _nextValueFirstInRow = true;
     private Boolean _firstRowInFile = true;
@@ -30,12 +29,12 @@ public class CsvSink extends UrSink {
     }
 
     @Override
-    public void openObject() {
+    public void openObject() throws IOException {
         _objectIndentationLevel++;
     }
 
     @Override
-    public void closeObject() {
+    public void closeObject() throws IOException {
         _objectIndentationLevel--;
         if (_state == State.InRows && _objectIndentationLevel == _ROWS_BASE_INDENTATION) {
             _nextValueFirstInRow = true;
@@ -47,7 +46,7 @@ public class CsvSink extends UrSink {
     }
 
     @Override
-    public void openArray() {
+    public void openArray() throws IOException {
         if (_key.equals(Ur.KEY_CSV_HEADER)) {
             _nextValueFirstInRow = true;
             _state = State.InHeader;
@@ -65,10 +64,10 @@ public class CsvSink extends UrSink {
     }
 
     @Override
-    public void closeArray() {}
+    public void closeArray() throws IOException {}
 
     @Override
-    public void setNextKey(String key) {
+    public void setNextKey(String key) throws IOException {
         _key = key;
     }
 

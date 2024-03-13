@@ -3,15 +3,15 @@ package cz.cuni.mff.hdt.sink;
 import java.io.IOException;
 
 public interface Sink {
-    public void openObject();
+    public void openObject() throws IOException;
 
-    public void closeObject();
+    public void closeObject() throws IOException;
 
-    public void openArray();
+    public void openArray() throws IOException;
 
-    public void closeArray();
+    public void closeArray() throws IOException;
 
-    public void setNextKey(String key);
+    public void setNextKey(String key) throws IOException;
 
     public void writeValue(String value) throws IOException;
 

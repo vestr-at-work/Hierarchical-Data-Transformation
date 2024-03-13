@@ -5,70 +5,104 @@ import cz.cuni.mff.hdt.ur.Ur;
 
 import java.io.Writer;
 import java.io.IOException;
+import java.util.Stack;
 
 /**
  * JSON format specific implementation of Sink.
  */
 public class JsonSink extends UrSink {
-    private enum State { Outside, InHeader, InRows };
-    private enum Token { Unknown, Type, Value };
+    private enum State {
+        Unknown,
+        InObject,
+        InArray,
+        InValue;
+    }
 
-    private final Integer _ROWS_BASE_INDENTATION = 2;
-    private final Integer _HEADER_BASE_INDENTATION = 1;
+    private class StateHolder {
+        public State state;
+        public Boolean writeSeparator = false;
+
+        public StateHolder(State state) {
+            this.state = state;
+        }
+    }
+
+    private enum Token { Unknown, Type, Value }
 
     private String _key = null;
     private Ur.Type _type = null;
-    private Integer _column = 0;
-    private State _state = State.Outside;
-    private Boolean _nextValueFirstInRow = true;
-    private Boolean _firstRowInFile = true;
-    private Integer _objectIndentationLevel = 0;
+    private State _state = State.Unknown;
     private Token _nextValue = Token.Unknown;
+    private Stack<StateHolder> _nesting = new Stack<StateHolder>();
+    private Boolean _prettyPrint;
+
+    public JsonSink(Writer writer, Boolean prettyPrint) {
+        _writer = writer;
+        _prettyPrint = prettyPrint;
+        _nesting.push(new StateHolder(State.Unknown));
+    }
 
     public JsonSink(Writer writer) {
-        _writer = writer;
+        this(writer, false);
     }
 
     @Override
-    public void openObject() {
-        _objectIndentationLevel++;
+    public void openObject() throws IOException {}
+
+    @Override
+    public void closeObject() throws IOException {
+        var stateToBeClosed = _nesting.pop().state;
+        switch (stateToBeClosed) {
+            case InObject:
+                writeCloseObject();
+                break;
+            case InArray:
+                writeCloseArray();
+                break;
+            default:
+        }
     }
 
     @Override
-    public void closeObject() {
-        _objectIndentationLevel--;
-        if (_state == State.InRows && _objectIndentationLevel == _ROWS_BASE_INDENTATION) {
-            _nextValueFirstInRow = true;
-        }
-        if (_state == State.InHeader && _objectIndentationLevel == _HEADER_BASE_INDENTATION) {
-            _nextValueFirstInRow = true;
-            _firstRowInFile = false;
-        }
-    }
-
-    @Override
-    public void openArray() {
-        if (_key.equals(Ur.KEY_CSV_HEADER)) {
-            _nextValueFirstInRow = true;
-            _state = State.InHeader;
-        }
-        else if (_key.equals(Ur.KEY_CSV_HEADER)) {
-            _nextValueFirstInRow = true;
-            _state = State.InRows;
-        }
-        else if (_key.equals(Ur.KEY_TYPE)) {
+    public void openArray() throws IOException {
+        if (_key.equals(Ur.KEY_TYPE)) {
             _nextValue = Token.Type;
         }
         else if (_key.equals(Ur.KEY_VALUE)) {
             _nextValue = Token.Value;
         }
+        else if (isNumeric(_key) && _nesting.peek().state == State.InArray) {
+            // TODO dont write it but act accordingly
+        }
+        else {
+            writeKey();
+        }
+    }
+
+    private void writeKey() throws IOException {
+        writeSeparator();
+        writeString(_key);
+        _writer.write(":");
+    }
+
+    // TODO should be somewhere else
+    private static boolean isNumeric(String strNum) {
+        if (strNum == null) {
+            return false;
+        }
+        try {
+            int d = Integer.parseInt(strNum);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
     }
 
     @Override
-    public void closeArray() {}
+    public void closeArray() throws IOException {}
 
     @Override
-    public void setNextKey(String key) {
+    public void setNextKey(String key) throws IOException {
         _key = key;
     }
 
@@ -77,10 +111,10 @@ public class JsonSink extends UrSink {
         switch (_nextValue) {
             case Type:
                 _type = getType(value);
+                updateOnNewType();
                 break;
             case Value:
                 writeValueToken(value);
-                _nextValueFirstInRow = false;
                 _type = null;
                 _nextValue = Token.Unknown;
                 break;
@@ -88,8 +122,47 @@ public class JsonSink extends UrSink {
         }
     }
 
+    private void updateOnNewType() throws IOException {
+        switch (_type) {
+            case String:
+            case Number:
+            case Boolean:
+                _nesting.push(new StateHolder(State.InValue));
+                break;
+            case Object:
+                _nesting.push(new StateHolder(State.InObject));
+                writeOpenObject();
+                break;
+            case Array:
+                _nesting.push(new StateHolder(State.InArray));
+                writeOpenArray();
+                break;
+            default:
+                // impossible
+        }
+    }
+
+    private void writeOpenObject() throws IOException {
+        // TODO add pretty print
+        _writer.write("{");
+    }
+
+    private void writeOpenArray() throws IOException {
+        // TODO add pretty print
+        _writer.write("[");
+    }
+
+    private void writeCloseObject() throws IOException {
+        // TODO add pretty print
+        _writer.write("}");
+    }
+
+    private void writeCloseArray() throws IOException {
+        // TODO add pretty print
+        _writer.write("]");
+    }
+
     private void writeValueToken(String value) throws IOException {
-        writeSeparator();
         switch(_type) {
             case String:
                 writeString(value);
@@ -106,13 +179,17 @@ public class JsonSink extends UrSink {
     }
 
     private void writeSeparator() throws IOException {
-        if (!_nextValueFirstInRow) {
-            _writer.write(",");
+        var stateHolder = _nesting.peek();
+        if (stateHolder.state == State.Unknown) {
             return;
         }
-        if (!_firstRowInFile) {
+        if (stateHolder.writeSeparator) {
+            _writer.write(",");
+        }
+        if (_prettyPrint) {
             _writer.write("\n");
         }
+        stateHolder.writeSeparator = true;
     }
 
 

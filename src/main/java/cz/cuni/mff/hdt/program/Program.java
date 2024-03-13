@@ -1,51 +1,18 @@
 package cz.cuni.mff.hdt.program;
 
-import cz.cuni.mff.hdt.sink.csv.CsvSink;
-import java.io.PrintWriter;
+import cz.cuni.mff.hdt.sink.json.*;
+import java.io.StringWriter;
 
 public class Program {
     public static void main(String[] args) {
-        System.out.println("Hello world!");
+        //System.out.println("Hello world!");
 
-        var sink = new CsvSink(new PrintWriter(System.out));
+        var writer = new StringWriter();
+        var sink = new JsonSink(writer, false);
 
         try {
             sink.openObject();
-            // header
-            sink.setNextKey("@header");
-            sink.openArray();
-            sink.openObject();
-            sink.setNextKey("@type");
-            sink.openArray();
-            sink.writeValue("array");
-            sink.closeArray();
-            sink.setNextKey("0");
-            sink.openArray();
-            sink.openObject();
-            sink.setNextKey("@type");
-            sink.openArray();
-            sink.writeValue("string");
-            sink.closeArray();
-            sink.setNextKey("@value");
-            sink.openArray();
-            sink.writeValue("name");
-            sink.closeArray();
-            sink.closeObject();
-            sink.closeArray();
-            sink.closeObject();
-            sink.closeArray();
-            sink.closeObject();
-            // row
-            sink.setNextKey("@header");
-            sink.openArray();
-            sink.openObject();
-            sink.setNextKey("@type");
-            sink.openArray();
-            sink.writeValue("array");
-            sink.closeArray();
-            sink.setNextKey("0");
-            sink.openArray();
-            sink.openObject();
+            // object
             sink.setNextKey("@type");
             sink.openArray();
             sink.writeValue("object");
@@ -63,6 +30,34 @@ public class Program {
             sink.closeArray();
             sink.closeObject();
             sink.closeArray();
+            // array
+            sink.setNextKey("details");
+            sink.openArray();
+            sink.openObject();
+            sink.setNextKey("@type");
+            sink.openArray();
+            sink.writeValue("array");
+            sink.closeArray();
+            sink.setNextKey("0");
+            sink.openArray();
+            sink.openObject();
+            sink.setNextKey("@type");
+            sink.openArray();
+            sink.writeValue("object");
+            sink.closeArray();
+            sink.setNextKey("age");
+            sink.openArray();
+            sink.openObject();
+            sink.setNextKey("@type");
+            sink.openArray();
+            sink.writeValue("number");
+            sink.closeArray();
+            sink.setNextKey("@value");
+            sink.openArray();
+            sink.writeValue("18");
+            sink.closeArray();
+            sink.closeObject();
+            sink.closeArray();
             sink.closeObject();
             sink.closeArray();
             sink.closeObject();
@@ -72,7 +67,9 @@ public class Program {
             sink.flush();
         }
         catch (Exception e) {
-            System.out.println(e);
+
         }
+        var result = writer.toString();
+        System.out.print(result);
     }
 }

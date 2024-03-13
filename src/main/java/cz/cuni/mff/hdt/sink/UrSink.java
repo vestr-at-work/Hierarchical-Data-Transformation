@@ -8,15 +8,15 @@ import java.io.IOException;
 public abstract class UrSink implements Sink {
     protected Writer _writer;
 
-    public abstract void openObject();
+    public abstract void openObject() throws IOException;
 
-    public abstract void closeObject();
+    public abstract void closeObject() throws IOException;
 
-    public abstract void openArray();
+    public abstract void openArray() throws IOException;
 
-    public abstract void closeArray();
+    public abstract void closeArray() throws IOException;
 
-    public abstract void setNextKey(String key);
+    public abstract void setNextKey(String key) throws IOException;
 
     public abstract void writeValue(String value) throws IOException;
 
