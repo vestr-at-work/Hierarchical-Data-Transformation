@@ -83,8 +83,6 @@ public class CsvSinkTest {
         }
         var result = writer.toString();
 
-        for (int i = 0; i < expectedResult.length(); i++) {
-            assertEquals(expectedResult.charAt(i), result.charAt(i));
-        }
+        assertEquals(expectedResult, result);
     }
 }
