@@ -86,6 +86,7 @@ public class JsonSink extends UrSink {
             return;
         }
         writeSeparator();
+        writeIndentation();
         writeString(_key);
         _writer.write(":");
         _afterKey = true;
@@ -128,6 +129,24 @@ public class JsonSink extends UrSink {
         }
     }
 
+    private void writeIndentation() throws IOException {
+        if (_prettyPrint) {
+            _writer.write(_indentationPrefix.toString());
+        }
+    }
+
+    private void increaseIndentation() {
+        if (_prettyPrint) {
+            _indentationPrefix.append("  ");
+        }
+    }
+
+    private void decreaseIndentation() {
+        if (_prettyPrint) {
+            _indentationPrefix.setLength(_indentationPrefix.length() - 2);
+        }
+    }
+
     private void updateOnNewType() throws IOException {
         switch (_type) {
             case String:
@@ -150,21 +169,29 @@ public class JsonSink extends UrSink {
 
     private void writeOpenObject() throws IOException {
         writeSeparator();
+        writeIndentation();
         _writer.write("{");
+        increaseIndentation();
     }
 
     private void writeOpenArray() throws IOException {
         writeSeparator();
+        writeIndentation();
         _writer.write("[");
+        increaseIndentation();
     }
 
     private void writeCloseObject() throws IOException {
         writeNextLine();
+        decreaseIndentation();
+        writeIndentation();
         _writer.write("}");
     }
 
     private void writeCloseArray() throws IOException {
         writeNextLine();
+        decreaseIndentation();
+        writeIndentation();
         _writer.write("]");
     }
 
@@ -182,6 +209,7 @@ public class JsonSink extends UrSink {
             default:
                 throw new IOException("Can not write value \"" + value + "\"" + " without a set type");
         }
+        _afterKey = false;
     }
 
     private void writeSeparator() throws IOException {
