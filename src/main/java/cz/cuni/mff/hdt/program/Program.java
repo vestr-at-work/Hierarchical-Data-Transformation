@@ -41,8 +41,46 @@ public class Program {
             sink.writeValue("Ailish");
             sink.closeArray();
             sink.closeObject();
+
+            sink.setNextKey("list");
+            sink.openArray();
+            sink.openObject();
+            sink.setNextKey("@type");
+            sink.openArray();
+            sink.writeValue("object");
+            sink.closeArray();
+
+            sink.setNextKey("@1:item");
+            sink.openArray();
+            sink.openObject();
+            sink.setNextKey("@type");
+            sink.openArray();
+            sink.writeValue("string");
+            sink.closeArray();
+            sink.setNextKey("@value");
+            sink.openArray();
+            sink.writeValue("apple");
             sink.closeArray();
             sink.closeObject();
+
+            sink.setNextKey("@2:item");
+            sink.openArray();
+            sink.openObject();
+            sink.setNextKey("@type");
+            sink.openArray();
+            sink.writeValue("string");
+            sink.closeArray();
+            sink.setNextKey("@value");
+            sink.openArray();
+            sink.writeValue("pear");
+            sink.closeArray();
+            sink.closeObject();
+
+            sink.closeArray();
+            sink.closeObject();
+            sink.closeArray();
+            sink.closeObject();
+
             sink.closeArray();
             sink.closeObject();
 

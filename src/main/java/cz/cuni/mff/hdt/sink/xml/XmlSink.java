@@ -40,6 +40,7 @@ public class XmlSink extends UrSink {
     private Boolean _prettyPrint;
     private StringBuilder _indentationPrefix = new StringBuilder();
     private Boolean _firstDocumentElement = true;
+    private Boolean _lastTagEndTag = false;
 
     public XmlSink(Writer writer, Boolean prettyPrint) {
         _writer = writer;
@@ -65,6 +66,7 @@ public class XmlSink extends UrSink {
         _writer.write("</");
         writeString(toBeClosed.tag);
         _writer.write(">");
+        _lastTagEndTag = true;
     }
 
     @Override
@@ -81,8 +83,11 @@ public class XmlSink extends UrSink {
         else if (_key.equals(Ur.KEY_XML_ENCODING)) {
             _nextValue = Token.EncodingValue;
         }
-        else if (isNumeric(_key) && _nesting.peek().state == State.InArray) {
-            // TODO dont write it but act accordingly
+        // if key is Ur XML list key e.g. "@2:item"
+        else if (_key.split(":")[0].charAt(0) == '@' && isNumeric(_key.split(":")[0].substring(1))) {
+            _key = _key.split(":")[1];
+            _lastNonTypeKey = _key;
+            writeKey();
         }
         else {
 
@@ -95,14 +100,17 @@ public class XmlSink extends UrSink {
             return;
         }
         if (!_firstDocumentElement) {
-            _writer.write(">");
+            if (!_lastTagEndTag) {
+                _writer.write(">");
+                increaseIndentation();
+            }
             writeNextLine();
-            increaseIndentation();
         }
         _firstDocumentElement = false;
         writeIndentation();
         _writer.write("<");
         writeString(_key);
+        _lastTagEndTag = false;
     }
 
     // TODO should be somewhere else
@@ -161,7 +169,8 @@ public class XmlSink extends UrSink {
     }
 
     private void writeEncoding(String encoding) throws IOException {
-        _writer.write(" encoding=\"" + encoding + "\"?>\n");
+        _writer.write(" encoding=\"" + encoding + "\"?>");
+        writeNextLine();
     }
 
     private void writeIndentation() throws IOException {
@@ -215,6 +224,7 @@ public class XmlSink extends UrSink {
             default:
                 throw new IOException("Can not write value \"" + value + "\"" + " without a set type");
         }
+        _lastTagEndTag = false;
     }
 
     private void writeNextLine() throws IOException {
