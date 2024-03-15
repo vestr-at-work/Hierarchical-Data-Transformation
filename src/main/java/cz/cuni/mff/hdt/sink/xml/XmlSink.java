@@ -29,7 +29,7 @@ public class XmlSink extends UrSink {
         }
     }
 
-    private enum Token { Unknown, Type, Value }
+    private enum Token { Unknown, Type, Value, VersionValue, EncodingValue }
 
     private String _key = null;
     private String _lastNonTypeKey = null;
@@ -74,6 +74,12 @@ public class XmlSink extends UrSink {
         }
         else if (_key.equals(Ur.KEY_VALUE)) {
             _nextValue = Token.Value;
+        }
+        else if (_key.equals(Ur.KEY_XML_VERSION)) {
+            _nextValue = Token.VersionValue;
+        }
+        else if (_key.equals(Ur.KEY_XML_ENCODING)) {
+            _nextValue = Token.EncodingValue;
         }
         else if (isNumeric(_key) && _nesting.peek().state == State.InArray) {
             // TODO dont write it but act accordingly
@@ -135,8 +141,27 @@ public class XmlSink extends UrSink {
                 _type = null;
                 _nextValue = Token.Unknown;
                 break;
+            case VersionValue:
+                writeVersion(value);
+                _type = null;
+                _nextValue = Token.Unknown;
+                break;
+            case EncodingValue:
+                writeEncoding(value);
+                _type = null;
+                _nextValue = Token.Unknown;
+                break;
             default:
         }
+    }
+
+    private void writeVersion(String version) throws IOException {
+        _writer.write("<?xml");
+        _writer.write(" version=\"" + version + "\"");
+    }
+
+    private void writeEncoding(String encoding) throws IOException {
+        _writer.write(" encoding=\"" + encoding + "\"?>\n");
     }
 
     private void writeIndentation() throws IOException {

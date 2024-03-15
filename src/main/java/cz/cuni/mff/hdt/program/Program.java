@@ -12,7 +12,16 @@ public class Program {
 
         try {
             sink.openObject();
-            // header
+
+            sink.setNextKey("@version");
+            sink.openArray();
+            sink.writeValue("1.0");
+            sink.closeArray();
+            sink.setNextKey("@encoding");
+            sink.openArray();
+            sink.writeValue("UTF-8");
+            sink.closeArray();
+
             sink.setNextKey("person");
             sink.openArray();
             sink.openObject();
