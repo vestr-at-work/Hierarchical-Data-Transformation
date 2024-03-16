@@ -25,6 +25,26 @@ public class Program {
             sink.setNextKey("person");
             sink.openArray();
             sink.openObject();
+
+            sink.setNextKey("@attributes");
+            sink.openArray();
+            sink.openObject();
+            sink.setNextKey("xml:lang");
+            sink.openArray();
+            sink.openObject();
+            sink.setNextKey("@type");
+            sink.openArray();
+            sink.writeValue("string");
+            sink.closeArray();
+            sink.setNextKey("@value");
+            sink.openArray();
+            sink.writeValue("en");
+            sink.closeArray();
+            sink.closeObject();
+            sink.closeArray();
+            sink.closeObject();
+            sink.closeArray();
+
             sink.setNextKey("@type");
             sink.openArray();
             sink.writeValue("object");
@@ -88,7 +108,7 @@ public class Program {
             sink.flush();
         }
         catch (Exception e) {
-
+            System.out.println(e);
         }
         var result = writer.toString();
         System.out.print(result);
