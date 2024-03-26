@@ -10,7 +10,7 @@ import java.io.IOException;
  * CSV format specific implementation of Sink.
  */
 public class CsvSink extends UrSink {
-    private enum State { Outside, InHeader, InRows };
+    private enum State { Unknown, InHeader, InRows };
     private enum Token { Unknown, Type, Value };
 
     private final Integer _ROWS_BASE_INDENTATION = 2;
@@ -18,7 +18,7 @@ public class CsvSink extends UrSink {
 
     private String _key = null;
     private Ur.Type _type = null;
-    private State _state = State.Outside;
+    private State _state = State.Unknown;
     private Boolean _nextValueFirstInRow = true;
     private Boolean _firstRowInFile = true;
     private Integer _objectIndentationLevel = 0;
