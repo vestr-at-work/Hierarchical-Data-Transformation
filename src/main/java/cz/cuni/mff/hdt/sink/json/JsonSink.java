@@ -21,19 +21,20 @@ public class JsonSink extends UrSink {
     private class StateHolder {
         public State state;
         public Boolean writeSeparator = false;
+        public Ur.Type type;
 
-        public StateHolder(State state) {
+        public StateHolder(State state, Ur.Type type) {
             this.state = state;
+            this.type = type;
         }
     }
 
     private enum Token { Unknown, Type, Value }
 
     private String _key = null;
-    private Ur.Type _type = null;
-    private State _state = State.Unknown;
     private Token _nextValue = Token.Unknown;
     private Stack<StateHolder> _nesting = new Stack<StateHolder>();
+    
     private Boolean _prettyPrint;
     private StringBuilder _indentationPrefix = new StringBuilder();
     private Boolean _afterKey = false;
@@ -41,7 +42,7 @@ public class JsonSink extends UrSink {
     public JsonSink(Writer writer, Boolean prettyPrint) {
         _writer = writer;
         _prettyPrint = prettyPrint;
-        _nesting.push(new StateHolder(State.Unknown));
+        _nesting.push(new StateHolder(State.Unknown, null));
     }
 
     public JsonSink(Writer writer) {
@@ -117,12 +118,10 @@ public class JsonSink extends UrSink {
     public void writeValue(String value) throws IOException {
         switch (_nextValue) {
             case Type:
-                _type = getType(value);
-                updateOnNewType();
+                updateOnNewType(getType(value));
                 break;
             case Value:
                 writeValueToken(value);
-                _type = null;
                 _nextValue = Token.Unknown;
                 break;
             default:
@@ -147,20 +146,20 @@ public class JsonSink extends UrSink {
         }
     }
 
-    private void updateOnNewType() throws IOException {
-        switch (_type) {
+    private void updateOnNewType(Ur.Type type) throws IOException {
+        switch (type) {
             case String:
             case Number:
             case Boolean:
-                _nesting.push(new StateHolder(State.InValue));
+                _nesting.push(new StateHolder(State.InValue, type));
                 break;
             case Object:
                 writeOpenObject();
-                _nesting.push(new StateHolder(State.InObject));
+                _nesting.push(new StateHolder(State.InObject, type));
                 break;
             case Array:
                 writeOpenArray();
-                _nesting.push(new StateHolder(State.InArray));
+                _nesting.push(new StateHolder(State.InArray, type));
                 break;
             default:
                 // impossible
@@ -196,7 +195,7 @@ public class JsonSink extends UrSink {
     }
 
     private void writeValueToken(String value) throws IOException {
-        switch(_type) {
+        switch(_nesting.peek().type) {
             case String:
                 writeString(value);
                 break;
