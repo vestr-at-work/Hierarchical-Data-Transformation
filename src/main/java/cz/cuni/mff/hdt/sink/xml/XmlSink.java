@@ -20,12 +20,14 @@ public class XmlSink extends UrSink {
 
     private class StateHolder {
         public State state;
-        public Boolean writeSeparator = false;
+        public Ur.Type type;
         public String tag;
+        public Boolean writeSeparator = false;
 
-        public StateHolder(State state, String tag) {
-            this.tag = tag;
+        public StateHolder(State state, Ur.Type type, String tag) {
             this.state = state;
+            this.type = type;
+            this.tag = tag;
         }
     }
 
@@ -33,10 +35,10 @@ public class XmlSink extends UrSink {
 
     private String _key = null;
     private String _lastNonControlKey = null;
-    private Ur.Type _type = null;
     private State _state = State.Unknown;
     private Token _nextValue = Token.Unknown;
     private Stack<StateHolder> _nesting = new Stack<StateHolder>();
+    
     private Boolean _prettyPrint;
     private StringBuilder _indentationPrefix = new StringBuilder();
     private Boolean _firstDocumentElement = true;
@@ -60,23 +62,23 @@ public class XmlSink extends UrSink {
             return;
         }
         var toBeClosed = _nesting.pop();
-        switch (toBeClosed.state) {
-            case InAttributes:
-                _lastNonControlKey = toBeClosed.tag;
-                break;
-            case InValue:
-                if (_nesting.peek().state == State.InAttributes) {
-                    return;
-                }
-            default:
-                writeNextLine();
-                decreaseIndentation();
-                writeIndentation();
-                _writer.write("</");
-                writeString(toBeClosed.tag);
-                _writer.write(">");
-                _lastTagEndTag = true;
+        if (toBeClosed.state == State.InAttributes) {
+            _lastNonControlKey = toBeClosed.tag;
+            return;
         }
+
+        if (toBeClosed.state == State.InValue
+            && _nesting.peek().state == State.InAttributes) {
+            return;
+        }
+
+        writeNextLine();
+        decreaseIndentation();
+        writeIndentation();
+        _writer.write("</");
+        writeString(toBeClosed.tag);
+        _writer.write(">");
+        _lastTagEndTag = true;
     }
 
     @Override
@@ -88,7 +90,7 @@ public class XmlSink extends UrSink {
             _nextValue = Token.Value;
         }
         else if (_key.equals(Ur.KEY_XML_ATTRIBUTES)) {
-            _nesting.push(new StateHolder(State.InAttributes, _lastNonControlKey));
+            _nesting.push(new StateHolder(State.InAttributes, null, _lastNonControlKey));
         }
         else if (_key.equals(Ur.KEY_XML_VERSION)) {
             _nextValue = Token.VersionValue;
@@ -162,20 +164,17 @@ public class XmlSink extends UrSink {
     public void writeValue(String value) throws IOException {
         switch (_nextValue) {
             case Type:
-                _type = getType(value);
-                updateOnNewType();
+                updateOnNewType(getType(value));
                 break;
             case Value:
                 processValueToken(value);
                 break;
             case VersionValue:
                 writeVersion(value);
-                _type = null;
                 _nextValue = Token.Unknown;
                 break;
             case EncodingValue:
                 writeEncoding(value);
-                _type = null;
                 _nextValue = Token.Unknown;
                 break;
             default:
@@ -184,33 +183,31 @@ public class XmlSink extends UrSink {
 
     private void processValueToken(String value) throws IOException {
         var lastStateHolder = _nesting.pop();
-        if (!_nesting.empty() && _nesting.peek().state == State.InAttributes) {
-            writeAttributeValueToken(value);
-        }
-        else  {
-            writeValueToken(value);
-        }
+        boolean valueIsAttribute = !_nesting.empty() && _nesting.peek().state == State.InAttributes;
         _nesting.push(lastStateHolder);
-        _type = null;
         _nextValue = Token.Unknown;
+
+        if (valueIsAttribute) {
+            writeAttributeValueToken(value);
+            return;
+        }
+        
+        writeValueToken(value);
     }
 
     private void writeAttributeValueToken(String value) throws IOException {
         _writer.write("\"");
-        switch(_type) {
-            case String:
-                writeString(value);
-                break;
-            case Number:
-                writeNumber(value);
-                break;
-            case Boolean:
-                writeBoolean(value);
-                break;
-            default:
-                throw new IOException("Can not write value \"" + value + "\"" + " without a set type");
-        }
+        writeBareValueToken(value);
         _writer.write("\"");
+    }
+
+    private void writeValueToken(String value) throws IOException {
+        _writer.write(">");
+        writeNextLine();
+        increaseIndentation();
+        writeIndentation();
+        writeBareValueToken(value);
+        _lastTagEndTag = false;
     }
 
     private void writeVersion(String version) throws IOException {
@@ -241,27 +238,23 @@ public class XmlSink extends UrSink {
         }
     }
 
-    private void updateOnNewType() throws IOException {
-        switch (_type) {
+    private void updateOnNewType(Ur.Type type) throws IOException {
+        switch (type) {
             case String:
             case Number:
             case Boolean:
-                _nesting.push(new StateHolder(State.InValue, _lastNonControlKey));
+                _nesting.push(new StateHolder(State.InValue, type, _lastNonControlKey));
                 break;
             case Object:
-                _nesting.push(new StateHolder(State.InObject, _lastNonControlKey));
+                _nesting.push(new StateHolder(State.InObject, type, _lastNonControlKey));
                 break;
             default:
                 // impossible
         }
     }
 
-    private void writeValueToken(String value) throws IOException {
-        _writer.write(">");
-        writeNextLine();
-        increaseIndentation();
-        writeIndentation();
-        switch(_type) {
+    private void writeBareValueToken(String value) throws IOException {
+        switch(_nesting.peek().type) {
             case String:
                 writeString(value);
                 break;
@@ -274,7 +267,6 @@ public class XmlSink extends UrSink {
             default:
                 throw new IOException("Can not write value \"" + value + "\"" + " without a set type");
         }
-        _lastTagEndTag = false;
     }
 
     private void writeNextLine() throws IOException {
