@@ -34,10 +34,11 @@ public class ValueShiftOperation implements Operation {
             String key = keysIterator.next();
             // if key named variable save it and somehow save this object with for repeat match
             
-            // if key == "@path" get the value from source and write value to SinkWriterAdapter 
-            Optional<String> path = TryGetPath(operationDefinition.get(key));
-            if (path.isPresent()) {
-                sinkWriterAdapter.write(path.get(), key);
+            Optional<String> pathInOutput = TryGetPath(operationDefinition.get(key));
+            if (pathInOutput.isPresent()) {
+                var parsedPath = getParsedPath(pathInOutput.get());
+                String value = getValueFromSource(inputSource);
+                sinkWriterAdapter.write(parsedPath, value);
             }
 
             // else walk the source aka get the key/key in position of variable from the source
@@ -51,6 +52,18 @@ public class ValueShiftOperation implements Operation {
         // TODO support named variables
 
         throw new UnsupportedOperationException("Unimplemented method 'execute'");
+    }
+
+    private String getValueFromSource(DocumentSource source) {
+        throw new UnsupportedOperationException("Unimplemented method 'getValueFromSource'");
+    }
+
+    private String getParsedPath(String pathFromInput) {
+        // TODO implement this function
+        // aka check for named variables 
+        // and replace them with values of that variables  
+
+        return pathFromInput;
     }
 
     /*
