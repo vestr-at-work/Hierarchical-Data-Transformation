@@ -8,12 +8,18 @@ public class Ur {
     public static final String KEY_XML_VERSION = "@version";
     public static final String KEY_XML_ENCODING = "@encoding";
     public static final String KEY_XML_ATTRIBUTES = "@attributes";
+    public static final String KEY_RDF_ID = "@id";
+    public static final String KEY_RDF_LANGUAGE = "@language";
 
     public static final String VALUE_OBJECT = "object";
     public static final String VALUE_ARRAY = "array";
     public static final String VALUE_STRING = "string";
     public static final String VALUE_NUMBER = "number";
     public static final String VALUE_BOOLEAN = "boolean";
+
+    public static final String VALUE_STRING_URI = "http://www.w3.org/2001/XMLSchema#string";
+    public static final String VALUE_INTEGER_URI = "http://www.w3.org/2001/XMLSchema#integer";
+    public static final String VALUE_BOOLEAN_URI = "http://www.w3.org/2001/XMLSchema#boolean";
 
     public static enum Type { Object, Array, String, Number, Boolean };
 }

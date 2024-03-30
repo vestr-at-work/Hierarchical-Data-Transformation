@@ -6,7 +6,7 @@ import cz.cuni.mff.hdt.sink.Sink;
 import cz.cuni.mff.hdt.source.DocumentSource;
 import cz.cuni.mff.hdt.source.Reference;
 
-public class SinkSourceAdapter implements Sink, DocumentSource{
+public class SinkSourceAdapter implements Sink, DocumentSource {
 
     @Override
     public Reference next() {

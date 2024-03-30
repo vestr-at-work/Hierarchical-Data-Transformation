@@ -5,10 +5,9 @@ import java.io.StringWriter;
 
 public class Program {
     public static void main(String[] args) {
-        //System.out.println("Hello world!");
 
         var writer = new StringWriter();
-        var sink = new XmlSink(writer, true);
+        var sink = new XmlSink(writer);
 
         try {
             sink.openObject();
@@ -22,33 +21,17 @@ public class Program {
             sink.writeValue("UTF-8");
             sink.closeArray();
 
+            // open person
             sink.setNextKey("person");
             sink.openArray();
             sink.openObject();
-
-            sink.setNextKey("@attributes");
-            sink.openArray();
-            sink.openObject();
-            sink.setNextKey("xml:lang");
-            sink.openArray();
-            sink.openObject();
-            sink.setNextKey("@type");
-            sink.openArray();
-            sink.writeValue("string");
-            sink.closeArray();
-            sink.setNextKey("@value");
-            sink.openArray();
-            sink.writeValue("en");
-            sink.closeArray();
-            sink.closeObject();
-            sink.closeArray();
-            sink.closeObject();
-            sink.closeArray();
 
             sink.setNextKey("@type");
             sink.openArray();
             sink.writeValue("object");
             sink.closeArray();
+
+            // name
             sink.setNextKey("name");
             sink.openArray();
             sink.openObject();
@@ -62,47 +45,9 @@ public class Program {
             sink.closeArray();
             sink.closeObject();
 
-            sink.setNextKey("list");
-            sink.openArray();
-            sink.openObject();
-            sink.setNextKey("@type");
-            sink.openArray();
-            sink.writeValue("object");
-            sink.closeArray();
-
-            sink.setNextKey("@1:item");
-            sink.openArray();
-            sink.openObject();
-            sink.setNextKey("@type");
-            sink.openArray();
-            sink.writeValue("string");
-            sink.closeArray();
-            sink.setNextKey("@value");
-            sink.openArray();
-            sink.writeValue("apple");
-            sink.closeArray();
-            sink.closeObject();
-
-            sink.setNextKey("@2:item");
-            sink.openArray();
-            sink.openObject();
-            sink.setNextKey("@type");
-            sink.openArray();
-            sink.writeValue("string");
-            sink.closeArray();
-            sink.setNextKey("@value");
-            sink.openArray();
-            sink.writeValue("pear");
-            sink.closeArray();
-            sink.closeObject();
-
-            sink.closeArray();
+            // close person
             sink.closeObject();
             sink.closeArray();
-            sink.closeObject();
-
-            sink.closeArray();
-            sink.closeObject();
 
             sink.closeObject();
             sink.flush();

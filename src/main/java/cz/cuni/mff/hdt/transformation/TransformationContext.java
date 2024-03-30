@@ -9,5 +9,5 @@ import cz.cuni.mff.hdt.source.DocumentSource;
 public record TransformationContext(
     DocumentSource inputSource,
     Sink outputSink,
-    TransformationFile transformationFile
+    TransformationDefinition transformationFile
 ) {}

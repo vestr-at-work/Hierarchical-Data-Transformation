@@ -1,2 +1,3 @@
 cz/cuni/mff/hdt/sink/json/JsonSinkTest.class
+cz/cuni/mff/hdt/sink/xml/XmlSinkTest.class
 cz/cuni/mff/hdt/sink/csv/CsvSinkTest.class

@@ -3,6 +3,7 @@ package cz.cuni.mff.hdt.transformation;
 import cz.cuni.mff.hdt.adapter.SinkSourceAdapter;
 import cz.cuni.mff.hdt.sink.Sink;
 import cz.cuni.mff.hdt.source.DocumentSource;
+import cz.cuni.mff.hdt.transformation.operations.OperationFailedException;
 
 /**
  * Core class for transformation of the hierarchical data 
@@ -20,12 +21,12 @@ public class Transformation {
      * Main public function for transforming the data
      */
     public void transform() throws OperationFailedException {
-        TransformationFile file = context.transformationFile(); 
+        TransformationDefinition definition = context.transformationFile(); 
 
-        for (int i = 0; i < file.operations.size(); i++) {
-            DocumentSource operationSource = getSource(i, file.operations.size());
-            Sink opertionSink = getSink(i, file.operations.size());
-            var operation = file.operations.get(i);
+        for (int i = 0; i < definition.operations.size(); i++) {
+            DocumentSource operationSource = getSource(i, definition.operations.size());
+            Sink opertionSink = getSink(i, definition.operations.size());
+            var operation = definition.operations.get(i);
 
             operation.execute(operationSource, opertionSink);
         }
