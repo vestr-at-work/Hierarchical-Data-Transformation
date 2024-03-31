@@ -5,11 +5,9 @@ import org.json.JSONObject;
 public class OperationVariable {
     public String Name;
     public String Value;
-    public JSONObject PositionInOperationDefinition;
 
-    public OperationVariable(String name, String value, JSONObject position) {
+    public OperationVariable(String name, String value) {
         Name = name;
         Value = value;
-        PositionInOperationDefinition = position;
     }
 }
