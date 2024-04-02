@@ -8,13 +8,16 @@ public interface EntitySource {
   public ArrayReference property(EntityReference reference, String property);
 
   /**
-   * Return reference to all parents who have given entity stored under given key.
-   */
-  public ArrayReference reverseProperty(Reference reference, String property);
-
-  /**
    * Return reference to all items, keys and values, in given entity.
    */
   public ArrayReference items(EntityReference reference);
+
+  /**
+   * Get ArraySource from ArrayReference.
+   * 
+   * @param referece ArrayReference from which we want to make the source.
+   * @return ArraySource from the given ArrayReference.
+   */
+  public ArraySource source(ArrayReference referece);
 
 }

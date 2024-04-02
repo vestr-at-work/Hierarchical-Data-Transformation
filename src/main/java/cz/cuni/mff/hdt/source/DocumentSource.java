@@ -7,4 +7,12 @@ public interface DocumentSource {
    */
   public Reference next();
 
+  /**
+   * Get EntitySource from EntityReference.
+   * 
+   * @param entityReferece EntityReference from which we want to make the source.
+   * @return EntitySource from the given EntityReference.
+   */
+  public EntitySource source(EntityReference entityReferece);
+
 }
