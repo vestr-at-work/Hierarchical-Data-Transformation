@@ -15,8 +15,6 @@ import cz.cuni.mff.hdt.transformation.operations.OperationFailedException;
 import java.io.IOException;
 import java.util.Optional;
 
-import javax.swing.text.html.Option;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -58,7 +56,7 @@ public class ValueShiftOperation implements Operation {
             transformEntity(source, entityRoot, sinkWriterAdapter, operationDefinition);
             return;
         }
-        // TODO maybe this is not needed since we can just sam 
+        // TODO maybe this is not needed since we can just support only object in root in Ur 
         if (root instanceof ArrayReference) {
             ArrayReference arrayRoot = (ArrayReference)root;
             ArraySource source = inputSource.getSourceFromReference(arrayRoot);
@@ -67,7 +65,7 @@ public class ValueShiftOperation implements Operation {
             return;
         }
         
-        // Anything else shouldn't be in root
+        // Anything else shouldn't be in the root
         throw new OperationFailedException("Wrong reference type in the root");
     }
 
@@ -120,11 +118,9 @@ public class ValueShiftOperation implements Operation {
         // TODO if there are more entities in the source than in the operation object there should be some kind of error
     }
 
-    private String getParsedPath(String pathFromInput) {
-        // TODO implement this function
-        // aka check for named variables 
-        // and replace them with values of that variables  
-
+    private String getParsedPath(String pathFromInput) { 
+        // this function should be extended for variables when added
+        // for now just return
         return pathFromInput;
     }
 
