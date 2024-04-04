@@ -18,6 +18,7 @@ import java.util.Optional;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONPointer;
 
 /**
  * Class implementing the value-shift operation from the transformational language
@@ -97,7 +98,12 @@ public class ValueShiftOperation implements Operation {
                 String value = valueSource.value(valueReference);
                 
                 var parsedPath = getParsedPath(pathInOutput);
-                sinkWriterAdapter.write(parsedPath, value);
+                try {
+                    sinkWriterAdapter.write(parsedPath, value);
+                }
+                catch (IOException e) {
+                    throw new OperationFailedException("Error occured when writing to sink");
+                }
             }
             else if (reference instanceof EntityReference) {
                 EntityReference entityReference = (EntityReference)reference;
@@ -118,10 +124,13 @@ public class ValueShiftOperation implements Operation {
         // TODO if there are more entities in the source than in the operation object there should be some kind of error
     }
 
-    private String getParsedPath(String pathFromInput) { 
-        // this function should be extended for variables when added
-        // for now just return
-        return pathFromInput;
+    private JSONPointer getParsedPath(String pathFromInput) throws OperationFailedException { 
+        try {
+            return new JSONPointer(pathFromInput);
+        }
+        catch (IllegalArgumentException e) {
+            throw new OperationFailedException("Incorrect JsonPointer '" + pathFromInput + "'");
+        }
     }
 
     /*
