@@ -18,6 +18,14 @@ public interface EntitySource {
    * @param referece ArrayReference from which we want to make the source.
    * @return ArraySource from the given ArrayReference.
    */
-  public ArraySource source(ArrayReference referece);
+  public ArraySource getSourceFromReference(ArrayReference referece);
+
+  /**
+   * Get EntitySource from EntityReference.
+   * 
+   * @param entityReferece EntityReference from which we want to make the source.
+   * @return EntitySource from the given EntityReference.
+   */
+  public EntitySource getSourceFromReference(EntityReference entityReferece);
 
 }

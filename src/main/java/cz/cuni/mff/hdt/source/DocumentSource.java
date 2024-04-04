@@ -13,6 +13,14 @@ public interface DocumentSource {
    * @param entityReferece EntityReference from which we want to make the source.
    * @return EntitySource from the given EntityReference.
    */
-  public EntitySource source(EntityReference entityReferece);
+  public EntitySource getSourceFromReference(EntityReference entityReferece);
+
+  /**
+   * Get ArraySource from ArrayReference.
+   * 
+   * @param referece ArrayReference from which we want to make the source.
+   * @return ArraySource from the given ArrayReference.
+   */
+  public ArraySource getSourceFromReference(ArrayReference referece);
 
 }

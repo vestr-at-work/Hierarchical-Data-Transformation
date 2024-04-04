@@ -12,4 +12,12 @@ public interface ArraySource {
    */
   public ArrayReference clone(ArrayReference reference);
 
+  /**
+   * Get ValueSource from ValueReference.
+   * 
+   * @param referece ValueReference from which we want to make the source.
+   * @return ValueSource from the given ValueReference.
+   */
+  public ValueSource getSourceFromReference(ValueReference referece);
+
 }

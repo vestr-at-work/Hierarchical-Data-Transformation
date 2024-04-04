@@ -2,7 +2,13 @@ package cz.cuni.mff.hdt.transformation.operations.valueshift;
 
 import cz.cuni.mff.hdt.adapter.SinkWriterAdapter;
 import cz.cuni.mff.hdt.sink.Sink;
+import cz.cuni.mff.hdt.source.ArrayReference;
+import cz.cuni.mff.hdt.source.ArraySource;
 import cz.cuni.mff.hdt.source.DocumentSource;
+import cz.cuni.mff.hdt.source.EntityReference;
+import cz.cuni.mff.hdt.source.EntitySource;
+import cz.cuni.mff.hdt.source.Reference;
+import cz.cuni.mff.hdt.source.ValueReference;
 import cz.cuni.mff.hdt.transformation.operations.Operation;
 import cz.cuni.mff.hdt.transformation.operations.OperationFailedException;
 
@@ -13,12 +19,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-/*
+/**
  * Class implementing the value-shift operation from the transformational language
  */
 public class ValueShiftOperation implements Operation {
     private JSONObject operationDefinition;
-    private SinkWriterAdapter sinkWriterAdapter;
 
     public ValueShiftOperation(String operationDefinitionString) throws IOException {
         try {
@@ -31,40 +36,87 @@ public class ValueShiftOperation implements Operation {
 
     @Override
     public void execute(DocumentSource inputSource, Sink outputSink) throws OperationFailedException {
-        sinkWriterAdapter = new SinkWriterAdapter(outputSink);
+        var sinkWriterAdapter = new SinkWriterAdapter(outputSink);
+        Reference root = inputSource.next();
 
-        for (var keysIterator = operationDefinition.keys(); keysIterator.hasNext();) {
-            String key = keysIterator.next();
-            
-            Optional<String> pathInOutput = TryGetPath(operationDefinition.get(key));
-            if (pathInOutput.isPresent()) {
-                var parsedPath = getParsedPath(pathInOutput.get());
-                String value = getValueFromSource(inputSource);
-                sinkWriterAdapter.write(parsedPath, value);
-            }
-
-            // else walk the source aka get the key/key in position of variable from the source
-            // and check that they are the same, if not throw exception
-            
-            // call recursive method
-
+        if (root == null) {
+            throw new OperationFailedException("No root in the source");
         }
 
-        // we have gone through all the keys in operation definition
-        // if the source is not at the end and we have no variables, throw exception
-        // else we iterate through source and try to match the variables
-
-        throw new UnsupportedOperationException("Unimplemented method 'execute'");
+        transformRoot(inputSource, root, sinkWriterAdapter);
     }
 
-    private Optional<String> getMatchingSourceKey() {
-        // TODO implement
-        throw new UnsupportedOperationException("Unimplemented method 'getMatchingSourceKey'");
+    private void transformRoot(DocumentSource inputSource, Reference root,
+            SinkWriterAdapter sinkWriterAdapter) throws OperationFailedException {
+        
+        if (root instanceof EntityReference) {
+            EntityReference entityRoot = (EntityReference)root;
+            EntitySource source = inputSource.getSourceFromReference(entityRoot);
+
+            transformEntity(source, entityRoot, sinkWriterAdapter, operationDefinition);
+            return;
+        }
+        if (root instanceof ArrayReference) {
+            ArrayReference arrayRoot = (ArrayReference)root;
+            ArraySource source = inputSource.getSourceFromReference(arrayRoot);
+
+            transformArray(source, arrayRoot, sinkWriterAdapter);
+            return;
+        }
+        
+        // Anything else shouldn't be in root
+        throw new OperationFailedException("Wrong reference type in the root");
     }
 
-    private String getValueFromSource(DocumentSource source) {
-        // TODO implement
-        throw new UnsupportedOperationException("Unimplemented method 'getValueFromSource'");
+    private void transformArray(ArraySource source, ArrayReference arrayRoot,
+            SinkWriterAdapter sinkWriterAdapter) throws OperationFailedException {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'transformArrayReference'");
+    }
+
+    private void transformEntity(EntitySource source, EntityReference entityRoot,
+            SinkWriterAdapter sinkWriterAdapter, JSONObject operationObject) throws OperationFailedException {
+        
+        for (var keysIterator = operationObject.keys(); keysIterator.hasNext();) {
+            String key = keysIterator.next();
+
+            ArrayReference item = source.property(entityRoot, key);
+            if (item == null) {
+                throw new OperationFailedException("Use of unexistant key \'" + key + "\' in operation");
+            }
+            var arraySource = source.getSourceFromReference(item);
+            var reference = arraySource.next(item);
+
+            if (reference instanceof ValueReference) {
+                Optional<String> pathInOutput = TryGetPath(operationObject.get(key));
+                if (pathInOutput.isEmpty()) {
+                    throw new OperationFailedException("Operation and source mismatch");
+                }
+                var valueReference = (ValueReference)reference;
+                var valueSource = arraySource.getSourceFromReference(valueReference);
+                String value = valueSource.value(valueReference);
+                
+                var parsedPath = getParsedPath(pathInOutput.get());
+                sinkWriterAdapter.write(parsedPath, value);
+            }
+            else if (reference instanceof EntityReference) {
+                EntityReference entityReference = (EntityReference)reference;
+                var entitySource = source.getSourceFromReference(entityReference);
+                
+                var newOperationObject = TryGetObject(operationObject.get(key));
+                if (newOperationObject.isEmpty()) {
+                    throw new OperationFailedException("Operation and source mismatch");
+                }
+
+                transformEntity(entitySource, entityReference, sinkWriterAdapter,  newOperationObject.get());
+            }
+            else {
+                // There should not be any array (or anything else) here
+                throw new OperationFailedException("Incorrect input from source");
+            }
+        }
+
+        // TODO if there are more entities in the source than in the operation object there should be some kind of error
     }
 
     private String getParsedPath(String pathFromInput) {
@@ -108,5 +160,20 @@ public class ValueShiftOperation implements Operation {
         }
         
         return Optional.of(pathValue);
+    }
+
+    private Optional<JSONObject> TryGetObject(Object value) {
+        if (!(value instanceof JSONArray)) {
+            return Optional.empty();
+        }
+        var array = (JSONArray)value;
+        if (array.length() != 1) {
+            return Optional.empty();
+        }
+        if (!(array.get(0) instanceof JSONObject)) {
+            return Optional.empty();
+        }
+
+        return Optional.of((JSONObject)array.get(0));
     }
 }

@@ -1,6 +1,6 @@
 package cz.cuni.mff.hdt.source;
 
-public interface PropertySource {
+public interface ValueSource {
 
   /**
    * Return string value of a referecne.
