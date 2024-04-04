@@ -15,6 +15,8 @@ import cz.cuni.mff.hdt.transformation.operations.OperationFailedException;
 import java.io.IOException;
 import java.util.Optional;
 
+import javax.swing.text.html.Option;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -88,7 +90,7 @@ public class ValueShiftOperation implements Operation {
             var reference = arraySource.next(item);
 
             if (reference instanceof ValueReference) {
-                Optional<String> pathInOutput = TryGetPath(operationObject.get(key));
+                Optional<String> pathInOutput = tryGetPath(operationObject.get(key));
                 if (pathInOutput.isEmpty()) {
                     throw new OperationFailedException("Operation and source mismatch");
                 }
@@ -103,7 +105,7 @@ public class ValueShiftOperation implements Operation {
                 EntityReference entityReference = (EntityReference)reference;
                 var entitySource = source.getSourceFromReference(entityReference);
                 
-                var newOperationObject = TryGetObject(operationObject.get(key));
+                var newOperationObject = tryGetObject(operationObject.get(key));
                 if (newOperationObject.isEmpty()) {
                     throw new OperationFailedException("Operation and source mismatch");
                 }
@@ -131,29 +133,23 @@ public class ValueShiftOperation implements Operation {
      * Checks if parameter is wrapped JSONArray with one JSONObject 
      * with one "@path" key and returns its value if true. 
      */
-    private Optional<String> TryGetPath(Object valueOfKey) {
-        if (!(valueOfKey instanceof JSONArray)) {
+    private Optional<String> tryGetPath(Object valueOfKey) {
+        Optional<JSONObject> possibleObjectInArray = tryGetObject(valueOfKey);
+        if (possibleObjectInArray.isEmpty()) {
             return Optional.empty();
         }
-        var keyArray = (JSONArray)valueOfKey;
-        if (keyArray.length() != 1) {
-            return Optional.empty();
-        }
-        if (!(keyArray.get(0) instanceof JSONObject)) {
-            return Optional.empty();
-        }
-        var keyObjectInArray = (JSONObject)keyArray.get(0);
-        var keysInObjectInArray = keyObjectInArray.keySet();
+        JSONObject objectInArray = possibleObjectInArray.get();
+        var keysInObjectInArray = objectInArray.keySet();
         if (keysInObjectInArray.size() != 1) {
             return Optional.empty();
         }
-        var possiblePathControlKey = keysInObjectInArray.iterator().next();
-        if (!possiblePathControlKey.equals("@path")) {
+        var pathControlKey = keysInObjectInArray.iterator().next();
+        if (!pathControlKey.equals("@path")) {
             return Optional.empty();
         }
         String pathValue;
         try {
-            pathValue = keyObjectInArray.getString(possiblePathControlKey);
+            pathValue = objectInArray.getString(pathControlKey);
         }
         catch (JSONException e) {
             return Optional.empty();
@@ -162,7 +158,7 @@ public class ValueShiftOperation implements Operation {
         return Optional.of(pathValue);
     }
 
-    private Optional<JSONObject> TryGetObject(Object value) {
+    private Optional<JSONObject> tryGetObject(Object value) {
         if (!(value instanceof JSONArray)) {
             return Optional.empty();
         }
