@@ -3,7 +3,11 @@ package cz.cuni.mff.hdt.adapter;
 import java.io.IOException;
 
 import cz.cuni.mff.hdt.sink.Sink;
+import cz.cuni.mff.hdt.source.ArrayReference;
+import cz.cuni.mff.hdt.source.ArraySource;
 import cz.cuni.mff.hdt.source.DocumentSource;
+import cz.cuni.mff.hdt.source.EntityReference;
+import cz.cuni.mff.hdt.source.EntitySource;
 import cz.cuni.mff.hdt.source.Reference;
 
 public class SinkSourceAdapter implements Sink, DocumentSource {
@@ -54,6 +58,18 @@ public class SinkSourceAdapter implements Sink, DocumentSource {
     public void flush() {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'flush'");
+    }
+
+    @Override
+    public EntitySource getSourceFromReference(EntityReference entityReferece) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getSourceFromReference'");
+    }
+
+    @Override
+    public ArraySource getSourceFromReference(ArrayReference referece) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getSourceFromReference'");
     }
     
 }
