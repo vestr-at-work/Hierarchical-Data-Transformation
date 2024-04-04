@@ -58,6 +58,7 @@ public class ValueShiftOperation implements Operation {
             transformEntity(source, entityRoot, sinkWriterAdapter, operationDefinition);
             return;
         }
+        // TODO maybe this is not needed since we can just sam 
         if (root instanceof ArrayReference) {
             ArrayReference arrayRoot = (ArrayReference)root;
             ArraySource source = inputSource.getSourceFromReference(arrayRoot);
@@ -90,27 +91,25 @@ public class ValueShiftOperation implements Operation {
             var reference = arraySource.next(item);
 
             if (reference instanceof ValueReference) {
-                Optional<String> pathInOutput = tryGetPath(operationObject.get(key));
-                if (pathInOutput.isEmpty()) {
+                String pathInOutput = tryGetPath(operationObject.get(key)).orElseThrow(() -> {
                     throw new OperationFailedException("Operation and source mismatch");
-                }
+                });
                 var valueReference = (ValueReference)reference;
                 var valueSource = arraySource.getSourceFromReference(valueReference);
                 String value = valueSource.value(valueReference);
                 
-                var parsedPath = getParsedPath(pathInOutput.get());
+                var parsedPath = getParsedPath(pathInOutput);
                 sinkWriterAdapter.write(parsedPath, value);
             }
             else if (reference instanceof EntityReference) {
                 EntityReference entityReference = (EntityReference)reference;
                 var entitySource = source.getSourceFromReference(entityReference);
                 
-                var newOperationObject = tryGetObject(operationObject.get(key));
-                if (newOperationObject.isEmpty()) {
+                var newOperationObject = tryGetObject(operationObject.get(key)).orElseThrow(() -> {
                     throw new OperationFailedException("Operation and source mismatch");
-                }
+                });
 
-                transformEntity(entitySource, entityReference, sinkWriterAdapter,  newOperationObject.get());
+                transformEntity(entitySource, entityReference, sinkWriterAdapter,  newOperationObject);
             }
             else {
                 // There should not be any array (or anything else) here
@@ -152,7 +151,7 @@ public class ValueShiftOperation implements Operation {
             pathValue = objectInArray.getString(pathControlKey);
         }
         catch (JSONException e) {
-            return Optional.empty();
+            throw new IllegalStateException("Unreachable");
         }
         
         return Optional.of(pathValue);
