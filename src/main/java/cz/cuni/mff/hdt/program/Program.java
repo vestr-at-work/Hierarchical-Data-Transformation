@@ -1,59 +1,33 @@
 package cz.cuni.mff.hdt.program;
 
+import cz.cuni.mff.hdt.adapter.SinkWriterAdapter;
+import cz.cuni.mff.hdt.sink.json.JsonSink;
 import cz.cuni.mff.hdt.sink.xml.*;
+
+import java.io.IOError;
+import java.io.IOException;
 import java.io.StringWriter;
 
+import org.json.JSONPointer;
+
 public class Program {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         var writer = new StringWriter();
-        var sink = new XmlSink(writer);
+        var sink = new XmlSink(writer, true);
+        var adapter = new SinkWriterAdapter(sink);
 
         try {
-            sink.openObject();
-
-            sink.setNextKey("@version");
-            sink.openArray();
-            sink.writeValue("1.0");
-            sink.closeArray();
-            sink.setNextKey("@encoding");
-            sink.openArray();
-            sink.writeValue("UTF-8");
-            sink.closeArray();
-
-            // open person
-            sink.setNextKey("person");
-            sink.openArray();
-            sink.openObject();
-
-            sink.setNextKey("@type");
-            sink.openArray();
-            sink.writeValue("object");
-            sink.closeArray();
-
-            // name
-            sink.setNextKey("name");
-            sink.openArray();
-            sink.openObject();
-            sink.setNextKey("@type");
-            sink.openArray();
-            sink.writeValue("string");
-            sink.closeArray();
-            sink.setNextKey("@value");
-            sink.openArray();
-            sink.writeValue("Ailish");
-            sink.closeArray();
-            sink.closeObject();
-
-            // close person
-            sink.closeObject();
-            sink.closeArray();
-
-            sink.closeObject();
-            sink.flush();
+            //adapter.write(new JSONPointer("/@type/[]"), "object");
+            adapter.write(new JSONPointer("/person/[]/@type/[]"), "object");
+            adapter.write(new JSONPointer("/person/[]/name/[]/@type/[]"), "string");
+            adapter.write(new JSONPointer("/person/[]/name/[]/@value/[]"), "Ailish");
+            adapter.write(new JSONPointer("/person/[]/age/[]/@type/[]"), "number");
+            adapter.write(new JSONPointer("/person/[]/age/[]/@value/[]"), "112");
+            adapter.finishWriting();
         }
         catch (Exception e) {
-            System.out.println(e);
+            throw e;
         }
         var result = writer.toString();
         System.out.print(result);

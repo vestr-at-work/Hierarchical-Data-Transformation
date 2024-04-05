@@ -45,6 +45,13 @@ public class ValueShiftOperation implements Operation {
         }
 
         transformRoot(inputSource, root, sinkWriterAdapter);
+        
+        try {
+            sinkWriterAdapter.finishWriting();
+        }
+        catch (IOException e) {
+            throw new OperationFailedException("Error occured when writing to sink");
+        }
     }
 
     private void transformRoot(DocumentSource inputSource, Reference root,
