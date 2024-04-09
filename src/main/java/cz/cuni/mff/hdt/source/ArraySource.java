@@ -1,5 +1,9 @@
 package cz.cuni.mff.hdt.source;
 
+import cz.cuni.mff.hdt.reference.ArrayReference;
+import cz.cuni.mff.hdt.reference.Reference;
+import cz.cuni.mff.hdt.reference.ValueReference;
+
 public interface ArraySource {
 
   /**

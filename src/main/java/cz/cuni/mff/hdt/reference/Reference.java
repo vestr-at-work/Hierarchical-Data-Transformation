@@ -1,4 +1,4 @@
-package cz.cuni.mff.hdt.source;
+package cz.cuni.mff.hdt.reference;
 
 public interface Reference {
   /**

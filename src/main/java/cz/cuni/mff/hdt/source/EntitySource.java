@@ -1,5 +1,8 @@
 package cz.cuni.mff.hdt.source;
 
+import cz.cuni.mff.hdt.reference.ArrayReference;
+import cz.cuni.mff.hdt.reference.EntityReference;
+
 public interface EntitySource {
 
   /**

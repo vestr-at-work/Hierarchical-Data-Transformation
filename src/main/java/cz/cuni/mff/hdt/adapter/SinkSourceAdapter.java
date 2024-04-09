@@ -2,13 +2,13 @@ package cz.cuni.mff.hdt.adapter;
 
 import java.io.IOException;
 
+import cz.cuni.mff.hdt.reference.ArrayReference;
+import cz.cuni.mff.hdt.reference.EntityReference;
+import cz.cuni.mff.hdt.reference.Reference;
 import cz.cuni.mff.hdt.sink.Sink;
-import cz.cuni.mff.hdt.source.ArrayReference;
 import cz.cuni.mff.hdt.source.ArraySource;
 import cz.cuni.mff.hdt.source.DocumentSource;
-import cz.cuni.mff.hdt.source.EntityReference;
 import cz.cuni.mff.hdt.source.EntitySource;
-import cz.cuni.mff.hdt.source.Reference;
 
 public class SinkSourceAdapter implements Sink, DocumentSource {
 

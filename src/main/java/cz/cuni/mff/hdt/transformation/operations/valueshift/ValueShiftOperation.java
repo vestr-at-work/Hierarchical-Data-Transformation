@@ -1,14 +1,14 @@
 package cz.cuni.mff.hdt.transformation.operations.valueshift;
 
 import cz.cuni.mff.hdt.adapter.SinkWriterAdapter;
+import cz.cuni.mff.hdt.reference.ArrayReference;
+import cz.cuni.mff.hdt.reference.EntityReference;
+import cz.cuni.mff.hdt.reference.Reference;
+import cz.cuni.mff.hdt.reference.ValueReference;
 import cz.cuni.mff.hdt.sink.Sink;
-import cz.cuni.mff.hdt.source.ArrayReference;
 import cz.cuni.mff.hdt.source.ArraySource;
 import cz.cuni.mff.hdt.source.DocumentSource;
-import cz.cuni.mff.hdt.source.EntityReference;
 import cz.cuni.mff.hdt.source.EntitySource;
-import cz.cuni.mff.hdt.source.Reference;
-import cz.cuni.mff.hdt.source.ValueReference;
 import cz.cuni.mff.hdt.transformation.operations.Operation;
 import cz.cuni.mff.hdt.transformation.operations.OperationFailedException;
 

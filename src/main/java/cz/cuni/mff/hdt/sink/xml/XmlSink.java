@@ -38,7 +38,7 @@ public class XmlSink extends UrSink {
     private State _state = State.Unknown;
     private Token _nextValue = Token.Unknown;
     private Stack<StateHolder> _nesting = new Stack<StateHolder>();
-    
+
     private Boolean _prettyPrint;
     private StringBuilder _indentationPrefix = new StringBuilder();
     private Boolean _firstDocumentElement = true;
