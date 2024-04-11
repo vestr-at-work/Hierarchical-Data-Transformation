@@ -95,6 +95,7 @@ public class ValueShiftOperation implements Operation {
             }
             var arraySource = source.getSourceFromReference(item);
             var reference = arraySource.next(item);
+            // TODO check if its is really a last reference
 
             if (reference instanceof ValueReference) {
                 String pathInOutput = tryGetPath(operationObject.get(key)).orElseThrow(() -> {
