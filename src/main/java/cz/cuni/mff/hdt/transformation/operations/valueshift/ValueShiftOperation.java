@@ -26,13 +26,8 @@ import org.json.JSONPointer;
 public class ValueShiftOperation implements Operation {
     private JSONObject operationDefinition;
 
-    public ValueShiftOperation(String operationDefinitionString) throws IOException {
-        try {
-            operationDefinition = new JSONObject(operationDefinitionString);
-        }
-        catch(JSONException e) {
-            throw new IOException("Incorrect operation definition provided");
-        }
+    public ValueShiftOperation(JSONObject operationDefinition) {
+        this.operationDefinition = operationDefinition;
     }
 
     @Override
