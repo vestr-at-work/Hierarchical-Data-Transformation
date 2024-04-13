@@ -69,7 +69,10 @@ public class JsonInMemoryDocumentSource implements DocumentSource {
         if (rootIsArray) {
             return makeUrObjectFromArray(rootArray);
         }
-        rootObject.append(Ur.KEY_TYPE, Ur.VALUE_OBJECT);
+        rootObject.put(Ur.KEY_TYPE, Ur.VALUE_OBJECT);
+
+        System.out.println("getRootEntityReference called for object: " + rootObject);
+
         return new JsonInMemoryEntityReference(rootObject);
     }
 
