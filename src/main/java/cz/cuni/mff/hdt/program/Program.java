@@ -50,6 +50,9 @@ public class Program {
         var transformation = new Transformation(context);
         
         transformation.transform();
+
+        var result = writer.toString();
+        System.out.print(result);
     }
 
     public static String readFileAsString(String fileName)
