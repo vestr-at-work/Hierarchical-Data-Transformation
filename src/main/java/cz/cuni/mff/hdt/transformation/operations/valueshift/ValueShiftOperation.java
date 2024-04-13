@@ -154,15 +154,19 @@ public class ValueShiftOperation implements Operation {
         if (!pathControlKey.equals("@path")) {
             return Optional.empty();
         }
-        String pathValue;
-        try {
-            pathValue = objectInArray.getString(pathControlKey);
+        var possibleValueArray = objectInArray.get(pathControlKey);
+        if (!(possibleValueArray instanceof JSONArray)) {
+            return Optional.empty();
+        } 
+        var valueArray = (JSONArray)possibleValueArray;
+        if (valueArray.length() != 1) {
+            return Optional.empty();
         }
-        catch (JSONException e) {
-            throw new IllegalStateException("Unreachable");
+        if (!(valueArray.get(0) instanceof String)) {
+            return Optional.empty();
         }
         
-        return Optional.of(pathValue);
+        return Optional.of((String)valueArray.get(0));
     }
 
     private Optional<JSONObject> tryGetObject(Object value) {
