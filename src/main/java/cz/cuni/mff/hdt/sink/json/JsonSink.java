@@ -31,8 +31,14 @@ public class JsonSink extends UrSink {
 
     private enum Token { Unknown, Type, Value }
 
+    private class ValueStateAcumulator {
+        public Token nextValue = Token.Unknown;
+        public String valueString;
+        public Ur.Type type;
+    }
+
     private String key = null;
-    private Token nextValue = Token.Unknown;
+    private ValueStateAcumulator acumulator = new ValueStateAcumulator();
     private Stack<StateHolder> nesting = new Stack<StateHolder>();
     
     private Boolean prettyPrint;
@@ -69,10 +75,10 @@ public class JsonSink extends UrSink {
     @Override
     public void openArray() throws IOException {
         if (key.equals(Ur.KEY_TYPE)) {
-            nextValue = Token.Type;
+            acumulator.nextValue = Token.Type;
         }
         else if (key.equals(Ur.KEY_VALUE)) {
-            nextValue = Token.Value;
+            acumulator.nextValue = Token.Value;
         }
         else if (isNumeric(key) && nesting.peek().state == State.InArray) {
             // TODO dont write it but act accordingly
@@ -111,18 +117,28 @@ public class JsonSink extends UrSink {
 
     @Override
     public void setNextKey(String key) throws IOException {
-        key = key;
+        this.key = key;
     }
 
     @Override
     public void writeValue(String value) throws IOException {
-        switch (nextValue) {
+        switch (acumulator.nextValue) {
             case Type:
                 updateOnNewType(getType(value));
+                
+                if (acumulator.valueString != null) {
+                    writeValueToken(acumulator.valueString);
+                    acumulator = new ValueStateAcumulator();
+                }
                 break;
             case Value:
+                if (acumulator.type == null) {
+                    acumulator.valueString = value;
+                    break;
+                }
+
                 writeValueToken(value);
-                nextValue = Token.Unknown;
+                acumulator = new ValueStateAcumulator();
                 break;
             default:
         }
