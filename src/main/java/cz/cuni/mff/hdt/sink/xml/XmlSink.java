@@ -22,7 +22,6 @@ public class XmlSink extends UrSink {
         public State state;
         public Ur.Type type;
         public String tag;
-        public Boolean writeSeparator = false;
 
         public StateHolder(State state, Ur.Type type, String tag) {
             this.state = state;
@@ -33,20 +32,19 @@ public class XmlSink extends UrSink {
 
     private enum Token { Unknown, Type, Value, VersionValue, EncodingValue }
 
-    private String _key = null;
-    private String _lastNonControlKey = null;
-    private State _state = State.Unknown;
-    private Token _nextValue = Token.Unknown;
-    private Stack<StateHolder> _nesting = new Stack<StateHolder>();
+    private String key = null;
+    private String lastNonControlKey = null;
+    private Token nextValue = Token.Unknown;
+    private Stack<StateHolder> nesting = new Stack<StateHolder>();
 
-    private Boolean _prettyPrint;
-    private StringBuilder _indentationPrefix = new StringBuilder();
-    private Boolean _firstDocumentElement = true;
-    private Boolean _lastTagEndTag = false;
+    private Boolean prettyPrint;
+    private StringBuilder indentationPrefix = new StringBuilder();
+    private Boolean firstDocumentElement = true;
+    private Boolean lastTagEndTag = false;
 
     public XmlSink(Writer writer, Boolean prettyPrint) {
-        _writer = writer;
-        _prettyPrint = prettyPrint;
+        this.writer = writer;
+        this.prettyPrint = prettyPrint;
     }
 
     public XmlSink(Writer writer) {
@@ -58,53 +56,53 @@ public class XmlSink extends UrSink {
 
     @Override
     public void closeObject() throws IOException {
-        if (_nesting.empty()) {
+        if (nesting.empty()) {
             return;
         }
-        var toBeClosed = _nesting.pop();
+        var toBeClosed = nesting.pop();
         if (toBeClosed.state == State.InAttributes) {
-            _lastNonControlKey = toBeClosed.tag;
+            lastNonControlKey = toBeClosed.tag;
             return;
         }
 
         if (toBeClosed.state == State.InValue
-            && _nesting.peek().state == State.InAttributes) {
+            && nesting.peek().state == State.InAttributes) {
             return;
         }
 
         writeNextLine();
         decreaseIndentation();
         writeIndentation();
-        _writer.write("</");
+        writer.write("</");
         writeString(toBeClosed.tag);
-        _writer.write(">");
-        _lastTagEndTag = true;
+        writer.write(">");
+        lastTagEndTag = true;
     }
 
     @Override
     public void openArray() throws IOException {
-        if (_key.equals(Ur.KEY_TYPE)) {
-            _nextValue = Token.Type;
+        if (key.equals(Ur.KEY_TYPE)) {
+            nextValue = Token.Type;
         }
-        else if (_key.equals(Ur.KEY_VALUE)) {
-            _nextValue = Token.Value;
+        else if (key.equals(Ur.KEY_VALUE)) {
+            nextValue = Token.Value;
         }
-        else if (_key.equals(Ur.KEY_XML_ATTRIBUTES)) {
-            _nesting.push(new StateHolder(State.InAttributes, null, _lastNonControlKey));
+        else if (key.equals(Ur.KEY_XML_ATTRIBUTES)) {
+            nesting.push(new StateHolder(State.InAttributes, null, lastNonControlKey));
         }
-        else if (_key.equals(Ur.KEY_XML_VERSION)) {
-            _nextValue = Token.VersionValue;
+        else if (key.equals(Ur.KEY_XML_VERSION)) {
+            nextValue = Token.VersionValue;
         }
-        else if (_key.equals(Ur.KEY_XML_ENCODING)) {
-            _nextValue = Token.EncodingValue;
+        else if (key.equals(Ur.KEY_XML_ENCODING)) {
+            nextValue = Token.EncodingValue;
         }
         // if key is Ur XML list key e.g. "@2:item"
-        else if (_key.split(":")[0].charAt(0) == '@' && isNumeric(_key.split(":")[0].substring(1))) {
-            _key = _key.split(":")[1];
-            _lastNonControlKey = _key;
+        else if (key.split(":")[0].charAt(0) == '@' && isNumeric(key.split(":")[0].substring(1))) {
+            key = key.split(":")[1];
+            lastNonControlKey = key;
             writeKey();
         }
-        else if (!_nesting.empty() && _nesting.peek().state == State.InAttributes) {
+        else if (!nesting.empty() && nesting.peek().state == State.InAttributes) {
             writeAttribute();
         }
         else {
@@ -113,27 +111,27 @@ public class XmlSink extends UrSink {
     }
 
     private void writeAttribute() throws IOException {
-        _writer.write(" ");
-        writeString(_key);
-        _writer.write("=");
+        writer.write(" ");
+        writeString(key);
+        writer.write("=");
     }
 
     private void writeKey() throws IOException {
-        if (_key == null) {
+        if (key == null) {
             return;
         }
-        if (!_firstDocumentElement) {
-            if (!_lastTagEndTag) {
-                _writer.write(">");
+        if (!firstDocumentElement) {
+            if (!lastTagEndTag) {
+                writer.write(">");
                 increaseIndentation();
             }
             writeNextLine();
         }
-        _firstDocumentElement = false;
+        firstDocumentElement = false;
         writeIndentation();
-        _writer.write("<");
-        writeString(_key);
-        _lastTagEndTag = false;
+        writer.write("<");
+        writeString(key);
+        lastTagEndTag = false;
     }
 
     // TODO should be somewhere else
@@ -154,15 +152,15 @@ public class XmlSink extends UrSink {
 
     @Override
     public void setNextKey(String key) throws IOException {
-        _key = key;
-        if (_key.charAt(0) != '@') {
-            _lastNonControlKey = key;
+        this.key = key;
+        if (key.charAt(0) != '@') {
+            lastNonControlKey = key;
         }
     }
 
     @Override
     public void writeValue(String value) throws IOException {
-        switch (_nextValue) {
+        switch (nextValue) {
             case Type:
                 updateOnNewType(getType(value));
                 break;
@@ -171,21 +169,21 @@ public class XmlSink extends UrSink {
                 break;
             case VersionValue:
                 writeVersion(value);
-                _nextValue = Token.Unknown;
+                nextValue = Token.Unknown;
                 break;
             case EncodingValue:
                 writeEncoding(value);
-                _nextValue = Token.Unknown;
+                nextValue = Token.Unknown;
                 break;
             default:
         }
     }
 
     private void processValueToken(String value) throws IOException {
-        var lastStateHolder = _nesting.pop();
-        boolean valueIsAttribute = !_nesting.empty() && _nesting.peek().state == State.InAttributes;
-        _nesting.push(lastStateHolder);
-        _nextValue = Token.Unknown;
+        var lastStateHolder = nesting.pop();
+        boolean valueIsAttribute = !nesting.empty() && nesting.peek().state == State.InAttributes;
+        nesting.push(lastStateHolder);
+        nextValue = Token.Unknown;
 
         if (valueIsAttribute) {
             writeAttributeValueToken(value);
@@ -196,45 +194,45 @@ public class XmlSink extends UrSink {
     }
 
     private void writeAttributeValueToken(String value) throws IOException {
-        _writer.write("\"");
+        writer.write("\"");
         writeBareValueToken(value);
-        _writer.write("\"");
+        writer.write("\"");
     }
 
     private void writeValueToken(String value) throws IOException {
-        _writer.write(">");
+        writer.write(">");
         writeNextLine();
         increaseIndentation();
         writeIndentation();
         writeBareValueToken(value);
-        _lastTagEndTag = false;
+        lastTagEndTag = false;
     }
 
     private void writeVersion(String version) throws IOException {
-        _writer.write("<?xml");
-        _writer.write(" version=\"" + version + "\"");
+        writer.write("<?xml");
+        writer.write(" version=\"" + version + "\"");
     }
 
     private void writeEncoding(String encoding) throws IOException {
-        _writer.write(" encoding=\"" + encoding + "\"?>");
+        writer.write(" encoding=\"" + encoding + "\"?>");
         writeNextLine();
     }
 
     private void writeIndentation() throws IOException {
-        if (_prettyPrint) {
-            _writer.write(_indentationPrefix.toString());
+        if (prettyPrint) {
+            writer.write(indentationPrefix.toString());
         }
     }
 
     private void increaseIndentation() {
-        if (_prettyPrint) {
-            _indentationPrefix.append("  ");
+        if (prettyPrint) {
+            indentationPrefix.append("  ");
         }
     }
 
     private void decreaseIndentation() {
-        if (_prettyPrint) {
-            _indentationPrefix.setLength(_indentationPrefix.length() - 2);
+        if (prettyPrint) {
+            indentationPrefix.setLength(indentationPrefix.length() - 2);
         }
     }
 
@@ -243,10 +241,10 @@ public class XmlSink extends UrSink {
             case String:
             case Number:
             case Boolean:
-                _nesting.push(new StateHolder(State.InValue, type, _lastNonControlKey));
+                nesting.push(new StateHolder(State.InValue, type, lastNonControlKey));
                 break;
             case Object:
-                _nesting.push(new StateHolder(State.InObject, type, _lastNonControlKey));
+                nesting.push(new StateHolder(State.InObject, type, lastNonControlKey));
                 break;
             default:
                 // impossible
@@ -254,7 +252,7 @@ public class XmlSink extends UrSink {
     }
 
     private void writeBareValueToken(String value) throws IOException {
-        switch(_nesting.peek().type) {
+        switch(nesting.peek().type) {
             case String:
                 writeString(value);
                 break;
@@ -270,8 +268,8 @@ public class XmlSink extends UrSink {
     }
 
     private void writeNextLine() throws IOException {
-        if (_prettyPrint) {
-            _writer.write("\n");
+        if (prettyPrint) {
+            writer.write("\n");
         }
     }
 
@@ -282,13 +280,13 @@ public class XmlSink extends UrSink {
             .replace("&","&amp;")
             .replace("'","&apos;")
             .replace("\"", "&quot;");
-        _writer.write(value);
+        writer.write(value);
     }
 
     @Override
     public void flush() {
         try {
-            _writer.flush();
+            writer.flush();
         } catch (IOException ex) {
             // TODO throw custom exception
         }
