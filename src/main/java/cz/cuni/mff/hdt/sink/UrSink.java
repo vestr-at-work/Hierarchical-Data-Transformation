@@ -6,7 +6,7 @@ import java.io.Writer;
 import java.io.IOException;
 
 public abstract class UrSink implements Sink {
-    protected Writer _writer;
+    protected Writer writer;
 
     public abstract void openObject() throws IOException;
 
@@ -50,12 +50,12 @@ public abstract class UrSink implements Sink {
             || "True".equals(value)) {
             sanitizedValue = "true";
         }
-        _writer.write(sanitizedValue);
+        writer.write(sanitizedValue);
     }
 
     protected void writeNumber(String value) throws IOException {
         String sanitizedValue = value.replace(",", ".").replace(" ", "");
-        _writer.write(sanitizedValue);
+        writer.write(sanitizedValue);
     }
 
     protected void writeString(String value) throws IOException {
@@ -64,8 +64,8 @@ public abstract class UrSink implements Sink {
                 .replace("\r", "\\r")
                 .replace("\n", "\\n")
                 .replace("\"", "\\\"");
-        _writer.write("\"");
-        _writer.write(sanitizedValue);
-        _writer.write("\"");
+        writer.write("\"");
+        writer.write(sanitizedValue);
+        writer.write("\"");
     }
 }

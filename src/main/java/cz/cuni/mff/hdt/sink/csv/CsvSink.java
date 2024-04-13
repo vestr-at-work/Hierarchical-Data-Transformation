@@ -16,50 +16,50 @@ public class CsvSink extends UrSink {
     private final Integer _ROWS_BASE_INDENTATION = 2;
     private final Integer _HEADER_BASE_INDENTATION = 1;
 
-    private String _key = null;
-    private Ur.Type _type = null;
-    private State _state = State.Unknown;
-    private Boolean _nextValueFirstInRow = true;
-    private Boolean _firstRowInFile = true;
-    private Integer _objectIndentationLevel = 0;
-    private Token _nextValue = Token.Unknown;
+    private String key = null;
+    private Ur.Type type = null;
+    private State state = State.Unknown;
+    private Boolean nextValueFirstInRow = true;
+    private Boolean firstRowInFile = true;
+    private Integer objectIndentationLevel = 0;
+    private Token nextValue = Token.Unknown;
 
     public CsvSink(Writer writer) {
-        _writer = writer;
+        this.writer = writer;
     }
 
     @Override
     public void openObject() throws IOException {
-        _objectIndentationLevel++;
+        objectIndentationLevel++;
     }
 
     @Override
     public void closeObject() throws IOException {
-        _objectIndentationLevel--;
-        if (_state == State.InRows && _objectIndentationLevel == _ROWS_BASE_INDENTATION) {
-            _nextValueFirstInRow = true;
+        objectIndentationLevel--;
+        if (state == State.InRows && objectIndentationLevel == _ROWS_BASE_INDENTATION) {
+            nextValueFirstInRow = true;
         }
-        if (_state == State.InHeader && _objectIndentationLevel == _HEADER_BASE_INDENTATION) {
-            _nextValueFirstInRow = true;
-            _firstRowInFile = false;
+        if (state == State.InHeader && objectIndentationLevel == _HEADER_BASE_INDENTATION) {
+            nextValueFirstInRow = true;
+            firstRowInFile = false;
         }
     }
 
     @Override
     public void openArray() throws IOException {
-        if (_key.equals(Ur.KEY_CSV_HEADER)) {
-            _nextValueFirstInRow = true;
-            _state = State.InHeader;
+        if (key.equals(Ur.KEY_CSV_HEADER)) {
+            nextValueFirstInRow = true;
+            state = State.InHeader;
         }
-        else if (_key.equals(Ur.KEY_CSV_HEADER)) {
-            _nextValueFirstInRow = true;
-            _state = State.InRows;
+        else if (key.equals(Ur.KEY_CSV_HEADER)) {
+            nextValueFirstInRow = true;
+            state = State.InRows;
         }
-        else if (_key.equals(Ur.KEY_TYPE)) {
-            _nextValue = Token.Type;
+        else if (key.equals(Ur.KEY_TYPE)) {
+            nextValue = Token.Type;
         }
-        else if (_key.equals(Ur.KEY_VALUE)) {
-            _nextValue = Token.Value;
+        else if (key.equals(Ur.KEY_VALUE)) {
+            nextValue = Token.Value;
         }
     }
 
@@ -68,20 +68,20 @@ public class CsvSink extends UrSink {
 
     @Override
     public void setNextKey(String key) throws IOException {
-        _key = key;
+        this.key = key;
     }
 
     @Override
     public void writeValue(String value) throws IOException {
-        switch (_nextValue) {
+        switch (nextValue) {
             case Type:
-                _type = getType(value);
+                type = getType(value);
                 break;
             case Value:
                 writeValueToken(value);
-                _nextValueFirstInRow = false;
-                _type = null;
-                _nextValue = Token.Unknown;
+                nextValueFirstInRow = false;
+                type = null;
+                nextValue = Token.Unknown;
                 break;
             default:
         }
@@ -89,7 +89,7 @@ public class CsvSink extends UrSink {
 
     private void writeValueToken(String value) throws IOException {
         writeSeparator();
-        switch(_type) {
+        switch(type) {
             case String:
                 writeString(value);
                 break;
@@ -105,19 +105,19 @@ public class CsvSink extends UrSink {
     }
 
     private void writeSeparator() throws IOException {
-        if (!_nextValueFirstInRow) {
-            _writer.write(",");
+        if (!nextValueFirstInRow) {
+            writer.write(",");
             return;
         }
-        if (!_firstRowInFile) {
-            _writer.write("\n");
+        if (!firstRowInFile) {
+            writer.write("\n");
         }
     }
 
     @Override
     public void flush() {
         try {
-            _writer.flush();
+            writer.flush();
         } catch (IOException ex) {
             // TODO throw custom exception
         }
