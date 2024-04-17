@@ -124,8 +124,10 @@ public class JsonSink extends UrSink {
     public void writeValue(String value) throws IOException {
         switch (acumulator.nextValue) {
             case Type:
-                updateOnNewType(getType(value));
-                
+                var type = getType(value);
+                updateOnNewType(type);
+                acumulator.type = type;
+
                 if (acumulator.valueString != null) {
                     writeValueToken(acumulator.valueString);
                     acumulator = new ValueStateAcumulator();
@@ -136,7 +138,7 @@ public class JsonSink extends UrSink {
                     acumulator.valueString = value;
                     break;
                 }
-
+                
                 writeValueToken(value);
                 acumulator = new ValueStateAcumulator();
                 break;
