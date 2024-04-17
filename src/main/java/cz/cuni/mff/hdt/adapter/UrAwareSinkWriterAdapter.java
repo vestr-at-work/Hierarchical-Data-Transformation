@@ -55,7 +55,7 @@ public class UrAwareSinkWriterAdapter {
 
         // Write value
         sinkWriterCurrentPosition.add(
-            new Entity<>(WriterAdapterEntityType.Property, Ur.KEY_TYPE));
+            new Entity<>(WriterAdapterEntityType.Property, Ur.KEY_VALUE));
         addPrivitiveOpening();
         sinkWriter.write(sinkWriterCurrentPosition, value.value());
 
@@ -150,7 +150,7 @@ public class UrAwareSinkWriterAdapter {
     }
 
     private void removeLastElements(List<?> list, int count) {
-        while (count >= 0 && !list.isEmpty()) {
+        while (count > 0 && !list.isEmpty()) {
             list.remove(list.size() - 1);
             count--;
         }
