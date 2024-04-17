@@ -1,9 +1,9 @@
 package cz.cuni.mff.hdt.transformation.operations.valueshift;
 
-import cz.cuni.mff.hdt.adapter.SinkWriterAdapter;
 import cz.cuni.mff.hdt.adapter.UrAwareSinkWriterAdapter;
 import cz.cuni.mff.hdt.reference.ArrayReference;
 import cz.cuni.mff.hdt.reference.EntityReference;
+import cz.cuni.mff.hdt.reference.PropertyReference;
 import cz.cuni.mff.hdt.reference.Reference;
 import cz.cuni.mff.hdt.reference.ValueReference;
 import cz.cuni.mff.hdt.sink.Sink;
@@ -13,6 +13,7 @@ import cz.cuni.mff.hdt.source.EntitySource;
 import cz.cuni.mff.hdt.transformation.TypedValue;
 import cz.cuni.mff.hdt.transformation.operations.Operation;
 import cz.cuni.mff.hdt.transformation.operations.OperationFailedException;
+import cz.cuni.mff.hdt.ur.Ur;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -93,7 +94,24 @@ public class ValueShiftOperation implements Operation {
             var reference = arraySource.next(item);
             // TODO check if it is really a last reference
 
-            if (reference instanceof ValueReference) {
+            if (reference instanceof PropertyReference) {
+                String pathInOutput = tryGetPath(operationObject.get(key)).orElseThrow(() -> {
+                    throw new OperationFailedException("Operation and source mismatch");
+                });
+                var propertyReference = (PropertyReference)reference;
+                var propertySource = arraySource.getSourceFromReference(propertyReference);
+                String value = propertySource.value(propertyReference);
+                String type = propertySource.type(propertyReference);
+                
+                var validatedPath = validatePath(pathInOutput);
+                try {
+                    sinkWriterAdapter.write(validatedPath, new TypedValue(type, value));
+                }
+                catch (IOException e) {
+                    throw new OperationFailedException("Error occured when writing to sink");
+                }
+            }
+            else if (reference instanceof ValueReference) {
                 String pathInOutput = tryGetPath(operationObject.get(key)).orElseThrow(() -> {
                     throw new OperationFailedException("Operation and source mismatch");
                 });
@@ -103,12 +121,7 @@ public class ValueShiftOperation implements Operation {
                 
                 var validatedPath = validatePath(pathInOutput);
                 try {
-                    
-                    System.out.println("ValueShiftOperation: Writing value: " + value + " to: " + validatedPath); // TODO
-
-                    // TODO this is not correct, just a placeholder. 
-                    // we should call write for whole properties
-                    sinkWriterAdapter.write(validatedPath, new TypedValue(null, value));
+                    sinkWriterAdapter.write(validatedPath, new TypedValue(Ur.VALUE_STRING, value));
                 }
                 catch (IOException e) {
                     throw new OperationFailedException("Error occured when writing to sink");
@@ -138,7 +151,7 @@ public class ValueShiftOperation implements Operation {
             return new JSONPointer(pathFromInput).toString();
         }
         catch (IllegalArgumentException e) {
-            throw new OperationFailedException("Incorrect JsonPointer '" + pathFromInput + "'");
+            throw new OperationFailedException("Incorrect path provided. Path: '" + pathFromInput + "'");
         }
     }
 
