@@ -4,20 +4,9 @@
             "@operation": "value-shift",
             "@comment": "Copy input to the output",
             "@specs": {
-                "@type": [{
-                    "@path": ["/@type/[]"]
-                }],
                 "person": [{
-                    "@type": [{
-                        "@path": ["/person/[]/@type/[]"]
-                    }],
                     "name": [{
-                        "@type": [{
-                            "@path": ["/person/[]/name/[]/@type/[]"]
-                        }],
-                        "@value": [{
-                            "@path": ["/person/[]/name/[]/@value/[]"]
-                        }]
+                        "@path": ["/human/name"]
                     }]
                 }]
             }

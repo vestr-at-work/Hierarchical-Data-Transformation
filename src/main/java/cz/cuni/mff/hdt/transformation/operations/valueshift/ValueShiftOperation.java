@@ -1,6 +1,7 @@
 package cz.cuni.mff.hdt.transformation.operations.valueshift;
 
 import cz.cuni.mff.hdt.adapter.SinkWriterAdapter;
+import cz.cuni.mff.hdt.adapter.UrAwareSinkWriterAdapter;
 import cz.cuni.mff.hdt.reference.ArrayReference;
 import cz.cuni.mff.hdt.reference.EntityReference;
 import cz.cuni.mff.hdt.reference.Reference;
@@ -9,6 +10,7 @@ import cz.cuni.mff.hdt.sink.Sink;
 import cz.cuni.mff.hdt.source.ArraySource;
 import cz.cuni.mff.hdt.source.DocumentSource;
 import cz.cuni.mff.hdt.source.EntitySource;
+import cz.cuni.mff.hdt.transformation.TypedValue;
 import cz.cuni.mff.hdt.transformation.operations.Operation;
 import cz.cuni.mff.hdt.transformation.operations.OperationFailedException;
 
@@ -16,7 +18,6 @@ import java.io.IOException;
 import java.util.Optional;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONPointer;
 
@@ -32,17 +33,17 @@ public class ValueShiftOperation implements Operation {
 
     @Override
     public void execute(DocumentSource inputSource, Sink outputSink) throws OperationFailedException {
-        var sinkWriterAdapter = new SinkWriterAdapter(outputSink);
+        var urSinkWriterAdapter = new UrAwareSinkWriterAdapter(outputSink);
         Reference root = inputSource.next();
 
         if (root == null) {
             throw new OperationFailedException("No root in the source");
         }
 
-        transformRoot(inputSource, root, sinkWriterAdapter);
+        transformRoot(inputSource, root, urSinkWriterAdapter);
         
         try {
-            sinkWriterAdapter.finishWriting();
+            urSinkWriterAdapter.finishWriting();
         }
         catch (IOException e) {
             throw new OperationFailedException("Error occured when writing to sink");
@@ -50,7 +51,7 @@ public class ValueShiftOperation implements Operation {
     }
 
     private void transformRoot(DocumentSource inputSource, Reference root,
-            SinkWriterAdapter sinkWriterAdapter) throws OperationFailedException {
+        UrAwareSinkWriterAdapter sinkWriterAdapter) throws OperationFailedException {
         
         if (root instanceof EntityReference) {
             EntityReference entityRoot = (EntityReference)root;
@@ -73,13 +74,13 @@ public class ValueShiftOperation implements Operation {
     }
 
     private void transformArray(ArraySource source, ArrayReference arrayRoot,
-            SinkWriterAdapter sinkWriterAdapter) throws OperationFailedException {
+        UrAwareSinkWriterAdapter sinkWriterAdapter) throws OperationFailedException {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'transformArrayReference'");
     }
 
     private void transformEntity(EntitySource source, EntityReference entityRoot,
-            SinkWriterAdapter sinkWriterAdapter, JSONObject operationObject) throws OperationFailedException {
+        UrAwareSinkWriterAdapter sinkWriterAdapter, JSONObject operationObject) throws OperationFailedException {
         
         for (var keysIterator = operationObject.keys(); keysIterator.hasNext();) {
             String key = keysIterator.next();
@@ -90,7 +91,7 @@ public class ValueShiftOperation implements Operation {
             }
             var arraySource = source.getSourceFromReference(item);
             var reference = arraySource.next(item);
-            // TODO check if its is really a last reference
+            // TODO check if it is really a last reference
 
             if (reference instanceof ValueReference) {
                 String pathInOutput = tryGetPath(operationObject.get(key)).orElseThrow(() -> {
@@ -100,9 +101,14 @@ public class ValueShiftOperation implements Operation {
                 var valueSource = arraySource.getSourceFromReference(valueReference);
                 String value = valueSource.value(valueReference);
                 
-                var parsedPath = getParsedPath(pathInOutput);
+                var validatedPath = validatePath(pathInOutput);
                 try {
-                    sinkWriterAdapter.write(parsedPath, value);
+                    
+                    System.out.println("ValueShiftOperation: Writing value: " + value + " to: " + validatedPath); // TODO
+
+                    // TODO this is not correct, just a placeholder. 
+                    // we should call write for whole properties
+                    sinkWriterAdapter.write(validatedPath, new TypedValue(null, value));
                 }
                 catch (IOException e) {
                     throw new OperationFailedException("Error occured when writing to sink");
@@ -127,9 +133,9 @@ public class ValueShiftOperation implements Operation {
         // TODO if there are more entities in the source than in the operation object there should be some kind of error
     }
 
-    private JSONPointer getParsedPath(String pathFromInput) throws OperationFailedException { 
+    private String validatePath(String pathFromInput) throws OperationFailedException { 
         try {
-            return new JSONPointer(pathFromInput);
+            return new JSONPointer(pathFromInput).toString();
         }
         catch (IllegalArgumentException e) {
             throw new OperationFailedException("Incorrect JsonPointer '" + pathFromInput + "'");
