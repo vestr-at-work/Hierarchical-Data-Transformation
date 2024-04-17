@@ -23,6 +23,7 @@ public class JsonInMemoryDocumentSource implements DocumentSource {
     protected JsonInMemoryEntitySource entitySource = new JsonInMemoryEntitySource(this);
     protected JsonInMemoryArraySource arraySource = new JsonInMemoryArraySource(this);
     protected JsonInMemoryValueSource valueSource = new JsonInMemoryValueSource();
+    protected JsonInMemoryPropertySource propertySource = new JsonInMemoryPropertySource();
 
     public JsonInMemoryArraySource getArraySource() {
         return arraySource;
@@ -34,6 +35,10 @@ public class JsonInMemoryDocumentSource implements DocumentSource {
 
     public JsonInMemoryValueSource getValueSource() {
         return valueSource;
+    }
+
+    public JsonInMemoryPropertySource getPropertySource() {
+        return propertySource;
     }
 
     public JsonInMemoryDocumentSource(String jsonString) {

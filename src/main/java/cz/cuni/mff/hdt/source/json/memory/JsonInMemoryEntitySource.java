@@ -8,6 +8,7 @@ import cz.cuni.mff.hdt.reference.ArrayReference;
 import cz.cuni.mff.hdt.reference.EntityReference;
 import cz.cuni.mff.hdt.reference.json.memory.JsonInMemoryArrayReference;
 import cz.cuni.mff.hdt.reference.json.memory.JsonInMemoryEntityReference;
+import cz.cuni.mff.hdt.reference.json.memory.JsonInMemoryPropertyReference;
 import cz.cuni.mff.hdt.reference.json.memory.JsonInMemoryValueReference;
 import cz.cuni.mff.hdt.source.ArraySource;
 import cz.cuni.mff.hdt.source.EntitySource;
@@ -39,11 +40,16 @@ public class JsonInMemoryEntitySource implements EntitySource {
         if (property instanceof JSONObject) {
             var object = (JSONObject)property;
             object.put(Ur.KEY_TYPE, Ur.VALUE_OBJECT);
+
+            System.out.println("EntityReference property is JSONObject: " + object.toString()); // TODO
+
             return new JsonInMemoryArrayReference(new JsonInMemoryEntityReference(object));
         }
         else if (property instanceof JSONArray) {
             var array = (JSONArray)property;
             var entity = documentSource.makeUrObjectFromArray(array);
+
+            System.out.println("EntityReference property is JSONArray: " + array.toString()); // TODO
 
             return new JsonInMemoryArrayReference(entity);
         }
@@ -53,11 +59,20 @@ public class JsonInMemoryEntitySource implements EntitySource {
                 return new JsonInMemoryArrayReference(new JsonInMemoryValueReference(value));
             }
 
-            var object = new JSONObject();
-            object.put(Ur.KEY_TYPE, Ur.VALUE_STRING);
-            object.put(Ur.KEY_VALUE, value);
+            var propertyReference = new JsonInMemoryPropertyReference(value, Ur.VALUE_STRING);
+            return new JsonInMemoryArrayReference(propertyReference);
+        }
+        else if (property instanceof Integer) {
+            var value = (Integer)property;
 
-            return new JsonInMemoryArrayReference(new JsonInMemoryEntityReference(object));
+            var propertyReference = new JsonInMemoryPropertyReference(value.toString(), Ur.VALUE_NUMBER);
+            return new JsonInMemoryArrayReference(propertyReference);
+        }
+        else if (property instanceof Boolean) {
+            var value = (Boolean)property;
+
+            var propertyReference = new JsonInMemoryPropertyReference(value.toString(), Ur.VALUE_BOOLEAN);
+            return new JsonInMemoryArrayReference(propertyReference);
         }
         else {
             throw new InternalError("Unsupported type in the reference");

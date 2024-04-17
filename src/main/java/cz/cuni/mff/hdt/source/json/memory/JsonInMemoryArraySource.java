@@ -1,10 +1,12 @@
 package cz.cuni.mff.hdt.source.json.memory;
 
 import cz.cuni.mff.hdt.reference.ArrayReference;
+import cz.cuni.mff.hdt.reference.PropertyReference;
 import cz.cuni.mff.hdt.reference.Reference;
 import cz.cuni.mff.hdt.reference.ValueReference;
 import cz.cuni.mff.hdt.reference.json.memory.JsonInMemoryArrayReference;
 import cz.cuni.mff.hdt.source.ArraySource;
+import cz.cuni.mff.hdt.source.PropertySource;
 import cz.cuni.mff.hdt.source.ValueSource;
 
 public class JsonInMemoryArraySource implements ArraySource {
@@ -34,6 +36,11 @@ public class JsonInMemoryArraySource implements ArraySource {
     @Override
     public ValueSource getSourceFromReference(ValueReference referece) {
         return documentSource.getValueSource();
+    }
+
+    @Override
+    public PropertySource getSourceFromReference(PropertyReference referece) {
+        return documentSource.getPropertySource();
     }
     
 }
