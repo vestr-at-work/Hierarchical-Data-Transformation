@@ -1,6 +1,5 @@
 package cz.cuni.mff.hdt.program;
 
-import cz.cuni.mff.hdt.adapter.SinkWriterAdapter;
 import cz.cuni.mff.hdt.sink.json.JsonSink;
 import cz.cuni.mff.hdt.source.json.memory.JsonInMemoryDocumentSource;
 import cz.cuni.mff.hdt.transformation.Transformation;
