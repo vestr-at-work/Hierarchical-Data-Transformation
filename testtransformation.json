@@ -5,8 +5,14 @@
             "@comment": "Copy input to the output",
             "@specs": {
                 "person": [{
+                    "@type": [{
+                        "@path": ["/human/type"]
+                    }],
                     "name": [{
                         "@path": ["/human/name"]
+                    }],
+                    "fame": [{
+                        "@path": ["/human/status/fame"]
                     }]
                 }]
             }

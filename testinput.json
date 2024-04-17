@@ -1,5 +1,7 @@
 {
     "person": {
-        "name": "Aillish"
+        "name": "Aillish",
+        "fame": true,
+        "age": 23
     }
 }
