@@ -1,6 +1,7 @@
 package cz.cuni.mff.hdt.source;
 
 import cz.cuni.mff.hdt.reference.ArrayReference;
+import cz.cuni.mff.hdt.reference.PropertyReference;
 import cz.cuni.mff.hdt.reference.Reference;
 import cz.cuni.mff.hdt.reference.ValueReference;
 
@@ -23,5 +24,13 @@ public interface ArraySource {
    * @return ValueSource from the given ValueReference.
    */
   public ValueSource getSourceFromReference(ValueReference referece);
+
+  /**
+   * Get PropertySource from PropertyReference.
+   * 
+   * @param referece PropertyReference from which we want to make the source.
+   * @return PropertySource from the given PropertyReference.
+   */
+  public PropertySource getSourceFromReference(PropertyReference referece);
 
 }
