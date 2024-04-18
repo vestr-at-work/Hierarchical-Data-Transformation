@@ -96,6 +96,9 @@ public class JsonSink extends UrSink {
         writeIndentation();
         writeString(key);
         writer.write(":");
+        if (prettyPrint) {
+            writer.write(" ");
+        }
         afterKey = true;
     }
 
@@ -213,6 +216,13 @@ public class JsonSink extends UrSink {
     }
 
     private void writeValueToken(String value) throws IOException {
+        var valueToken = nesting.pop();
+        if (nesting.peek().state == State.InArray) {
+            writeSeparator();
+            writeIndentation();
+        }
+        nesting.push(valueToken);
+
         switch(nesting.peek().type) {
             case String:
                 writeString(value);
