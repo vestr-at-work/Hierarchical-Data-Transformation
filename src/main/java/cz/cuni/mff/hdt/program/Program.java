@@ -51,7 +51,7 @@ public class Program {
         transformation.transform();
 
         var result = writer.toString();
-        System.out.print(result);
+        System.out.println(result);
     }
 
     public static String readFileAsString(String fileName)

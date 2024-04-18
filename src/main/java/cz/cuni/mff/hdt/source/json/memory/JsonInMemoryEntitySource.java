@@ -41,7 +41,7 @@ public class JsonInMemoryEntitySource implements EntitySource {
             var object = (JSONObject)property;
             object.put(Ur.KEY_TYPE, Ur.VALUE_OBJECT);
 
-            System.out.println("EntityReference property is JSONObject: " + object.toString()); // TODO
+            // System.out.println("EntityReference property is JSONObject: " + object.toString()); // TODO
 
             return new JsonInMemoryArrayReference(new JsonInMemoryEntityReference(object));
         }
@@ -49,7 +49,7 @@ public class JsonInMemoryEntitySource implements EntitySource {
             var array = (JSONArray)property;
             var entity = documentSource.makeUrObjectFromArray(array);
 
-            System.out.println("EntityReference property is JSONArray: " + array.toString()); // TODO
+            // System.out.println("EntityReference property is JSONArray: " + array.toString()); // TODO
 
             return new JsonInMemoryArrayReference(entity);
         }

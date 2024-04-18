@@ -76,7 +76,7 @@ public class JsonInMemoryDocumentSource implements DocumentSource {
         }
         rootObject.put(Ur.KEY_TYPE, Ur.VALUE_OBJECT);
 
-        System.out.println("getRootEntityReference called for object: " + rootObject);
+        // System.out.println("getRootEntityReference called for object: " + rootObject); // TODO
 
         return new JsonInMemoryEntityReference(rootObject);
     }
