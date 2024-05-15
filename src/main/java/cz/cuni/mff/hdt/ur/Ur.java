@@ -1,5 +1,10 @@
 package cz.cuni.mff.hdt.ur;
 
+import org.json.JSONObject;
+
+/**
+ * Unified representation of hierarchical data.
+ */
 public class Ur {
     public static final String KEY_TYPE = "@type";
     public static final String KEY_VALUE = "@value";
@@ -22,4 +27,10 @@ public class Ur {
     public static final String VALUE_BOOLEAN_URI = "http://www.w3.org/2001/XMLSchema#boolean";
 
     public static enum Type { Object, Array, String, Number, Boolean };
+
+    protected JSONObject innerRepresentation;
+
+    public Ur(JSONObject object) {
+        this.innerRepresentation = object;
+    } 
 }
