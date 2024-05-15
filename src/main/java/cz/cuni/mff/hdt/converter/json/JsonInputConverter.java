@@ -1,4 +1,4 @@
-package cz.cuni.mff.hdt.convertor.json;
+package cz.cuni.mff.hdt.converter.json;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,10 +9,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import cz.cuni.mff.hdt.convertor.InputConvertor;
+import cz.cuni.mff.hdt.converter.InputConverter;
 import cz.cuni.mff.hdt.ur.Ur;
 
-public class JsonInputConvertor implements InputConvertor {
+public class JsonInputConverter implements InputConverter {
 
     @Override
     public Ur convert(InputStream input) throws IOException {
