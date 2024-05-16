@@ -33,4 +33,8 @@ public class Ur {
     public Ur(JSONObject object) {
         this.innerRepresentation = object;
     } 
+
+    public JSONObject getInnerRepresentation() {
+        return innerRepresentation;
+    }
 }
