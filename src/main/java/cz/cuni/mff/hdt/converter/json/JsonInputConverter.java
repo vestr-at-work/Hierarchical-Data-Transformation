@@ -68,7 +68,7 @@ public class JsonInputConverter implements InputConverter {
         var urObject = new JSONObject();
         urObject.append(Ur.KEY_TYPE, Ur.VALUE_ARRAY);
 
-        Integer index = 1;
+        Integer index = 0;
         for (var value : array) {
             if (value instanceof JSONObject) {
                 urObject.append(index.toString(), getJsonUrRecursive((JSONObject)value));
