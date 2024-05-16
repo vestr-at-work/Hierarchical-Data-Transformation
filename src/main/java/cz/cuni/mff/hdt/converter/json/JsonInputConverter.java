@@ -31,7 +31,6 @@ public class JsonInputConverter implements InputConverter {
                 throw new IOException("There is no JSON in the input.");
             }
         }
-        finally {}
     }
 
     private static Ur getUr(JSONObject inputJson) {
@@ -52,13 +51,13 @@ public class JsonInputConverter implements InputConverter {
             Object value = object.get(key);
 
             if (value instanceof JSONObject) {
-                urObject.append(key, arrayWrap(getJsonUrRecursive((JSONObject)value)));
+                urObject.append(key, getJsonUrRecursive((JSONObject)value));
             }
             else if (value instanceof JSONArray) {
-                urObject.append(key, arrayWrap(getJsonUrRecursive((JSONArray)value)));
+                urObject.append(key, getJsonUrRecursive((JSONArray)value));
             }
             else { // is primitive
-                urObject.append(key, arrayWrap(getUrPrimitive(value)));
+                urObject.append(key, getUrPrimitive(value));
             }
         }
 
@@ -72,13 +71,13 @@ public class JsonInputConverter implements InputConverter {
         Integer index = 1;
         for (var value : array) {
             if (value instanceof JSONObject) {
-                urObject.append(index.toString(), arrayWrap(getJsonUrRecursive((JSONObject)value)));
+                urObject.append(index.toString(), getJsonUrRecursive((JSONObject)value));
             }
             else if (value instanceof JSONArray) {
-                urObject.append(index.toString(), arrayWrap(getJsonUrRecursive((JSONArray)value)));
+                urObject.append(index.toString(), getJsonUrRecursive((JSONArray)value));
             }
             else { // is primitive
-                urObject.append(index.toString(), arrayWrap(getUrPrimitive(value)));
+                urObject.append(index.toString(), getUrPrimitive(value));
             }
 
             index++;
@@ -109,9 +108,4 @@ public class JsonInputConverter implements InputConverter {
         }
     }
 
-    // TODO move to somewhere else
-    private static JSONArray arrayWrap(Object value) {
-        return new JSONArray().put(value);
-    }
-    
 }
