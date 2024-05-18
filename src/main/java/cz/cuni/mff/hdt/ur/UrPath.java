@@ -16,7 +16,7 @@ public class UrPath {
      * Token representing a property with key in Ur
      */
     public class PropertyToken extends Token {
-        protected String key;
+        private String key;
 
         public PropertyToken(String key) {
             this.key = key;
@@ -32,13 +32,13 @@ public class UrPath {
      * If index is null it is for appending new item at the end of the array.
      */
     public class ArrayItemToken extends Token {
-        protected int index;
+        private Integer index;
 
-        public ArrayItemToken(int index) {
+        public ArrayItemToken(Integer index) {
             this.index = index;
         }
 
-        public int getIndex() {
+        public Integer getIndex() {
             return index;
         }
     }
@@ -46,7 +46,20 @@ public class UrPath {
     public List<Token> tokens;
 
     public UrPath(String path) throws IOException {
-        tokens = getParsedTokens(path.split("/"));
+        var pathStringTokens = path.split("/");
+        if (pathStringTokens.length == 2) {
+            tokens = new ArrayList<>();
+            return;
+        }
+        tokens = getParsedTokens(pathStringTokens);
+    }
+
+    public UrPath(List<Token> tokens) {
+        this.tokens = tokens;
+    }
+
+    public int length() {
+        return tokens.size();
     }
 
     protected List<Token> getParsedTokens(String[] pathStringTokens) throws IOException {
