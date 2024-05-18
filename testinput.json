@@ -3,5 +3,10 @@
         "name": "Aillish",
         "fame": true,
         "age": 23
-    }
+    },
+    "entities": [
+        "object", 
+        1, 
+        false
+    ]
 }

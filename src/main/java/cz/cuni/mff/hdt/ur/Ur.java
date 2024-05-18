@@ -1,5 +1,7 @@
 package cz.cuni.mff.hdt.ur;
 
+import java.util.Set;
+
 import org.json.JSONObject;
 
 /**
@@ -36,5 +38,27 @@ public class Ur {
 
     public JSONObject getInnerRepresentation() {
         return innerRepresentation;
+    }
+
+    public Set<String> getKeys() {
+        return null;
+    }
+
+    public Ur get(UrPath path) {
+        // TODO
+        return null;
+    }
+
+    public void set(UrPath path, Ur value) {
+        // TODO
+
+    }
+
+    public void update(UrPath path, Ur value) {
+        // TODO
+    }
+
+    public void delete(UrPath path) {
+        // TODO
     }
 }
