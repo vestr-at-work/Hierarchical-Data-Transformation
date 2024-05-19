@@ -54,7 +54,8 @@ public class Ur {
 
     public Ur get(UrPath path) throws IOException {
         var outputInner = getInner(path);
-        return new Ur(outputInner);
+        var outputInnerCopy = new JSONObject(outputInner.toMap()); 
+        return new Ur(outputInnerCopy);
     }
 
     public void set(UrPath path, Ur value) throws IOException {
@@ -184,7 +185,7 @@ public class Ur {
             if (key.equals(KEY_TYPE)) {
                 continue;
             }
-            
+
             try {
                 var index = Integer.parseInt(key);
                 maxIndex = index > maxIndex ? index : maxIndex;

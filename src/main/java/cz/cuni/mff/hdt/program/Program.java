@@ -8,6 +8,7 @@ import cz.cuni.mff.hdt.transformation.Transformation;
 import cz.cuni.mff.hdt.transformation.TransformationContext;
 import cz.cuni.mff.hdt.transformation.TransformationDefinition;
 import cz.cuni.mff.hdt.ur.Ur;
+import cz.cuni.mff.hdt.ur.UrPath;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -25,10 +26,12 @@ public class Program {
 
         Ur inputUr = new JsonInputConverter().convert(new ByteArrayInputStream(Files.readAllBytes(Paths.get(pathToInputFile))));
         System.out.println(inputUr.getInnerRepresentation().toString(2));
-
+        //inputUr.set(new UrPath("/person/called"), inputUr.get(new UrPath("/person/name")));
+        inputUr.delete(new UrPath("/person/name/@value"));
         System.out.println("-----");
-        var output = new JsonOutputConverter().convert(inputUr);
-        System.out.println(output);
+        System.out.println(inputUr.getInnerRepresentation().toString(2));
+        //var output = new JsonOutputConverter().convert(inputUr);
+        //System.out.println(output);
 
 
 
