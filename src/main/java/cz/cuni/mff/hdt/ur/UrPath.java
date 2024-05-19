@@ -47,7 +47,7 @@ public class UrPath {
 
     public UrPath(String path) throws IOException {
         var pathStringTokens = path.split("/");
-        if (pathStringTokens.length == 2) {
+        if (pathStringTokens.length == 2 && pathStringTokens[1].equals("")) {
             tokens = new ArrayList<>();
             return;
         }
