@@ -1,4 +1,4 @@
-package cz.cuni.mff.hdt.operation.valueshift;
+package cz.cuni.mff.hdt.operation.shift;
 
 public class Key {
     public String Value;

@@ -1,4 +1,4 @@
-package cz.cuni.mff.hdt.operation.valueshift;
+package cz.cuni.mff.hdt.operation.shift;
 
 import org.json.JSONArray;
 
@@ -7,12 +7,12 @@ import cz.cuni.mff.hdt.operation.OperationFailedException;
 import cz.cuni.mff.hdt.ur.Ur;
 
 /*
- * Class implementing the value-shift operation from the transformational language
+ * Class implementing the shift operation of the transformation language
  */
-public class ValueShiftOperation implements Operation {
+public class ShiftOperation implements Operation {
     private JSONArray operationDefinition;
 
-    public ValueShiftOperation(JSONArray operationDefinition) {
+    public ShiftOperation(JSONArray operationDefinition) {
         this.operationDefinition = operationDefinition;
     }
 
