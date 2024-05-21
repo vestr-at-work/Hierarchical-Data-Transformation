@@ -3,7 +3,6 @@ package cz.cuni.mff.hdt.program;
 import cz.cuni.mff.hdt.converter.json.JsonInputConverter;
 import cz.cuni.mff.hdt.converter.json.JsonOutputConverter;
 import cz.cuni.mff.hdt.transformation.Transformation;
-import cz.cuni.mff.hdt.transformation.TransformationContext;
 import cz.cuni.mff.hdt.transformation.TransformationDefinition;
 import cz.cuni.mff.hdt.ur.Ur;
 import cz.cuni.mff.hdt.ur.UrPath;
