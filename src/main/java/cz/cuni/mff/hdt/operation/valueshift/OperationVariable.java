@@ -1,4 +1,4 @@
-package cz.cuni.mff.hdt.transformation.operations.valueshift;
+package cz.cuni.mff.hdt.operation.valueshift;
 
 public class OperationVariable {
     public String Name;

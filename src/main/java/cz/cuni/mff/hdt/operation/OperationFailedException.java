@@ -1,4 +1,4 @@
-package cz.cuni.mff.hdt.transformation.operations;
+package cz.cuni.mff.hdt.operation;
 
 /*
  * Custom exception to be thrown when transformation operation fails

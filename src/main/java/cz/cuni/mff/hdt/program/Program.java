@@ -2,8 +2,6 @@ package cz.cuni.mff.hdt.program;
 
 import cz.cuni.mff.hdt.converter.json.JsonInputConverter;
 import cz.cuni.mff.hdt.converter.json.JsonOutputConverter;
-import cz.cuni.mff.hdt.sink.json.JsonSink;
-import cz.cuni.mff.hdt.source.json.memory.JsonInMemoryDocumentSource;
 import cz.cuni.mff.hdt.transformation.Transformation;
 import cz.cuni.mff.hdt.transformation.TransformationContext;
 import cz.cuni.mff.hdt.transformation.TransformationDefinition;
