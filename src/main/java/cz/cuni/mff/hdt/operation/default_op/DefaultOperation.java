@@ -16,7 +16,6 @@ import cz.cuni.mff.hdt.ur.UrPath;
 public class DefaultOperation implements Operation {
     public static final String KEY_PATH = "path";
     public static final String KEY_VALUE = "value";
-    public static final String KEY_TYPE = "type";
 
     private ArrayList<Pair<UrPath, TypedValue>> defaluts;
 
@@ -56,15 +55,15 @@ public class DefaultOperation implements Operation {
             throw new IOException("Incorrect type of an item in specs");
         }
         var specObject = (JSONObject)spec;
-        if (!specObject.has(KEY_PATH) || !specObject.has(KEY_VALUE) || !specObject.has(KEY_TYPE)) {
+        if (!specObject.has(KEY_PATH) || !specObject.has(KEY_VALUE)) {
             throw new IOException("Mandatory keys are missing from item in specs");
         }
         var pathObject = specObject.get(KEY_PATH);
-        var type = specObject.get(KEY_TYPE).toString();
-        var value = specObject.get(KEY_VALUE).toString();
+        var value = specObject.get(KEY_VALUE);
+        var type = Ur.getPrimitiveUrString(value);
         if (!(pathObject instanceof String)) {
             throw new IOException("Incorrect type of key '" + KEY_PATH + "' in spec item");
         }
-        return Pair.of(new UrPath((String)pathObject), new TypedValue(type, value));
+        return Pair.of(new UrPath((String)pathObject), new TypedValue(type, value.toString()));
     }
 }

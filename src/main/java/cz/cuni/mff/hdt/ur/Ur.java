@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
+import javax.management.RuntimeErrorException;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.Property;
@@ -55,6 +57,21 @@ public class Ur {
                 .put(KEY_TYPE, new JSONArray().put(0, typedValue.type()))
                 .put(KEY_VALUE, new JSONArray().put(0, typedValue.value()))
         );
+    }
+
+    public static String getPrimitiveUrString(Object value) throws IOException {
+        if (value instanceof String) {
+            return VALUE_STRING;
+        }
+        else if (value instanceof Boolean) {
+            return VALUE_BOOLEAN;
+        }
+        else if (value instanceof Number) {
+            return VALUE_NUMBER;
+        }
+        else {
+            throw new IOException("Unsupported value type.");
+        }
     }
 
     public Set<String> getKeys() {
