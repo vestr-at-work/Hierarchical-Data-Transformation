@@ -1,5 +1,6 @@
 package cz.cuni.mff.hdt.operation;
 
+import java.io.IOException;
 import java.util.Optional;
 
 import org.json.JSONArray;
@@ -10,5 +11,5 @@ import org.json.JSONArray;
  * For new user defined operations new OperationFactory implementation that supports such operation needs to be added.
  */
 public interface OperationFactory {
-    public Optional<Operation> get(String operationName, JSONArray operationSpecs);
+    public Optional<Operation> get(String operationName, JSONArray operationSpecs) throws IOException;
 }
