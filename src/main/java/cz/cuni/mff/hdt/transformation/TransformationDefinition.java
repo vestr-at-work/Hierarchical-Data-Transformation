@@ -1,7 +1,9 @@
 package cz.cuni.mff.hdt.transformation;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -64,11 +66,19 @@ public class TransformationDefinition {
             var operationType = operationObject.get(KEY_OPERATION);
 
             if (!(operationType instanceof String)) {
-                throw new IllegalArgumentException("Incorrect '" + KEY_OPERATION + "' value in operation with index: '" + index + "'. Has to be of type String.");
+                throw new IllegalArgumentException("Incorrect '" + KEY_OPERATION + "' value in operation with index: '" + index + "'. Has to be of type String");
             }
             var operationTypeString = (String)operationType;
             var specsObject = (JSONArray)specs;
-            var parsedOperation = operationFactory.get(operationTypeString, specsObject);
+
+            Optional<Operation> parsedOperation;
+            try {
+                parsedOperation = operationFactory.get(operationTypeString, specsObject);
+            }
+            catch (IOException e) {
+                throw new IllegalArgumentException("Incorrect specification in '" + operationTypeString + "' operation");
+            }
+            
             if (parsedOperation.isEmpty()) {
                 throw new IllegalArgumentException("Uknown operation '" + operationTypeString + "'");
             }

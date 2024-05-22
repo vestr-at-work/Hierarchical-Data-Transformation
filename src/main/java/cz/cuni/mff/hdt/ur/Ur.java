@@ -8,6 +8,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.Property;
 
+import cz.cuni.mff.hdt.transformation.TypedValue;
 import cz.cuni.mff.hdt.ur.UrPath.ArrayItemToken;
 import cz.cuni.mff.hdt.ur.UrPath.PropertyToken;
 import cz.cuni.mff.hdt.ur.UrPath.Token;
@@ -46,6 +47,14 @@ public class Ur {
 
     public JSONObject getInnerRepresentation() {
         return innerRepresentation;
+    }
+
+    public static Ur getTypedValueUr(TypedValue typedValue) {
+        return new Ur(
+            new JSONObject()
+                .put(KEY_TYPE, new JSONArray().put(0, typedValue.type()))
+                .put(KEY_VALUE, new JSONArray().put(0, typedValue.value()))
+        );
     }
 
     public Set<String> getKeys() {
