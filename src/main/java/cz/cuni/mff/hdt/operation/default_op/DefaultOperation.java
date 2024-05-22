@@ -17,18 +17,18 @@ public class DefaultOperation implements Operation {
     public static final String KEY_PATH = "path";
     public static final String KEY_VALUE = "value";
 
-    private ArrayList<Pair<UrPath, TypedValue>> defaluts;
+    private ArrayList<Pair<UrPath, TypedValue>> defaults;
 
     public DefaultOperation(JSONArray operationSpecs) throws IOException {
         for (var spec : operationSpecs) {
-            defaluts.add(parseSpec(spec));
+            defaults.add(parseSpec(spec));
         }
     }
 
     @Override
     public Ur execute(Ur inputUr) throws OperationFailedException {
         var outputUr = new Ur(new JSONObject(inputUr.getInnerRepresentation().toMap()));
-        for (var pair : defaluts) {
+        for (var pair : defaults) {
             var path = pair.getLeft();
             var typedValue = Ur.getTypedValueUr(pair.getRight());
             // TODO this is not optimal since exception handeling is very inefective
