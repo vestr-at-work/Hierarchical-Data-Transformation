@@ -73,7 +73,7 @@ public class TransformationDefinition {
 
             Optional<Operation> parsedOperation;
             try {
-                parsedOperation = operationFactory.get(operationTypeString, specsObject);
+                parsedOperation = operationFactory.create(operationTypeString, specsObject);
             }
             catch (IOException e) {
                 throw new IllegalArgumentException("Incorrect specification in '" + operationTypeString + "' operation");

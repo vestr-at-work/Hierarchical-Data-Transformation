@@ -17,7 +17,7 @@ public class BasicOperationFactory implements OperationFactory {
     public static final String OPERATION_SHIFT = "shift";
 
     @Override
-    public Optional<Operation> get(String operationName, JSONArray operationSpecs) throws IOException {
+    public Optional<Operation> create(String operationName, JSONArray operationSpecs) throws IOException {
         if (operationName.equals(OPERATION_DEFAULT)) {
             return Optional.of(new DefaultOperation(operationSpecs));
         }
