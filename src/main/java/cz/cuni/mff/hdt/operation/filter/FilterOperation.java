@@ -19,6 +19,7 @@ public class FilterOperation implements Operation {
     private ArrayList<Pair<UrPath, UrPredicate>> filters;
 
     public FilterOperation(JSONArray operationSpecs) throws IOException {
+        filters = new ArrayList<>();
         for (var spec : operationSpecs) {
             filters.add(parseSpec(spec));
         }

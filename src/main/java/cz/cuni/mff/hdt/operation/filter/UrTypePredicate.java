@@ -34,6 +34,5 @@ public class UrTypePredicate implements UrPredicate {
         }
         // sign is not equal
         return !this.value.equals(type);
-        
     } 
 }
