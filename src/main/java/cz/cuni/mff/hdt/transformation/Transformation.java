@@ -11,12 +11,21 @@ import cz.cuni.mff.hdt.ur.Ur;
 public class Transformation {
     private TransformationDefinition definition;
 
+    /**
+     * Constructs a new {@code Transformation} with the specified {@code TransformationDefinition}.
+     *
+     * @param definition the transformation definition
+     */
     public Transformation(TransformationDefinition definition) {
         this.definition = definition;
     }
 
-    /*
-     * Main public function for transforming the data
+    /**
+     * Main function for transforming the data.
+     *
+     * @param input the input hierarchical data to be transformed
+     * @return the transformed hierarchical data
+     * @throws OperationFailedException if an operation in the transformation fails
      */
     public Ur transform(Ur input) throws OperationFailedException {
         Ur operationInput = input;

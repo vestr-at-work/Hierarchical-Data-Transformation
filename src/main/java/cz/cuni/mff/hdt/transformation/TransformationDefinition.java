@@ -24,10 +24,24 @@ public class TransformationDefinition {
      */
     public List<Operation> operations = new ArrayList<>();
 
+    /**
+     * Constructs a new {@code TransformationDefinition} with the specified list of operations.
+     *
+     * @param operations the list of operations
+     */
     public TransformationDefinition(List<Operation> operations) {
         this.operations = operations;
     }
 
+    /**
+     * Creates a {@code TransformationDefinition} from a JSON object using the specified {@code OperationFactory}.
+     * Is a factory method.
+     *
+     * @param transformationDefinitionObject the JSON object containing the transformation definition
+     * @param operationFactory the factory to create operations
+     * @return the created {@code TransformationDefinition}
+     * @throws IllegalArgumentException if the JSON object is invalid or missing required keys
+     */
     public static TransformationDefinition getTransformationDefinition(
         JSONObject transformationDefinitionObject, OperationFactory operationFactory) {
 
