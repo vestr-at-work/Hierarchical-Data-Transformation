@@ -4,11 +4,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-import javax.management.RuntimeErrorException;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.Property;
 
 import cz.cuni.mff.hdt.transformation.TypedValue;
 import cz.cuni.mff.hdt.ur.UrPath.ArrayItemToken;
@@ -39,18 +36,37 @@ public class Ur {
     public static final String VALUE_INTEGER_URI = "http://www.w3.org/2001/XMLSchema#integer";
     public static final String VALUE_BOOLEAN_URI = "http://www.w3.org/2001/XMLSchema#boolean";
 
+    /**
+     * Possible type in a Unified representation.
+     */
     public static enum Type { Object, Array, String, Number, Boolean };
 
     protected JSONObject innerRepresentation;
 
+    /**
+     * Constructs a new {@code Ur} object with the specified JSON representation.
+     * 
+     * @param object the JSON object representing the hierarchical data
+     */
     public Ur(JSONObject object) {
         this.innerRepresentation = object;
     } 
 
+    /**
+     * Returns the inner JSON representation of the hierarchical data.
+     * 
+     * @return the inner JSON object
+     */
     public JSONObject getInnerRepresentation() {
         return innerRepresentation;
     }
 
+    /**
+     * Constructs a new {@code Ur} primitive value from a {@code TypedValue}.
+     * 
+     * @param typedValue the TypedValue containing type and value
+     * @return a new Ur primitive value
+     */
     public static Ur getTypedValueUr(TypedValue typedValue) {
         return new Ur(
             new JSONObject()
@@ -59,6 +75,13 @@ public class Ur {
         );
     }
 
+    /**
+     * Returns the primitive type as a string for the given value.
+     * 
+     * @param value the value to check
+     * @return the string representation of the type
+     * @throws IOException if the value type is unsupported
+     */
     public static String getPrimitiveUrString(Object value) throws IOException {
         if (value instanceof String) {
             return VALUE_STRING;
@@ -74,16 +97,35 @@ public class Ur {
         }
     }
 
+    /**
+     * Returns the set of keys in the inner JSON representation.
+     * 
+     * @return the set of keys
+     */
     public Set<String> getKeys() {
         return null;
     }
 
+    /**
+     * Retrieves the Ur object at the specified path.
+     * 
+     * @param path the path to the Ur object
+     * @return the Ur object at the specified path
+     * @throws IOException if the path is invalid
+     */
     public Ur get(UrPath path) throws IOException {
         var outputInner = getInner(path);
         var outputInnerCopy = new JSONObject(outputInner.toMap()); 
         return new Ur(outputInnerCopy);
     }
 
+    /**
+     * Sets the value at the specified path.
+     * 
+     * @param path the path to set the value at
+     * @param value the Ur value to set
+     * @throws IOException if the path is invalid
+     */
     public void set(UrPath path, Ur value) throws IOException {
         try {
             update(path, value);
@@ -93,6 +135,13 @@ public class Ur {
         }
     }
 
+    /**
+     * Updates the value at the specified path.
+     * 
+     * @param path the path to update the value at
+     * @param value the Ur value to update
+     * @throws IOException if the path is invalid or the value does not exist
+     */
     public void update(UrPath path, Ur value) throws IOException {
         var innerValue = value.innerRepresentation; 
         if (path.length() == 0) {
@@ -112,6 +161,12 @@ public class Ur {
         parrentInner.put(childKeyOrIndex, innerValue);
     }
 
+    /**
+     * Deletes the value at the specified path.
+     * 
+     * @param path the path to delete the value at
+     * @throws IOException if the path is invalid or the root is being deleted
+     */
     public void delete(UrPath path) throws IOException {
         if (path.length() == 0) {
             throw new IOException("Can not delete Ur root.");
@@ -129,6 +184,12 @@ public class Ur {
         parrentInner.remove(childKeyOrIndex);
     }
 
+    /**
+     * Checks if the value is present at the specified path.
+     * 
+     * @param path the path to check for presence
+     * @return true if the value is present, false otherwise
+     */
     public boolean isPresent(UrPath path) {
         JSONObject outputInner = innerRepresentation;
         for (int i = 0; i < path.length(); i++) {
