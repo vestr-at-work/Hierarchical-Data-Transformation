@@ -20,6 +20,7 @@ public class DefaultOperation implements Operation {
     private ArrayList<Pair<UrPath, TypedValue>> defaults;
 
     public DefaultOperation(JSONArray operationSpecs) throws IOException {
+        defaults = new ArrayList<>();
         for (var spec : operationSpecs) {
             defaults.add(parseSpec(spec));
         }
@@ -31,13 +32,9 @@ public class DefaultOperation implements Operation {
         for (var pair : defaults) {
             var path = pair.getLeft();
             var typedValue = Ur.getTypedValueUr(pair.getRight());
-            // TODO this is not optimal since exception handeling is very inefective
-            // we should add something like tryGet method to Ur
-            try {
-                outputUr.get(path);
+            if (outputUr.isPresent(path)) {
                 continue;
             }
-            catch (IOException e) {}
 
             try {
                 outputUr.set(path, typedValue);

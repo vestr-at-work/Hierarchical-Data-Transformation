@@ -17,6 +17,7 @@ public class RemoveOperation implements Operation {
     private ArrayList<UrPath> removePaths;
 
     public RemoveOperation(JSONArray operationSpecs) throws IOException {
+        removePaths = new ArrayList<>();
         for (var spec : operationSpecs) {
             removePaths.add(parseSpec(spec));
         }

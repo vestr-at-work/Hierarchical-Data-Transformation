@@ -129,6 +129,34 @@ public class Ur {
         parrentInner.remove(childKeyOrIndex);
     }
 
+    public boolean isPresent(UrPath path) {
+        JSONObject outputInner = innerRepresentation;
+        for (int i = 0; i < path.length(); i++) {
+            Token pathToken = path.tokens.get(i);
+            if (pathToken instanceof PropertyToken) {
+                var property = (PropertyToken)pathToken;
+                if (!outputInner.has(property.getKey())) {
+                    return false;
+                }
+                outputInner = getChildEntity(outputInner, property.getKey());
+            }
+            else if (pathToken instanceof ArrayItemToken) {
+                var arrayItem = (ArrayItemToken)pathToken;
+                if (arrayItem.getIndex() == null) {
+                    return false;
+                }
+                if (!outputInner.has(arrayItem.getIndex().toString())) {
+                    return false;
+                }
+                outputInner = getChildEntity(outputInner, arrayItem.getIndex().toString());
+            }
+            else {
+                throw new IllegalStateException("Unknown UrPath token.");
+            }
+        }
+        return true;
+    }
+
     protected JSONObject getChildEntity(JSONObject entity, String key) {
         var innerArray = (JSONArray)entity.get(key);
         var innerObject = (JSONObject)innerArray.get(0);
@@ -189,12 +217,18 @@ public class Ur {
             Token pathToken = path.tokens.get(i);
             var key = getTokenKeyOrIndexString(pathToken);
             if (key == null) { // if array item with no index
+                if (innerSubtree == innerRepresentation && innerSubtree.keySet().isEmpty()) { // if empty root
+                    innerSubtree.put(KEY_TYPE, new JSONArray().put(0, VALUE_ARRAY));
+                }
                 Integer nextIndex = getMaxIndex(innerSubtree) + 1;
                 var restOfPath = new UrPath(path.tokens.subList(i + 1, path.length()));
                 innerSubtree.put(nextIndex.toString(), createSubtreeWithValue(restOfPath, value));
                 return;
             }
             if (!innerSubtree.has(key)) {
+                if (innerSubtree == innerRepresentation && innerSubtree.keySet().isEmpty()) { // if empty root
+                    innerSubtree.put(KEY_TYPE, new JSONArray().put(0, VALUE_OBJECT));
+                }
                 var restOfPath = new UrPath(path.tokens.subList(i + 1, path.length()));
                 innerSubtree.put(key, createSubtreeWithValue(restOfPath, value));
                 return;
@@ -229,7 +263,7 @@ public class Ur {
             Token pathToken = path.tokens.get(i);
             var key = getTokenKeyOrIndexString(pathToken);
             if (pathToken instanceof ArrayItemToken) {
-                var tempObject = new JSONObject().put(KEY_TYPE, VALUE_ARRAY);
+                var tempObject = new JSONObject().put(KEY_TYPE, new JSONArray().put(0, VALUE_ARRAY));
                 var index = key;
                 if (key == null) {
                     index = "0";
@@ -237,7 +271,7 @@ public class Ur {
                 innerValue = tempObject.put(index, new JSONArray().put(0, innerValue));
             }
             else if (pathToken instanceof PropertyToken) {
-                var tempObject = new JSONObject().put(KEY_TYPE, VALUE_OBJECT);
+                var tempObject = new JSONObject().put(KEY_TYPE, new JSONArray().put(0, VALUE_OBJECT));
                 innerValue = tempObject.put(key, new JSONArray().put(0, innerValue));
             }
         }

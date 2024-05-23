@@ -23,6 +23,7 @@ public class ShiftOperation implements Operation {
     private ArrayList<Pair<UrPath, ArrayList<UrPath>>> paths;
 
     public ShiftOperation(JSONArray operationSpecs) throws IOException {
+        paths = new ArrayList<>();
         for (var spec : operationSpecs) {
             paths.add(parseSpec(spec));
         }
