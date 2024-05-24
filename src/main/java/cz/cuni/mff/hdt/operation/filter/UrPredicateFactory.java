@@ -5,7 +5,17 @@ import java.io.IOException;
 import cz.cuni.mff.hdt.operation.filter.UrPredicate.ComparationSign;
 import cz.cuni.mff.hdt.ur.Ur;
 
+/**
+ * Factory class for creating {@code UrPredicate} instances based on a given predicate string.
+ */
 public class UrPredicateFactory {
+    /**
+     * Creates an {@code UrPredicate} from a given string value.
+     *
+     * @param value the predicate string, formatted as "type comparationSign comparationValue"
+     * @return an {@code UrPredicate} based on the parsed predicate string
+     * @throws IOException if the predicate string is invalid
+     */
     public static UrPredicate create(String value) throws IOException {
         String[] tokens = value.split(" ");
         if (tokens.length != 3) {

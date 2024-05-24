@@ -13,12 +13,22 @@ import cz.cuni.mff.hdt.transformation.TypedValue;
 import cz.cuni.mff.hdt.ur.Ur;
 import cz.cuni.mff.hdt.ur.UrPath;
 
+/**
+ * Class implementing the default operation of the transformation language.
+ * This operation sets default values at specified paths if they are not already present in the input.
+ */
 public class DefaultOperation implements Operation {
     public static final String KEY_PATH = "path";
     public static final String KEY_VALUE = "value";
 
     private ArrayList<Pair<UrPath, TypedValue>> defaults;
 
+    /**
+     * Constructs a DefaultOperation with the given operation specifications.
+     *
+     * @param operationSpecs the JSONArray containing operation specifications
+     * @throws IOException if there is an error parsing the specifications
+     */
     public DefaultOperation(JSONArray operationSpecs) throws IOException {
         defaults = new ArrayList<>();
         for (var spec : operationSpecs) {
@@ -26,6 +36,13 @@ public class DefaultOperation implements Operation {
         }
     }
 
+    /**
+     * Executes the default operation on the given input {@code Ur}.
+     *
+     * @param inputUr the input {@code Ur} to apply default values to
+     * @return the {@code Ur} with default values applied
+     * @throws OperationFailedException if the operation fails
+     */
     @Override
     public Ur execute(Ur inputUr) throws OperationFailedException {
         var outputUr = new Ur(new JSONObject(inputUr.getInnerRepresentation().toMap()));

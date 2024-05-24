@@ -12,12 +12,22 @@ import cz.cuni.mff.hdt.operation.OperationFailedException;
 import cz.cuni.mff.hdt.ur.Ur;
 import cz.cuni.mff.hdt.ur.UrPath;
 
+/**
+ * Class implementing the filter operation of the transformation language.
+ * This operation filters elements from the input based on specified predicates.
+ */
 public class FilterOperation implements Operation {
     public static final String KEY_PATH = "path";
     public static final String KEY_PREDICATE = "predicate";
 
     private ArrayList<Pair<UrPath, UrPredicate>> filters;
 
+    /**
+     * Constructs a FilterOperation with the given operation specifications.
+     *
+     * @param operationSpecs the JSONArray containing operation specifications
+     * @throws IOException if there is an error parsing the specifications
+     */
     public FilterOperation(JSONArray operationSpecs) throws IOException {
         filters = new ArrayList<>();
         for (var spec : operationSpecs) {
@@ -25,6 +35,13 @@ public class FilterOperation implements Operation {
         }
     }
 
+    /**
+     * Executes the filter operation on the given input {@code Ur}.
+     *
+     * @param inputUr the input {@code Ur} to filter
+     * @return the filtered {@code Ur}
+     * @throws OperationFailedException if the operation fails
+     */
     @Override
     public Ur execute(Ur inputUr) throws OperationFailedException {
         var outputUr = new Ur(new JSONObject(inputUr.getInnerRepresentation().toMap()));

@@ -11,11 +11,20 @@ import cz.cuni.mff.hdt.operation.OperationFailedException;
 import cz.cuni.mff.hdt.ur.Ur;
 import cz.cuni.mff.hdt.ur.UrPath;
 
+/**
+ * Class implementing the remove operation of the transformation language.
+ */
 public class RemoveOperation implements Operation {
     public static final String KEY_PATH = "path";
 
     private ArrayList<UrPath> removePaths;
 
+    /**
+     * Constructs a new RemoveOperation with the specified operation specifications.
+     *
+     * @param operationSpecs the JSON array containing the operation specifications
+     * @throws IOException if there is an error parsing the operation specifications
+     */
     public RemoveOperation(JSONArray operationSpecs) throws IOException {
         removePaths = new ArrayList<>();
         for (var spec : operationSpecs) {
@@ -23,6 +32,13 @@ public class RemoveOperation implements Operation {
         }
     }
 
+    /**
+     * Executes the remove operation on the provided input {@code Ur} object.
+     *
+     * @param inputUr the input {@code Ur} object
+     * @return the resulting {@code Ur} object after the remove operation is applied
+     * @throws OperationFailedException if the remove operation fails
+     */
     @Override
     public Ur execute(Ur inputUr) throws OperationFailedException {
         var outputUr = new Ur(new JSONObject(inputUr.getInnerRepresentation().toMap()));

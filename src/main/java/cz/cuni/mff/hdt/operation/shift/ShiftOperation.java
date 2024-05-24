@@ -22,6 +22,12 @@ public class ShiftOperation implements Operation {
     // first is input path, second is array of output paths
     private ArrayList<Pair<UrPath, ArrayList<UrPath>>> paths;
 
+    /**
+     * Constructs a new ShiftOperation with the operation specifications.
+     *
+     * @param operationSpecs the JSON array containing the operation specifications
+     * @throws IOException if there is an error parsing the operation specifications
+     */
     public ShiftOperation(JSONArray operationSpecs) throws IOException {
         paths = new ArrayList<>();
         for (var spec : operationSpecs) {
@@ -29,6 +35,13 @@ public class ShiftOperation implements Operation {
         }
     }
 
+    /**
+     * Executes the shift operation on the provided input {@code Ur} object.
+     *
+     * @param inputUr the input {@code Ur} object
+     * @return the resulting {@code Ur} object after the shift operation is applied
+     * @throws OperationFailedException if the shift operation fails
+     */
     @Override
     public Ur execute(Ur inputUr) throws OperationFailedException {
         var outputUr = new Ur(new JSONObject("{}"));

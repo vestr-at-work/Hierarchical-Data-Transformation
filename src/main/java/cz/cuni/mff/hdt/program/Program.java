@@ -6,18 +6,25 @@ import cz.cuni.mff.hdt.operation.BasicOperationFactory;
 import cz.cuni.mff.hdt.transformation.Transformation;
 import cz.cuni.mff.hdt.transformation.TransformationDefinition;
 import cz.cuni.mff.hdt.ur.Ur;
-import cz.cuni.mff.hdt.ur.UrPath;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import org.json.JSONObject;
 
+/**
+ * The main class to run the transformation program.
+ */
 public class Program {
+    /**
+     * The main method to run the program.
+     *
+     * @param args the command line arguments, where the first argument is the path to the input file,
+     *             and the second argument is the path to the transformation definition file
+     * @throws IOException if there is an error reading the input files
+     */
     public static void main(String[] args) throws IOException {
 
         // String pathToInputFile = args[0];
@@ -59,6 +66,13 @@ public class Program {
         System.out.println(output);
     }
 
+    /**
+     * Reads the content of a file and returns it as a string.
+     *
+     * @param fileName the path to the file
+     * @return the content of the file as a string
+     * @throws IOException if there is an error reading the file
+     */
     public static String readFileAsString(String fileName)
         throws IOException
     {
