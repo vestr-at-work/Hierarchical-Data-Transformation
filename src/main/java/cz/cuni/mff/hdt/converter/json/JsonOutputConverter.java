@@ -8,8 +8,18 @@ import org.json.JSONObject;
 import cz.cuni.mff.hdt.converter.OutputConverter;
 import cz.cuni.mff.hdt.ur.Ur;
 
+/**
+ * Converter implementation for converting Unified representation (Ur) to JSON format.
+ */
 public class JsonOutputConverter implements OutputConverter {
 
+    /**
+     * Converts the Unified representation (Ur) data to JSON format.
+     *
+     * @param data the Unified representation (Ur) data to be converted
+     * @return a string representing the data in JSON format
+     * @throws IOException if an I/O error occurs during conversion
+     */
     @Override
     public String convert(Ur data) throws IOException {
         var innerJson = data.getInnerRepresentation();

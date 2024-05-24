@@ -12,8 +12,18 @@ import org.json.JSONObject;
 import cz.cuni.mff.hdt.converter.InputConverter;
 import cz.cuni.mff.hdt.ur.Ur;
 
+/**
+ * Converter implementation for converting JSON to Unified representation (Ur).
+ */
 public class JsonInputConverter implements InputConverter {
 
+    /**
+     * Converts the JSON as input stream into a Unified representation (Ur) object.
+     *
+     * @param input the input stream containing JSON data
+     * @return a Unified representation (Ur) object representing the JSON data
+     * @throws IOException if an I/O error occurs during conversion
+     */
     @Override
     public Ur convert(InputStream input) throws IOException {
         String inputString = new String(input.readAllBytes());
