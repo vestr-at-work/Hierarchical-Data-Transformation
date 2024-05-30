@@ -2,7 +2,7 @@
 <person>
     <name xml:lang="en">Ailish</name>
     <age>18</age>
-    <items>
+    <items random="test">
         <item>Bread</item>
         <item>Milk</item>
     </items>

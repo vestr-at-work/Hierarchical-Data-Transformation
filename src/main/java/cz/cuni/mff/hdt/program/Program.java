@@ -2,7 +2,9 @@ package cz.cuni.mff.hdt.program;
 
 import cz.cuni.mff.hdt.converter.json.JsonInputConverter;
 import cz.cuni.mff.hdt.converter.json.JsonOutputConverter;
+import cz.cuni.mff.hdt.converter.xml.XmlInputConverter;
 import cz.cuni.mff.hdt.operation.BasicOperationFactory;
+import cz.cuni.mff.hdt.operation.OperationFailedException;
 import cz.cuni.mff.hdt.transformation.Transformation;
 import cz.cuni.mff.hdt.transformation.TransformationDefinition;
 import cz.cuni.mff.hdt.ur.Ur;
@@ -26,44 +28,49 @@ public class Program {
      * @throws IOException if there is an error reading the input files
      */
     public static void main(String[] args) throws IOException {
-
-        // String pathToInputFile = args[0];
-
-        // Ur inputUr = new JsonInputConverter().convert(new ByteArrayInputStream(Files.readAllBytes(Paths.get(pathToInputFile))));
-        // System.out.println(inputUr.getInnerRepresentation().toString(2));
-        // //inputUr.set(new UrPath("/person/called"), inputUr.get(new UrPath("/person/name")));
-        // inputUr.delete(new UrPath("/person/name/@value"));
-        // System.out.println("-----");
-        // System.out.println(inputUr.getInnerRepresentation().toString(2));
-        // //var output = new JsonOutputConverter().convert(inputUr);
-        // //System.out.println(output);
-
-
-
-
-
-        
+        // TODO add help option
+        if (args.length != 2) {
+            System.err.println("Error: Invalid arguments provided.");
+            return;
+        }
         String pathToInputFile = args[0];
         String pathToTransformationDefinition = args[1];
 
-        var transformationDefinition = TransformationDefinition.getTransformationDefinition(
-            new JSONObject(readFileAsString(pathToTransformationDefinition)), 
-            new BasicOperationFactory()
-        );
-        
-        var transformation = new Transformation(transformationDefinition);
-        Ur inputUr = new JsonInputConverter().convert(new ByteArrayInputStream(Files.readAllBytes(Paths.get(pathToInputFile))));
+        try {
+            var transformationDefinition = TransformationDefinition.getTransformationDefinition(
+                new JSONObject(readFileAsString(pathToTransformationDefinition)), 
+                new BasicOperationFactory()
+            );
 
-        System.out.println(inputUr.getInnerRepresentation().toString(2));
+            var transformation = new Transformation(transformationDefinition);
+            Ur inputUr = new XmlInputConverter().convert(new ByteArrayInputStream(Files.readAllBytes(Paths.get(pathToInputFile))));
 
-        Ur outputUr = transformation.transform(inputUr);
+            System.out.println("INPUT UR:");
+            System.out.println(inputUr.getInnerRepresentation().toString(2));
 
-        System.out.println("----");
-        System.out.println(outputUr.getInnerRepresentation().toString(2));
+            Ur outputUr = transformation.transform(inputUr);
 
-        var output = new JsonOutputConverter().convert(outputUr);
-        
-        System.out.println(output);
+            System.out.println("----");
+            System.out.println();
+            System.out.println("OUTPUT UR:");
+            System.out.println(outputUr.getInnerRepresentation().toString(2));
+
+            var output = new JsonOutputConverter().convert(outputUr);
+            
+            System.out.println("----");
+            System.out.println();
+            System.out.println("OUTPUT:");
+            System.out.println(output);
+        }
+        catch (OperationFailedException e) {
+            System.err.println("Error in operation: " + e.getMessage());
+        }
+        catch (IllegalArgumentException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+        catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
     }
 
     /**

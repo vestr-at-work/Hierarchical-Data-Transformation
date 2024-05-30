@@ -1,0 +1,13 @@
+{
+    "operations": [
+        {
+            "operation": "remove",
+            "comment": "",
+            "specs": [
+                {
+                    "path": "/person/name"
+                }
+            ]
+        }
+    ]
+}

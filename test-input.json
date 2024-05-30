@@ -1,12 +1,12 @@
 {
     "person": {
         "name": "Aillish",
-        "fame": true,
+        "is_tall": true,
         "age": 23
     },
     "entities": [
         "object", 
-        1, 
+        "array", 
         false
     ]
 }

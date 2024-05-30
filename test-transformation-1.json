@@ -1,0 +1,28 @@
+{
+    "operations": [
+        {
+            "operation": "shift",
+            "comment": "",
+            "specs": [
+                {
+                    "input-path": "/person/name",
+                    "output-path": ["/human/called", "/temp/[1]"]
+                }
+            ]
+        },
+        {
+            "operation": "default",
+            "comment": "",
+            "specs": [
+                {
+                    "path": "/person/name",
+                    "value": 2
+                },
+                {
+                    "path": "/person/name2",
+                    "value": 2
+                }
+            ]
+        }
+    ]
+}

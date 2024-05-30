@@ -1,0 +1,30 @@
+{
+    "operations": [
+        {
+            "operation": "default",
+            "comment": "",
+            "specs": [
+                {
+                    "path": "/person/name",
+                    "value": 2
+                },
+                {
+                    "path": "/person/name2",
+                    "value": 2
+                }
+            ]
+        },
+        {
+            "operation": "remove",
+            "comment": "",
+            "specs": [
+                {
+                    "path": "/@version"
+                },
+                {
+                    "path": "/@encoding"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,14 @@
+{
+    "operations": [
+        {
+            "operation": "filter",
+            "comment": "",
+            "specs": [
+                {
+                    "path": "/entities/[2]",
+                    "predicate": "@value != false"
+                }
+            ]
+        }
+    ]
+}
