@@ -107,7 +107,7 @@ public class Ur {
     }
 
     /**
-     * Retrieves the Ur object at the specified path.
+     * Retrieves the {@code Ur} object at the specified path.
      * 
      * @param path the path to the Ur object
      * @return the Ur object at the specified path

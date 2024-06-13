@@ -5,13 +5,13 @@ import java.io.IOException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import cz.cuni.mff.hdt.converter.OutputConverter;
+import cz.cuni.mff.hdt.converter.UrOutputConverter;
 import cz.cuni.mff.hdt.ur.Ur;
 
 /**
  * Converter implementation for converting Unified representation (Ur) to JSON format.
  */
-public class JsonOutputConverter implements OutputConverter {
+public class JsonOutputConverter extends UrOutputConverter {
 
     /**
      * Converts the Unified representation (Ur) data to JSON format.
@@ -43,7 +43,7 @@ public class JsonOutputConverter implements OutputConverter {
         if (typeValue.equals(Ur.VALUE_OBJECT)) {
             return convertObject(object);
         }
-        if (typeValue.equals(Ur.VALUE_ARRAY)) {
+        else if (typeValue.equals(Ur.VALUE_ARRAY)) {
             return convertArray(object);
         }
         else {
@@ -75,83 +75,5 @@ public class JsonOutputConverter implements OutputConverter {
             outputArray.put(Integer.parseInt(key), convertRecursive((JSONArray)value));
         }
         return outputArray;
-    } 
-    
-    private Object convertPrimitive(JSONObject urPrimitive) throws IOException {
-        var type = getTypeInnerValue(urPrimitive);
-        var value = getValueInnerValue(urPrimitive);
-        
-        if (type.equals(Ur.VALUE_STRING) || type.equals(Ur.VALUE_STRING_URI)) {
-            return value.toString();
-        }
-        else if (type.equals(Ur.VALUE_BOOLEAN) || type.equals(Ur.VALUE_BOOLEAN_URI)) {
-            if (value.equals("True") || value.equals("true") || value.equals("TRUE")) {
-                return true;
-            }
-            return false;
-        }
-        else if (type.equals(Ur.VALUE_NUMBER) || type.equals(Ur.VALUE_INTEGER_URI)) {
-            try {
-                return Integer.parseInt(value.toString());
-            }
-            catch (NumberFormatException e) {
-                throw new IOException("Incorrect Unified representation provided. Number Primitive in incorrect format.");
-            }
-        }
-
-        throw new IOException("Incorrect Unified representation provided. Unknown type of Ur Primitive.");
     }
-
-    private JSONObject getInnerObject(JSONArray array) throws IOException {
-        assertSingleElementArray(array);
-        var potentialObject = array.get(0);
-        if (!(potentialObject instanceof JSONObject)) {
-            throw new IOException("Incorrect Unified representation provided. Values not wrapped in object.");
-        }
-        return (JSONObject)potentialObject;
-    }
-
-    private String getTypeInnerValue(JSONObject object) throws IOException {
-        assertTypeKey(object);
-        var type = object.get(Ur.KEY_TYPE);
-        assertArray(type);
-        var innerArray = (JSONArray)type;
-        assertSingleElementArray(innerArray);
-        var item = innerArray.get(0);
-        return item.toString();
-    }
-
-    private String getValueInnerValue(JSONObject object) throws IOException {
-        assertValueKey(object);
-        var value = object.get(Ur.KEY_VALUE);
-        assertArray(value);
-        var innerArray = (JSONArray)value;
-        assertSingleElementArray(innerArray);
-        var item = innerArray.get(0);
-        return item.toString();
-    }
-
-    private void assertSingleElementArray(JSONArray array) throws IOException {
-        if (array.length() > 1 || array.isEmpty()) {
-            throw new IOException("Incorrect Unified representation provided. Inner arrays in JSON Ur have to have only one element.");
-        }
-    }
-
-    private void assertArray(Object potentialArray) throws IOException {
-        if (!(potentialArray instanceof JSONArray)) {
-            throw new IOException("Incorrect Unified representation provided. Entities not wrapped in array.");
-        }
-    }
-
-    private void assertTypeKey(JSONObject object) throws IOException {
-        if (!object.has(Ur.KEY_TYPE)) {
-            throw new IOException("Incorrect Unified representation provided. Not all entities do have " + Ur.KEY_TYPE + " key.");
-        }
-    }
-
-    private void assertValueKey(JSONObject object) throws IOException {
-        if (!object.has(Ur.KEY_VALUE)) {
-            throw new IOException("Incorrect Unified representation provided. Ur Primitive does not have " + Ur.KEY_VALUE + " key.");
-        }
-    } 
 }

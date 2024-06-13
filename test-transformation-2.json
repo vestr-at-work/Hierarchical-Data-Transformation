@@ -5,7 +5,7 @@
             "comment": "",
             "specs": [
                 {
-                    "path": "/person/name"
+                    "path": "/person/"
                 }
             ]
         }
