@@ -1,0 +1,15 @@
+<http://example.com/Bilish>
+  <http://example.com/name> "Bilish"@en ;
+  <http://example.com/friend> <http://example.com/Ailish> .
+
+<http://example.com/Ailish>
+  <http://example.com/name> "Ailish"@en ;
+  <http://example.com/age> 18 ;
+  <http://example.com/items> "Milk", "Bread" ;
+  <http://example.com/properties> [
+    <http://example.com/type> "inteligence" ;
+    <http://example.com/value> 100
+  ], [
+    <http://example.com/type> "knowledge" ;
+    <http://example.com/value> 100
+  ].

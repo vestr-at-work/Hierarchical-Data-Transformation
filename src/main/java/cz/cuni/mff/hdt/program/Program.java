@@ -2,6 +2,7 @@ package cz.cuni.mff.hdt.program;
 
 import cz.cuni.mff.hdt.converter.json.JsonInputConverter;
 import cz.cuni.mff.hdt.converter.json.JsonOutputConverter;
+import cz.cuni.mff.hdt.converter.rdf_ttl.RdfTtlInputConverter;
 import cz.cuni.mff.hdt.converter.xml.XmlInputConverter;
 import cz.cuni.mff.hdt.converter.xml.XmlOutputConverter;
 import cz.cuni.mff.hdt.operation.BasicOperationFactory;
@@ -44,7 +45,7 @@ public class Program {
             );
 
             var transformation = new Transformation(transformationDefinition);
-            Ur inputUr = new XmlInputConverter().convert(new ByteArrayInputStream(Files.readAllBytes(Paths.get(pathToInputFile))));
+            Ur inputUr = new RdfTtlInputConverter().convert(new ByteArrayInputStream(Files.readAllBytes(Paths.get(pathToInputFile))));
 
             System.out.println("INPUT UR:");
             System.out.println(inputUr.getInnerRepresentation().toString(2));

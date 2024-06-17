@@ -33,6 +33,7 @@ public class Ur {
     public static final String VALUE_BOOLEAN = "boolean";
 
     public static final String VALUE_STRING_URI = "http://www.w3.org/2001/XMLSchema#string";
+    public static final String VALUE_LANG_STRING_URI = "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString";
     public static final String VALUE_INTEGER_URI = "http://www.w3.org/2001/XMLSchema#integer";
     public static final String VALUE_BOOLEAN_URI = "http://www.w3.org/2001/XMLSchema#boolean";
 
