@@ -53,6 +53,7 @@ public class JsonOutputConverter extends UrOutputConverter {
 
     private JSONObject convertObject(JSONObject urObject) throws IOException {
         urObject.remove(Ur.KEY_TYPE);
+        urObject.remove(Ur.KEY_RDF_ID);
         var outputObject = new JSONObject();
         for (var key : urObject.keySet()) {
             var value = urObject.get(key);
@@ -64,6 +65,7 @@ public class JsonOutputConverter extends UrOutputConverter {
 
     private JSONArray convertArray(JSONObject urArray) throws IOException {
         urArray.remove(Ur.KEY_TYPE);
+        urArray.remove(Ur.KEY_RDF_ID);
         var outputArray = new JSONArray();
         for (var key : urArray.keySet()) {
             var value = urArray.get(key);

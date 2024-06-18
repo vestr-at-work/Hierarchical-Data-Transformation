@@ -57,7 +57,7 @@ public class Program {
             System.out.println("OUTPUT UR:");
             System.out.println(outputUr.getInnerRepresentation().toString(2));
 
-            var output = new XmlOutputConverter(true, 2).convert(outputUr);
+            var output = new JsonOutputConverter().convert(outputUr);
             
             System.out.println("----");
             System.out.println();

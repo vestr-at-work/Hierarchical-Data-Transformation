@@ -23,7 +23,7 @@ public class RdfTtlInputConverter implements InputConverter {
         Model model = ModelFactory.createDefaultModel();
         RDFDataMgr.read(model, input, RDFLanguages.TURTLE);
 
-        JSONObject result = new JSONObject();
+        JSONObject result = new JSONObject().put(Ur.KEY_TYPE, new JSONArray().put(Ur.VALUE_OBJECT));
         var knownResources = new HashMap<String, JSONObject>();
         var resourcesToCheck = new HashMap<String, Entry<JSONObject, String>>();
         
@@ -37,6 +37,7 @@ public class RdfTtlInputConverter implements InputConverter {
             }
             JSONObject subjectJson = new JSONObject();
             subjectJson.put(Ur.KEY_RDF_ID, new JSONArray().put(subject.getURI()));
+            subjectJson.put(Ur.KEY_TYPE, new JSONArray().put(Ur.VALUE_OBJECT));
             knownResources.put(subject.getURI(), subjectJson);
 
             StmtIterator properties = subject.listProperties();
@@ -62,68 +63,82 @@ public class RdfTtlInputConverter implements InputConverter {
                 var resourceId = resourceToCheck.getKey();
                 
                 // replace the resource with its data
-                parent.put(propertyName, knownResources.get(resourceId));
+                parent.put(propertyName, new JSONArray().put(knownResources.get(resourceId)));
             }
         }
     }
 
-    private static JSONObject convertBlankNode(
-        Resource blankNode, 
+    private static void convertBlankNode(
+        Resource blankNode,
+        JSONObject blankNodeJson,
         HashMap<String, JSONObject> knownResources, 
         HashMap<String, Entry<JSONObject, String>> resourcesToCheck) {
 
-        var blankNodeJson = new JSONObject();
         StmtIterator properties = blankNode.listProperties();
         convertProperties(properties, blankNodeJson, knownResources, resourcesToCheck);
-        return blankNodeJson;
     }
 
-    private static void convertProperties(StmtIterator properties, 
-        JSONObject outputJson, 
+    private static void convertProperties(
+        StmtIterator properties, 
+        JSONObject parentJson, 
         HashMap<String, JSONObject> knownResources, 
         HashMap<String, Entry<JSONObject, String>> resourcesToCheck) {
-
+        
+        var propertyCounts = new HashMap<String, Integer>();
         while (properties.hasNext()) {
             Statement stmt = properties.next();
             Property property = stmt.getPredicate();
             RDFNode object = stmt.getObject();
             
             String propertyUri = property.getURI();
-            
-            if (!outputJson.has(propertyUri)) {
-                outputJson.put(propertyUri, new JSONArray());
-            }
-            JSONArray propertyArray = outputJson.getJSONArray(propertyUri);
 
+            var outputObject = new JSONObject().put(Ur.KEY_TYPE, new JSONArray().put(Ur.VALUE_OBJECT));
             if (object.isLiteral()) {
-                JSONObject literalObject = new JSONObject();
                 Literal literal = object.asLiteral();
-                literalObject.put(Ur.KEY_VALUE, new JSONArray().put(literal.getLexicalForm()));
+                outputObject.put(Ur.KEY_VALUE, new JSONArray().put(literal.getLexicalForm()));
 
                 if (literal.getDatatypeURI() != null && !literal.getLanguage().isEmpty()) {
-                    literalObject.put(Ur.KEY_TYPE, new JSONArray().put(Ur.VALUE_LANG_STRING_URI));
-                    literalObject.put(Ur.KEY_RDF_LANGUAGE, new JSONArray().put(literal.getLanguage()));
+                    outputObject.put(Ur.KEY_TYPE, new JSONArray().put(Ur.VALUE_LANG_STRING_URI));
+                    outputObject.put(Ur.KEY_RDF_LANGUAGE, new JSONArray().put(literal.getLanguage()));
                 } else if (literal.getDatatypeURI() != null) {
-                    literalObject.put(Ur.KEY_TYPE, new JSONArray().put(literal.getDatatypeURI()));
+                    outputObject.put(Ur.KEY_TYPE, new JSONArray().put(literal.getDatatypeURI()));
                 } else {
-                    literalObject.put(Ur.KEY_TYPE, new JSONArray().put(Ur.VALUE_STRING_URI));
+                    outputObject.put(Ur.KEY_TYPE, new JSONArray().put(Ur.VALUE_STRING_URI));
                 }
-
-                propertyArray.put(literalObject);
             } else if (object.isResource()) {
-                JSONObject resourceObject = new JSONObject();
                 Resource resource = object.asResource();
 
                 if (resource.isAnon()) {
-                    resourceObject = convertBlankNode(resource, knownResources, resourcesToCheck);
+                    convertBlankNode(resource, outputObject, knownResources, resourcesToCheck);
                 } else if (knownResources.containsKey(resource.getURI())) {
-                    resourceObject = knownResources.get(resource.getURI());
+                    outputObject = knownResources.get(resource.getURI());
                 } else {
-                    resourceObject.put(Ur.KEY_RDF_ID, new JSONArray().put(resource.getURI()));
-                    resourcesToCheck.put(resource.getURI(), new SimpleEntry<>(outputJson, property.getURI()));
+                    outputObject.put(Ur.KEY_RDF_ID, new JSONArray().put(resource.getURI()));
+                    resourcesToCheck.put(resource.getURI(), new SimpleEntry<>(parentJson, propertyUri));
                 }
+            }
+            
 
-                propertyArray.put(resourceObject);
+            if (propertyCounts.containsKey(propertyUri)) { // RDF TTL array
+                var count = propertyCounts.get(propertyUri);
+                var presentValue = parentJson.getJSONArray(propertyUri).getJSONObject(0);
+                if (count == 1) {
+                    var propertyObject = new JSONObject();
+                    propertyObject.put(Ur.KEY_TYPE, new JSONArray().put(Ur.VALUE_ARRAY));
+                    propertyObject.put("0", new JSONArray().put(presentValue));
+                    propertyObject.put(count.toString(), new JSONArray().put(outputObject));
+                    parentJson.put(propertyUri, new JSONArray().put(propertyObject));
+                }
+                else {
+                    presentValue.put(count.toString(), new JSONArray().put(outputObject));
+                }
+                
+                propertyCounts.put(propertyUri, count + 1);
+            } else {
+                propertyCounts.put(propertyUri, 1);
+                JSONArray propertyArray = new JSONArray();
+                propertyArray.put(outputObject);
+                parentJson.put(propertyUri, propertyArray);                
             }
         }
     }

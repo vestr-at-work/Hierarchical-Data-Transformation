@@ -13,18 +13,6 @@
                     "value": 2
                 }
             ]
-        },
-        {
-            "operation": "remove",
-            "comment": "",
-            "specs": [
-                {
-                    "path": "/@version"
-                },
-                {
-                    "path": "/@encoding"
-                }
-            ]
         }
     ]
 }

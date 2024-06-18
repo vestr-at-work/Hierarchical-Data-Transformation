@@ -16,7 +16,7 @@ public abstract class UrOutputConverter implements OutputConverter {
         var type = getTypeInnerValue(urPrimitive);
         var value = getValueInnerValue(urPrimitive);
         
-        if (type.equals(Ur.VALUE_STRING) || type.equals(Ur.VALUE_STRING_URI)) {
+        if (type.equals(Ur.VALUE_STRING) || type.equals(Ur.VALUE_STRING_URI) || type.equals(Ur.VALUE_LANG_STRING_URI)) {
             return value.toString();
         }
         else if (type.equals(Ur.VALUE_BOOLEAN) || type.equals(Ur.VALUE_BOOLEAN_URI)) {
