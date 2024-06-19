@@ -52,10 +52,11 @@ public class JsonOutputConverter extends UrOutputConverter {
     }
 
     private JSONObject convertObject(JSONObject urObject) throws IOException {
-        urObject.remove(Ur.KEY_TYPE);
-        urObject.remove(Ur.KEY_RDF_ID);
         var outputObject = new JSONObject();
         for (var key : urObject.keySet()) {
+            if (key.equals(Ur.KEY_TYPE) || key.equals(Ur.KEY_RDF_ID)) {
+                continue;
+            }
             var value = urObject.get(key);
             assertArray(value);
             outputObject.put(key, convertRecursive((JSONArray)value));
@@ -64,10 +65,11 @@ public class JsonOutputConverter extends UrOutputConverter {
     }
 
     private JSONArray convertArray(JSONObject urArray) throws IOException {
-        urArray.remove(Ur.KEY_TYPE);
-        urArray.remove(Ur.KEY_RDF_ID);
         var outputArray = new JSONArray();
         for (var key : urArray.keySet()) {
+            if (key.equals(Ur.KEY_TYPE) || key.equals(Ur.KEY_RDF_ID)) {
+                continue;
+            }
             var value = urArray.get(key);
             assertArray(value);
             // TODO regex might not be effective

@@ -1,16 +1,47 @@
 {
     "operations": [
         {
-            "operation": "default",
+            "operation": "remove",
             "comment": "",
             "specs": [
                 {
-                    "path": "/person/name",
-                    "value": 2
+                    "path": "/http:~1~1example.com~1Ailish/http:~1~1example.com~1properties"
+                }
+            ]
+        },
+        {
+            "operation": "shift",
+            "comment": "",
+            "specs": [
+                {
+                    "input-path": "/http:~1~1example.com~1Ailish/http:~1~1example.com~1items",
+                    "output-path": "/http:~1~1example.com~1Ailish/http:~1~1example.com~1items"
                 },
                 {
-                    "path": "/person/name2",
-                    "value": 2
+                    "input-path": "/http:~1~1example.com~1Ailish/http:~1~1example.com~1age",
+                    "output-path": "/http:~1~1example.com~1Ailish/http:~1~1example.com~1age"
+                },
+                {
+                    "input-path": "/http:~1~1example.com~1Ailish/http:~1~1example.com~1name",
+                    "output-path": "/http:~1~1example.com~1Ailish/http:~1~1example.com~1name"
+                },
+                {
+                    "input-path": "/http:~1~1example.com~1Bilish",
+                    "output-path": "/http:~1~1example.com~1Bilish"
+                }
+            ]
+        },
+        {
+            "operation": "shift",
+            "comment": "",
+            "specs": [
+                {
+                    "input-path": "/http:~1~1example.com~1Bilish",
+                    "output-path": "/http:~1~1example.com~1Bilish"
+                },
+                {
+                    "input-path": "/http:~1~1example.com~1Ailish",
+                    "output-path": ["/http:~1~1example.com~1Ailish", "/http:~1~1example.com~1Bilish/http:~1~1example.com~1friend"]
                 }
             ]
         }

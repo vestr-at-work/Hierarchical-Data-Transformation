@@ -159,7 +159,7 @@ public class Ur {
         if (!parrentInner.has(childKeyOrIndex)) {
             throw new IOException("Can not update non existent entity.");
         }
-        parrentInner.put(childKeyOrIndex, innerValue);
+        parrentInner.put(childKeyOrIndex, new JSONArray().put(innerValue));
     }
 
     /**
@@ -325,18 +325,18 @@ public class Ur {
             Token pathToken = path.tokens.get(i);
             var key = getTokenKeyOrIndexString(pathToken);
             if (pathToken instanceof ArrayItemToken) {
-                var tempObject = new JSONObject().put(KEY_TYPE, new JSONArray().put(0, VALUE_ARRAY));
+                var tempObject = new JSONObject().put(KEY_TYPE, new JSONArray().put(VALUE_ARRAY));
                 var index = key;
                 if (key == null) {
                     index = "0";
                 }
-                innerValue = tempObject.put(index, new JSONArray().put(0, innerValue));
+                innerValue = tempObject.put(index, new JSONArray().put(innerValue));
             }
             else if (pathToken instanceof PropertyToken) {
-                var tempObject = new JSONObject().put(KEY_TYPE, new JSONArray().put(0, VALUE_OBJECT));
-                innerValue = tempObject.put(key, new JSONArray().put(0, innerValue));
+                var tempObject = new JSONObject().put(KEY_TYPE, new JSONArray().put(VALUE_OBJECT));
+                innerValue = tempObject.put(key, new JSONArray().put(innerValue));
             }
         }
-        return new JSONArray().put(0, innerValue);
+        return new JSONArray().put(innerValue);
     }
 }
