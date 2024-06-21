@@ -36,7 +36,8 @@ public class RdfTtlInputConverter implements InputConverter {
                 continue;
             }
             JSONObject subjectJson = new JSONObject();
-            subjectJson.put(Ur.KEY_RDF_ID, new JSONArray().put(subject.getURI()));
+            var idLiteral = getIdLiteral(subject.getURI());
+            subjectJson.put(Ur.KEY_RDF_ID, new JSONArray().put(idLiteral));
             subjectJson.put(Ur.KEY_TYPE, new JSONArray().put(Ur.VALUE_OBJECT));
             knownResources.put(subject.getURI(), subjectJson);
 
@@ -49,6 +50,13 @@ public class RdfTtlInputConverter implements InputConverter {
         checkAndReplaceResources(knownResources, resourcesToCheck);
 
         return new Ur(result);
+    }
+
+    private static JSONObject getIdLiteral(String Uri) {
+        var idLiteral = new JSONObject();
+        idLiteral.put(Ur.KEY_TYPE, new JSONArray().put(Ur.VALUE_STRING_URI));
+        idLiteral.put(Ur.KEY_VALUE, new JSONArray().put(Uri));
+        return idLiteral;
     }
 
     private static void checkAndReplaceResources(
@@ -113,7 +121,8 @@ public class RdfTtlInputConverter implements InputConverter {
                 } else if (knownResources.containsKey(resource.getURI())) {
                     outputObject = knownResources.get(resource.getURI());
                 } else {
-                    outputObject.put(Ur.KEY_RDF_ID, new JSONArray().put(resource.getURI()));
+                    var idLiteral = getIdLiteral(resource.getURI());
+                    outputObject.put(Ur.KEY_RDF_ID, new JSONArray().put(idLiteral));
                     resourcesToCheck.put(resource.getURI(), new SimpleEntry<>(parentJson, propertyUri));
                 }
             }

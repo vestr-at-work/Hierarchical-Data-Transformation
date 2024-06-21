@@ -1,6 +1,6 @@
 <http://example.com/Bilish>
   <http://example.com/name> "Bilish"@en ;
-  <http://example.com/friend> <http://example.com/Ailish> .
+  <http://example.com/friend> <http://example.com/Random> .
 
 <http://example.com/Ailish>
   <http://example.com/name> "Ailish"@en ;

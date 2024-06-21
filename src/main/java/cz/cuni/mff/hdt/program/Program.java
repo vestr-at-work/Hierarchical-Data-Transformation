@@ -1,5 +1,6 @@
 package cz.cuni.mff.hdt.program;
 
+import cz.cuni.mff.hdt.converter.csv.CsvInputConverter;
 import cz.cuni.mff.hdt.converter.json.JsonInputConverter;
 import cz.cuni.mff.hdt.converter.json.JsonOutputConverter;
 import cz.cuni.mff.hdt.converter.rdf_ttl.RdfTtlInputConverter;
@@ -45,7 +46,7 @@ public class Program {
             );
 
             var transformation = new Transformation(transformationDefinition);
-            Ur inputUr = new RdfTtlInputConverter().convert(new ByteArrayInputStream(Files.readAllBytes(Paths.get(pathToInputFile))));
+            Ur inputUr = new CsvInputConverter().convert(new ByteArrayInputStream(Files.readAllBytes(Paths.get(pathToInputFile))));
 
             System.out.println("INPUT UR:");
             System.out.println(inputUr.getInnerRepresentation().toString(2));

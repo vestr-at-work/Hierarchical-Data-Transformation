@@ -20,6 +20,7 @@ import org.xml.sax.SAXException;
 
 import cz.cuni.mff.hdt.converter.InputConverter;
 import cz.cuni.mff.hdt.ur.Ur;
+import cz.cuni.mff.hdt.utils.PrimitiveParser;
 
 /**
  * Converter implementation for converting XML to Unified representation (Ur).
@@ -128,7 +129,7 @@ public class XmlInputConverter implements InputConverter {
         return dict;
     }
 
-    private static Optional<JSONObject> getAttributesObject(Element element) {
+    private static Optional<JSONObject> getAttributesObject(Element element) throws IOException {
         var attributes = element.getAttributes();
         if (attributes.getLength() == 0) {
             return Optional.empty();
@@ -147,15 +148,17 @@ public class XmlInputConverter implements InputConverter {
         return Optional.of(attributesObject);
     }
 
-    private static String getPrimitiveValueType(String value) {
-        if (value.equals("True") || value.equals("true") || value.equals("TRUE")) {
-            return Ur.VALUE_BOOLEAN;
-        }
-        else if (isNumeric(value)) {
-            return Ur.VALUE_NUMBER;
-        }
-        else {
-            return Ur.VALUE_STRING;
+    private static String getPrimitiveValueType(String value) throws IOException {
+        var type = PrimitiveParser.getPrimitiveType(value);
+        switch (type) {
+            case Boolean:
+                return Ur.VALUE_BOOLEAN;
+            case Number:
+                return Ur.VALUE_NUMBER;
+            case String:
+                return Ur.VALUE_STRING;
+            default:
+                throw new IOException("Value not a primitive type");
         }
     }
 
@@ -165,18 +168,5 @@ public class XmlInputConverter implements InputConverter {
             return (Element)nodes.item(0);
         }
         throw new RuntimeErrorException(null, "Unreachable code.");
-    }
-
-    // TODO this shouldn't be here
-    private static boolean isNumeric(String strNum) {
-        if (strNum == null) {
-            return false;
-        }
-        try {
-            double d = Double.parseDouble(strNum);
-        } catch (NumberFormatException nfe) {
-            return false;
-        }
-        return true;
     }
 }

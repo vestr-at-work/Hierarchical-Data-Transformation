@@ -1,0 +1,14 @@
+{
+    "operations": [
+        {
+            "operation": "default",
+            "comment": "",
+            "specs": [
+                {
+                    "path": "/person",
+                    "value": 3
+                }
+            ]
+        }
+    ]
+}
