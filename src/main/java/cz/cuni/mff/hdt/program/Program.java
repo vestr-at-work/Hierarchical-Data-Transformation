@@ -1,6 +1,7 @@
 package cz.cuni.mff.hdt.program;
 
 import cz.cuni.mff.hdt.converter.csv.CsvInputConverter;
+import cz.cuni.mff.hdt.converter.csv.CsvOutputConverter;
 import cz.cuni.mff.hdt.converter.json.JsonInputConverter;
 import cz.cuni.mff.hdt.converter.json.JsonOutputConverter;
 import cz.cuni.mff.hdt.converter.rdf_ttl.RdfTtlInputConverter;
@@ -58,7 +59,7 @@ public class Program {
             System.out.println("OUTPUT UR:");
             System.out.println(outputUr.getInnerRepresentation().toString(2));
 
-            var output = new JsonOutputConverter().convert(outputUr);
+            var output = new CsvOutputConverter().convert(outputUr);
             
             System.out.println("----");
             System.out.println();

@@ -46,6 +46,13 @@ public abstract class UrOutputConverter implements OutputConverter {
         return (JSONObject)potentialObject;
     }
 
+    protected JSONObject getProperty(JSONObject parent, String propertyName) throws IOException {
+        var propertyObject = parent.get(propertyName);
+        assertArray(propertyObject);
+        var property = getInnerObject((JSONArray)propertyObject);
+        return property;
+    }
+
     protected String getTypeInnerValue(JSONObject object) throws IOException {
         assertTypeKey(object);
         var type = object.get(Ur.KEY_TYPE);
