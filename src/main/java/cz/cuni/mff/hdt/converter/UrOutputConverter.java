@@ -16,16 +16,15 @@ public abstract class UrOutputConverter implements OutputConverter {
         var type = getTypeInnerValue(urPrimitive);
         var value = getValueInnerValue(urPrimitive);
         
-        if (type.equals(Ur.VALUE_STRING) || type.equals(Ur.VALUE_STRING_URI) || type.equals(Ur.VALUE_LANG_STRING_URI)) {
-            return value.toString();
-        }
-        else if (type.equals(Ur.VALUE_BOOLEAN) || type.equals(Ur.VALUE_BOOLEAN_URI)) {
+        if (type.equals(Ur.VALUE_BOOLEAN) 
+            || type.equals(Ur.VALUE_BOOLEAN_URI)) {
             if (value.equals("True") || value.equals("true") || value.equals("TRUE")) {
                 return true;
             }
             return false;
         }
-        else if (type.equals(Ur.VALUE_NUMBER) || type.equals(Ur.VALUE_INTEGER_URI)) {
+        else if (type.equals(Ur.VALUE_NUMBER) 
+            || type.equals(Ur.VALUE_INTEGER_URI)) {
             try {
                 return Integer.parseInt(value.toString());
             }
@@ -33,8 +32,18 @@ public abstract class UrOutputConverter implements OutputConverter {
                 throw new IOException("Incorrect Unified representation provided. Number Primitive in incorrect format.");
             }
         }
+        else if (type.equals(Ur.VALUE_STRING) 
+            || type.equals(Ur.VALUE_STRING_URI) 
+            || type.equals(Ur.VALUE_LANG_STRING_URI) 
+            || type.equals(Ur.VALUE_ANY_URI)) {
 
-        throw new IOException("Incorrect Unified representation provided. Unknown type of Ur Primitive.");
+            return value.toString();
+        }
+        else {
+            return value.toString();
+        }
+
+        //throw new IOException("Incorrect Unified representation provided. Unknown type of Ur Primitive.");
     }
 
     protected JSONObject getInnerObject(JSONArray array) throws IOException {

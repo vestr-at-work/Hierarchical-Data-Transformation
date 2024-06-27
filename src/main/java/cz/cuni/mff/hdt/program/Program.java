@@ -4,6 +4,7 @@ import cz.cuni.mff.hdt.converter.csv.CsvInputConverter;
 import cz.cuni.mff.hdt.converter.csv.CsvOutputConverter;
 import cz.cuni.mff.hdt.converter.json.JsonInputConverter;
 import cz.cuni.mff.hdt.converter.json.JsonOutputConverter;
+import cz.cuni.mff.hdt.converter.rdf_trig.RdfTrigInputConverter;
 import cz.cuni.mff.hdt.converter.rdf_ttl.RdfTtlInputConverter;
 import cz.cuni.mff.hdt.converter.xml.XmlInputConverter;
 import cz.cuni.mff.hdt.converter.xml.XmlOutputConverter;
@@ -47,23 +48,23 @@ public class Program {
             );
 
             var transformation = new Transformation(transformationDefinition);
-            Ur inputUr = new CsvInputConverter().convert(new ByteArrayInputStream(Files.readAllBytes(Paths.get(pathToInputFile))));
+            Ur inputUr = new RdfTrigInputConverter().convert(new ByteArrayInputStream(Files.readAllBytes(Paths.get(pathToInputFile))));
 
-            System.out.println("INPUT UR:");
-            System.out.println(inputUr.getInnerRepresentation().toString(2));
+            //System.out.println("INPUT UR:");
+            //System.out.println(inputUr.getInnerRepresentation().toString(2));
 
             Ur outputUr = transformation.transform(inputUr);
 
-            System.out.println("----");
-            System.out.println();
-            System.out.println("OUTPUT UR:");
-            System.out.println(outputUr.getInnerRepresentation().toString(2));
+            //System.out.println("----");
+            //System.out.println();
+            //System.out.println("OUTPUT UR:");
+            //System.out.println(outputUr.getInnerRepresentation().toString(2));
 
-            var output = new CsvOutputConverter().convert(outputUr);
+            var output = new JsonOutputConverter().convert(outputUr);
             
-            System.out.println("----");
-            System.out.println();
-            System.out.println("OUTPUT:");
+            //System.out.println("----");
+            //System.out.println();
+            //System.out.println("OUTPUT:");
             System.out.println(output);
         }
         catch (OperationFailedException e) {
