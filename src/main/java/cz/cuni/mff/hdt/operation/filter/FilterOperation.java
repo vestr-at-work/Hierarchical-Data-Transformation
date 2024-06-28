@@ -10,7 +10,7 @@ import org.json.JSONObject;
 import cz.cuni.mff.hdt.operation.Operation;
 import cz.cuni.mff.hdt.operation.OperationFailedException;
 import cz.cuni.mff.hdt.ur.Ur;
-import cz.cuni.mff.hdt.ur.UrPath;
+import cz.cuni.mff.hdt.path.UrPath;
 
 /**
  * Class implementing the filter operation of the transformation language.

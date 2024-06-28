@@ -11,7 +11,7 @@ import cz.cuni.mff.hdt.operation.Operation;
 import cz.cuni.mff.hdt.operation.OperationFailedException;
 import cz.cuni.mff.hdt.transformation.TypedValue;
 import cz.cuni.mff.hdt.ur.Ur;
-import cz.cuni.mff.hdt.ur.UrPath;
+import cz.cuni.mff.hdt.path.UrPath;
 
 /**
  * Class implementing the default operation of the transformation language.

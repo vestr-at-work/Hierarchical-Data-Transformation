@@ -9,9 +9,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import cz.cuni.mff.hdt.transformation.TypedValue;
-import cz.cuni.mff.hdt.ur.UrPath.ArrayItemToken;
-import cz.cuni.mff.hdt.ur.UrPath.PropertyToken;
-import cz.cuni.mff.hdt.ur.UrPath.Token;
+import cz.cuni.mff.hdt.path.UrPath;
+import cz.cuni.mff.hdt.path.ArrayItemToken;
+import cz.cuni.mff.hdt.path.PropertyToken;
+import cz.cuni.mff.hdt.path.UrPathToken;
 
 /**
  * Unified representation of hierarchical data.

@@ -1,4 +1,4 @@
-package cz.cuni.mff.hdt.ur;
+package cz.cuni.mff.hdt.path;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,63 +8,7 @@ import java.util.List;
  * Class representing UrPath aka. path in the Ur object model.
  */
 public class UrPath {
-    /**
-     * Token in UrPath
-     */
-    public abstract class Token {}
-
-    /**
-     * Token representing a property with key in Ur
-     */
-    public class PropertyToken extends Token {
-        private String key;
-
-        /**
-         * Constructs a PropertyToken with the specified key.
-         * 
-         * @param key the key of the property
-         */
-        public PropertyToken(String key) {
-            this.key = key;
-        }
-
-        /**
-         * Returns the key of the property.
-         * 
-         * @return the key
-         */
-        public String getKey() {
-            return key;
-        }
-    }
-    /**
-     * Token representing an array item in Ur.
-     * 
-     * If index is null it is for appending new item at the end of the array.
-     */
-    public class ArrayItemToken extends Token {
-        private Integer index;
-
-        /**
-         * Constructs an ArrayItemToken with the specified index.
-         * 
-         * @param index the index of the array item, or null if appending
-         */
-        public ArrayItemToken(Integer index) {
-            this.index = index;
-        }
-
-        /**
-         * Returns the index of the array item.
-         * 
-         * @return the index, or null if appending
-         */
-        public Integer getIndex() {
-            return index;
-        }
-    }
-
-    public List<Token> tokens;
+    public List<BaseUrPathToken> tokens;
 
     /**
      * Constructs a UrPath from a string representation.
@@ -82,11 +26,26 @@ public class UrPath {
     }
 
     /**
+     * Constructs a UrPath from an array of string tokens.
+     * 
+     * @param pathTokens the string tokens representing the path
+     * @throws IOException if there is an error parsing the path
+     */
+    public UrPath(String[] pathTokens) throws IOException {
+        var pathStringTokens = pathTokens;
+        if (pathStringTokens.length == 2 && pathStringTokens[1].equals("")) {
+            tokens = new ArrayList<>();
+            return;
+        }
+        tokens = getParsedTokens(pathStringTokens);
+    }
+
+    /**
      * Constructs a UrPath from a list of tokens.
      * 
      * @param tokens the list of tokens
      */
-    public UrPath(List<Token> tokens) {
+    public UrPath(List<BaseUrPathToken> tokens) {
         this.tokens = tokens;
     }
 
@@ -99,8 +58,8 @@ public class UrPath {
         return tokens.size();
     }
 
-    protected List<Token> getParsedTokens(String[] pathStringTokens) throws IOException {
-        ArrayList<Token> tokens = new ArrayList<>();
+    protected List<BaseUrPathToken> getParsedTokens(String[] pathStringTokens) throws IOException {
+        ArrayList<BaseUrPathToken> tokens = new ArrayList<>();
         for (int i = 1; i < pathStringTokens.length; i++) {
             var token = pathStringTokens[i];
             if (tokenIsArray(token)) {
