@@ -103,7 +103,7 @@ public class Ur {
     /**
      * Returns the set of keys in the inner JSON representation.
      * 
-     * @return the set of keys
+     * @return the set of keys or null if Ur is primitive type
      */
     public Set<String> getKeys() {
         // Is primitive
