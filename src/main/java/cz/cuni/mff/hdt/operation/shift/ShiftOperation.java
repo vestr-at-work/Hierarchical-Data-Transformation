@@ -44,7 +44,7 @@ public class ShiftOperation implements Operation {
      */
     @Override
     public Ur execute(Ur inputUr) throws OperationFailedException {
-        var outputUr = new Ur(new JSONObject("{}"));
+        var outputUr = new Ur(new JSONObject());
         for (var pair : paths) {
             var inputPath = pair.getLeft();
             var outputPaths = pair.getRight();

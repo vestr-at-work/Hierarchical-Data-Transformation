@@ -1,6 +1,7 @@
 package cz.cuni.mff.hdt.ur;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -105,7 +106,20 @@ public class Ur {
      * @return the set of keys
      */
     public Set<String> getKeys() {
-        return null;
+        // Is primitive
+        if (innerRepresentation.has(Ur.KEY_VALUE) && innerRepresentation.has(Ur.KEY_TYPE)) {
+            return null;
+        }
+
+        var keys = new HashSet<String>();
+        for (var key : innerRepresentation.keySet()) {
+            if (key.equals(Ur.KEY_TYPE)) {
+                continue;
+            }
+            keys.add(key);
+        }
+
+        return keys;
     }
 
     /**
