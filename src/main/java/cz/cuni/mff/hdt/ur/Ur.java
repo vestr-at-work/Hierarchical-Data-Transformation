@@ -12,7 +12,7 @@ import cz.cuni.mff.hdt.transformation.TypedValue;
 import cz.cuni.mff.hdt.path.UrPath;
 import cz.cuni.mff.hdt.path.ArrayItemToken;
 import cz.cuni.mff.hdt.path.PropertyToken;
-import cz.cuni.mff.hdt.path.UrPathToken;
+import cz.cuni.mff.hdt.path.BaseUrPathToken;
 
 /**
  * Unified representation of hierarchical data.
@@ -165,7 +165,7 @@ public class Ur {
             innerRepresentation = innerValue;
             return;
         }
-        List<Token> parentPath = path.tokens.subList(0, path.length() - 1);
+        List<BaseUrPathToken> parentPath = path.tokens.subList(0, path.length() - 1);
         var parrentInner = getInner(new UrPath(parentPath));
         var childToken = path.tokens.get(path.length() - 1);
         String childKeyOrIndex = getTokenKeyOrIndexString(childToken);
@@ -188,7 +188,7 @@ public class Ur {
         if (path.length() == 0) {
             throw new IOException("Can not delete Ur root.");
         }
-        List<Token> parentPath = path.tokens.subList(0, path.length() - 1);
+        List<BaseUrPathToken> parentPath = path.tokens.subList(0, path.length() - 1);
         var parrentInner = getInner(new UrPath(parentPath));
         var childToken = path.tokens.get(path.length() - 1);
         String childKeyOrIndex = getTokenKeyOrIndexString(childToken);
@@ -210,7 +210,7 @@ public class Ur {
     public boolean isPresent(UrPath path) {
         JSONObject outputInner = innerRepresentation;
         for (int i = 0; i < path.length(); i++) {
-            Token pathToken = path.tokens.get(i);
+            BaseUrPathToken pathToken = path.tokens.get(i);
             if (pathToken instanceof PropertyToken) {
                 var property = (PropertyToken)pathToken;
                 if (!outputInner.has(property.getKey())) {
@@ -244,7 +244,7 @@ public class Ur {
     protected JSONObject getInner(UrPath path) throws IOException {
         JSONObject outputInner = innerRepresentation;
         for (int i = 0; i < path.length(); i++) {
-            Token pathToken = path.tokens.get(i);
+            BaseUrPathToken pathToken = path.tokens.get(i);
             if (pathToken instanceof PropertyToken) {
                 var property = (PropertyToken)pathToken;
                 if (!outputInner.has(property.getKey())) {
@@ -272,7 +272,7 @@ public class Ur {
     /*
      * Returns null if token is array item without index
      */
-    protected String getTokenKeyOrIndexString(Token token) throws IOException {
+    protected String getTokenKeyOrIndexString(BaseUrPathToken token) throws IOException {
         if (token instanceof PropertyToken) {
             var property = (PropertyToken)token;
             return property.getKey();
@@ -292,7 +292,7 @@ public class Ur {
     protected void setNonExistant(UrPath path, Ur value) throws IOException {
         var innerSubtree = innerRepresentation;
         for (int i = 0; i < path.length(); i++) {
-            Token pathToken = path.tokens.get(i);
+            BaseUrPathToken pathToken = path.tokens.get(i);
             var key = getTokenKeyOrIndexString(pathToken);
             if (key == null) { // if array item with no index
                 if (innerSubtree == innerRepresentation && innerSubtree.keySet().isEmpty()) { // if empty root
@@ -338,7 +338,7 @@ public class Ur {
     protected JSONArray createSubtreeWithValue(UrPath path, Ur value) throws IOException {
         var innerValue = value.innerRepresentation;
         for (int i = path.length() - 1; i >= 0; i--) {
-            Token pathToken = path.tokens.get(i);
+            BaseUrPathToken pathToken = path.tokens.get(i);
             var key = getTokenKeyOrIndexString(pathToken);
             if (pathToken instanceof ArrayItemToken) {
                 var tempObject = new JSONObject().put(KEY_TYPE, new JSONArray().put(VALUE_ARRAY));

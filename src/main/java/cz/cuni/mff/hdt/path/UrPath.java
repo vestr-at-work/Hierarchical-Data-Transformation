@@ -9,6 +9,7 @@ import java.util.List;
  */
 public class UrPath {
     public List<BaseUrPathToken> tokens;
+    public static final String UR_PATH_DELIMETER = "/";
 
     /**
      * Constructs a UrPath from a string representation.
@@ -17,22 +18,7 @@ public class UrPath {
      * @throws IOException if there is an error parsing the path
      */
     public UrPath(String path) throws IOException {
-        var pathStringTokens = path.split("/");
-        if (pathStringTokens.length == 2 && pathStringTokens[1].equals("")) {
-            tokens = new ArrayList<>();
-            return;
-        }
-        tokens = getParsedTokens(pathStringTokens);
-    }
-
-    /**
-     * Constructs a UrPath from an array of string tokens.
-     * 
-     * @param pathTokens the string tokens representing the path
-     * @throws IOException if there is an error parsing the path
-     */
-    public UrPath(String[] pathTokens) throws IOException {
-        var pathStringTokens = pathTokens;
+        var pathStringTokens = path.split(UR_PATH_DELIMETER);
         if (pathStringTokens.length == 2 && pathStringTokens[1].equals("")) {
             tokens = new ArrayList<>();
             return;
@@ -78,7 +64,7 @@ public class UrPath {
     }
 
     protected String getKey(String token) {
-        return token.replace("~1", "/")
+        return token.replace("~1", UR_PATH_DELIMETER)
             .replace("~2", "[")
             .replace("~3", "]")
             .replace("~0", "~");

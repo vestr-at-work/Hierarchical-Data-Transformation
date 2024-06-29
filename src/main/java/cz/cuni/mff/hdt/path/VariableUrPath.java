@@ -1,13 +1,18 @@
 package cz.cuni.mff.hdt.path;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Class representing variable UrPath aka. path in the Ur object model with the named variables.
  */
 public class VariableUrPath {
-    private List<UrPathToken> tokens;
+    public List<UrPathToken> tokens;
+    public static final String UR_PATH_DELIMETER = "/";
+    protected static final String VARIABLE = "@var";
+    protected static final String VARIABLE_NAME_DELIMETER = ":";
+
     private boolean hasVariables;
 
     /**
@@ -16,8 +21,14 @@ public class VariableUrPath {
      * @param path the string representation of the path
      * @throws IOException if there is an error parsing the path
      */
-    public VariableUrPath(String path) {
-
+    public VariableUrPath(String path) throws IOException {
+        hasVariables = false;
+        var pathStringTokens = path.split(UR_PATH_DELIMETER);
+        if (pathStringTokens.length == 2 && pathStringTokens[1].equals("")) {
+            tokens = new ArrayList<>();
+            return;
+        }
+        tokens = getParsedTokens(pathStringTokens);
     }
 
     /**
@@ -35,17 +46,41 @@ public class VariableUrPath {
      * @return base UrPath with matched variables
      */
     public UrPath getUrPath() {
-        return null;
+        return getUrPath(tokens.size());
     }
 
     /**
-     * Returns sub-path of base UrPath with matched variable values and prvided length or null if some variables not matched. 
+     * Returns sub-path of base UrPath with matched variable values and provided length or null if some variables not matched. 
      * 
      * @param length length of the output sub-path
      * @return base UrPath with matched variables
      */
-    public UrPath getUrPath(Integer length) throws IOException {
-        return null;
+    public UrPath getUrPath(Integer length) {
+        var outputTokens = new ArrayList<BaseUrPathToken>();
+        for (int i = 0; i < tokens.size() && i < length; i++) {
+            var token = tokens.get(i);
+            if (token instanceof BaseUrPathToken) {
+                outputTokens.add((BaseUrPathToken)token);
+                continue;
+            }
+
+            if (token instanceof VariableArrayItemToken) {
+                var index = ((VariableArrayItemToken)token).getIndex();
+                if (index == null) {
+                    return null;
+                }
+                outputTokens.add(new ArrayItemToken(index));
+            }
+            else if (token instanceof VariablePropertyToken) {
+                var key = ((VariablePropertyToken)token).getKey();
+                if (key == null) {
+                    return null;
+                }
+                outputTokens.add(new PropertyToken(key));
+            }
+        }
+        
+        return new UrPath(outputTokens);
     }
 
     /**
@@ -57,7 +92,7 @@ public class VariableUrPath {
         return hasVariables;
     }
 
-    
+
     // Class VariableUrPath
     // - has variable tokens support
     // - has export to UrPath when variable values provided
@@ -65,4 +100,77 @@ public class VariableUrPath {
     // - bool hasVariables() method
     // - can copy itself
     // - gets values of variables by name
+
+    protected List<UrPathToken> getParsedTokens(String[] pathStringTokens) throws IOException {
+        ArrayList<UrPathToken> tokens = new ArrayList<>();
+        for (int i = 1; i < pathStringTokens.length; i++) {
+            var token = pathStringTokens[i];
+            if (tokenIsArray(token)) {
+                if (tokenIsVariable(token)) {
+                    hasVariables = true;
+                    tokens.add(new VariableArrayItemToken(getVariableName(token), null));
+                    continue;
+                }
+                
+                try {
+                    tokens.add(new ArrayItemToken(getArrayIndexKey(token)));
+                }
+                catch (NumberFormatException e) {
+                    throw new IOException("Incorrect index format in provided UrPath string.");
+                }
+            } 
+            else { // is object property
+                if (tokenIsVariable(token)) {
+                    hasVariables = true;
+                    tokens.add(new VariableArrayItemToken(getVariableName(token), null));
+                    continue;
+                }
+                
+                tokens.add(new PropertyToken(getKey(token)));
+            }
+        }
+        return tokens;
+    }
+
+    protected String getKey(String token) {
+        return token.replace("~1", UR_PATH_DELIMETER)
+            .replace("~2", "[")
+            .replace("~3", "]")
+            .replace("~0", "~");
+    }
+
+    protected Integer getArrayIndexKey(String token) {
+        if (token.length() == 2) {
+            return null;
+        }
+        return Integer.parseInt(token.substring(1, token.length() - 1));
+    }
+
+    protected boolean tokenIsArray(String token) {
+        return (token.length() >= 2 
+            && token.charAt(0) == '[' 
+            && token.charAt(token.length() - 1) == ']');
+    }
+
+    protected boolean tokenIsVariable(String token) {
+        if (token.length() >= VARIABLE.length() + 1
+            && token.substring(0, VARIABLE.length() + 1).equals("[" + VARIABLE)) {
+            
+            return true;
+        } 
+        if (token.length() >= VARIABLE.length()
+            && token.substring(0, VARIABLE.length()).equals(VARIABLE)) {
+                
+            return true;
+        }
+        return false;
+    }
+
+    protected String getVariableName(String token) {
+        var parts = token.split(VARIABLE_NAME_DELIMETER);
+        if (parts.length < 3) {
+            return null;
+        }
+        return parts[1];
+    }
 }

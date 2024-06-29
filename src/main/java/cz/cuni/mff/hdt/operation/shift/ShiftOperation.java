@@ -11,6 +11,7 @@ import cz.cuni.mff.hdt.operation.Operation;
 import cz.cuni.mff.hdt.operation.OperationFailedException;
 import cz.cuni.mff.hdt.ur.Ur;
 import cz.cuni.mff.hdt.path.UrPath;
+import cz.cuni.mff.hdt.path.VariableUrPath;
 
 /*
  * Class implementing the shift operation of the transformation language
@@ -21,6 +22,7 @@ public class ShiftOperation implements Operation {
 
     // first is input path, second is array of output paths
     private ArrayList<Pair<UrPath, ArrayList<UrPath>>> noVariablePaths;
+    private ArrayList<Pair<VariableUrPath, ArrayList<VariableUrPath>>> variablePaths;
 
     // paths with no variables
     // paths with variables (probably will be more complex structure)
@@ -98,36 +100,32 @@ public class ShiftOperation implements Operation {
     }
 
     private void parsePaths(String inputPath, String outputPath) throws IOException {
-        var inputPathTokens = getPathTokens(inputPath);
-        var outputPathTokens = getPathTokens(outputPath);
-        // No varibles in inputPath but some variables in outputPath -> error 
-        if (inputPathTokens.getRight() == null && outputPathTokens.getRight() != null) {
+        var inputUrPath = new VariableUrPath(inputPath);
+        var outputUrPath = new VariableUrPath(outputPath);
+        
+        if (!inputUrPath.hasVariables() && outputUrPath.hasVariables()) {
             throw new IOException("Unexpected variable in '" + KEY_OUTPUT_PATH + "'. No matching variable present in '" + KEY_INPUT_PATH + "'");
         }
         // No variables
-        else if (inputPathTokens.getRight() == null && outputPathTokens.getRight() == null) {
-            var inputUrPath = new UrPath(inputPathTokens.getLeft().toArray(new String[inputPathTokens.getLeft().size()]));
-            var outputUrPath = new UrPath(outputPathTokens.getLeft().toArray(new String[outputPathTokens.getLeft().size()]));
+        else if (!inputUrPath.hasVariables() && !outputUrPath.hasVariables()) {
             var outputPathArray = new ArrayList<UrPath>();
-            outputPathArray.add(outputUrPath);
-
-            noVariablePaths.add(Pair.of(inputUrPath, outputPathArray));
+            outputPathArray.add(outputUrPath.getUrPath());
+            noVariablePaths.add(Pair.of(inputUrPath.getUrPath(), outputPathArray));
             return;
         }
 
-        // Has variables
-        
-        // parse varibles on indexes 
-        // and somehow store it
+        if (!outputVariablesValid(inputUrPath, outputUrPath)) {
+            throw new IOException("Unexpected variable in '" + KEY_OUTPUT_PATH + "': " + outputPath + ". No matching variable present in '" + KEY_INPUT_PATH + "': " + inputPath);
+        }
 
-        // Class VariableUrPath
-        // - has variable tokens support
-        // - has export to UrPath when variable values provided
-        // - supports subPath
-        // - bool hasVariables() method
-        // - can copy itself
-        // - gets values of variables by name
+        var outputPathArray = new ArrayList<VariableUrPath>();
+        outputPathArray.add(outputUrPath);
+        variablePaths.add(Pair.of(inputUrPath, outputPathArray));
+    }
 
+    private boolean outputVariablesValid(VariableUrPath inputUrPath, VariableUrPath outputUrPath) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'outputVariablesValid'");
     }
 
     private void parsePaths(String inputPath, JSONArray outputPaths) throws IOException {
@@ -137,10 +135,5 @@ public class ShiftOperation implements Operation {
             }
             //outputPaths.add(new UrPath((String)outputPath));
         }
-    }
-
-    private Pair<ArrayList<String>, ArrayList<Integer>> getPathTokens(String inputPath) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getPathTokens'");
     }
 }
