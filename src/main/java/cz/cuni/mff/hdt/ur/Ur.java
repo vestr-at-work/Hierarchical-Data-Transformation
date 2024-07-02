@@ -102,6 +102,35 @@ public class Ur {
     }
 
     /**
+     * Returns type represented by a given string value.
+     * 
+     * @param value the value to get the type from
+     * @return the Ur.Type representation the type
+     * @throws IOException if the value type is unsupported
+     */
+    public static Type getUrType(String value) throws IOException {
+        switch (value) {
+            case VALUE_OBJECT:
+                return Type.Object;
+            case VALUE_ARRAY:
+                return Type.Array;
+            case VALUE_BOOLEAN:
+            case VALUE_BOOLEAN_URI:
+                return Type.Boolean;
+            case VALUE_INTEGER_URI:
+            case VALUE_NUMBER:
+                return Type.Number;
+            case VALUE_STRING:
+            case VALUE_STRING_URI:
+            case VALUE_LANG_STRING_URI:
+            case VALUE_ANY_URI:
+                return Type.String;
+            default:
+                throw new IOException("Unknown Ur type");
+        }
+    }
+
+    /**
      * Returns the set of keys in the inner JSON representation.
      * 
      * @return the set of keys or null if Ur is primitive type
@@ -124,7 +153,26 @@ public class Ur {
     }
 
     /**
-     * Retrieves the {@code Ur} object at the specified path.
+     * Returns type of the {@code Ur} root element.
+     * @return type of the root
+     */
+    public Type getRootType() {
+        if (!innerRepresentation.has(Ur.KEY_TYPE)) {
+            return null;
+        }
+        var typeArray = innerRepresentation.getJSONArray(Ur.KEY_TYPE);
+        var type = typeArray.getString(0);
+        try {
+            return getUrType(type);
+        }
+        catch (IOException e) {
+            throw new IllegalStateException("Unknown root type");
+        }
+    }
+
+    /**
+     * Retrieves the {@code Ur} object at the specified path. 
+     * This method returns a deep copy of the {@code Ur} object.
      * 
      * @param path the path to the Ur object
      * @return the Ur object at the specified path
@@ -134,6 +182,21 @@ public class Ur {
         var outputInner = getInner(path);
         var outputInnerCopy = new JSONObject(outputInner.toMap()); 
         return new Ur(outputInnerCopy);
+    }
+
+    /**
+     * Retrieves the {@code Ur} object at the specified path. 
+     * This method returns {@code Ur} with the shared inner object as the original.
+     * 
+     * WARNING! Modifying the inner contents of {@code Ur} will modify the original {@code Ur} as well!
+     * 
+     * @param path the path to the Ur object
+     * @return the Ur object at the specified path
+     * @throws IOException if the path is invalid
+     */
+    public Ur getShared(UrPath path) throws IOException {
+        var outputInner = getInner(path);
+        return new Ur(outputInner);
     }
 
     /**
