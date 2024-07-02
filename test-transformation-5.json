@@ -1,6 +1,15 @@
 {
     "operations": [
         {
+            "operation": "remove",
+            "comment": "",
+            "specs": [
+                {
+                    "path": "/entities/[@var:index:]"
+                }
+            ]
+        },
+        {
             "operation": "shift",
             "comment": "",
             "specs": [

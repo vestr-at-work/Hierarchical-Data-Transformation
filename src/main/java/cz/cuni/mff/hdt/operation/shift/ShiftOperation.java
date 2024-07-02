@@ -25,7 +25,7 @@ public class ShiftOperation implements Operation {
     public static final String KEY_OUTPUT_PATH = "output-path";
 
     // first is input path, second is array of output paths
-    private ArrayList<Pair<UrPath, ArrayList<UrPath>>> noVariablePaths;
+    private ArrayList<Pair<UrPath, ArrayList<UrPath>>> nonVariablePaths;
     private ArrayList<Pair<VariableUrPath, ArrayList<VariableUrPath>>> variablePaths;
 
     /**
@@ -35,7 +35,7 @@ public class ShiftOperation implements Operation {
      * @throws IOException if there is an error parsing the operation specifications
      */
     public ShiftOperation(JSONArray operationSpecs) throws IOException {
-        noVariablePaths = new ArrayList<>();
+        nonVariablePaths = new ArrayList<>();
         variablePaths = new ArrayList<>();
         for (var spec : operationSpecs) {
             parseSpec(spec);
@@ -52,8 +52,8 @@ public class ShiftOperation implements Operation {
     @Override
     public Ur execute(Ur inputUr) throws OperationFailedException {
         var outputUr = new Ur(new JSONObject());
-        // Part for no variables 
-        for (var pair : noVariablePaths) {
+        // Part for nonVariables 
+        for (var pair : nonVariablePaths) {
             var inputPath = pair.getLeft();
             var outputPaths = pair.getRight();
             try {
@@ -75,7 +75,7 @@ public class ShiftOperation implements Operation {
 
         var allPathsIndices = new ArrayList<Integer>();
         for (Integer i = 0; i < variablePaths.size(); i++) {allPathsIndices.add(i);};
-        matchAndShiftVariablesRecursive(inputUr, inputUr, outputUr, 0, allPathsIndices);
+        matchVariablesAndShiftRecursive(inputUr, inputUr, outputUr, 0, allPathsIndices);
         
         return outputUr;
     }
@@ -95,7 +95,7 @@ public class ShiftOperation implements Operation {
         }
     }
 
-    private void matchAndShiftVariablesRecursive(Ur propertyUr, Ur inputUr, Ur outputUr, int iteration,
+    private void matchVariablesAndShiftRecursive(Ur propertyUr, Ur inputUr, Ur outputUr, int iteration,
             ArrayList<Integer> pathsIndices) throws OperationFailedException {
 
         var keys = propertyUr.getKeys();
@@ -113,13 +113,11 @@ public class ShiftOperation implements Operation {
             var fullyMatchedPaths = new ArrayList<Integer>();
             for (var index : matchingPathsIndices) {
                 var matchedPath = variablePaths.get(index).getLeft().getUrPath();
-                
                 if (matchedPath == null) { // some variables not matched yet
                     continue;
                 }
-                
                 try {
-                    shiftMatchedVariablePath(inputUr, outputUr, index);
+                    shiftMatched(inputUr, outputUr, index);
                 }
                 catch (IOException e) {
                     // TODO inputPath will not be printed as an readable UrPath. Add nice toString()
@@ -142,7 +140,7 @@ public class ShiftOperation implements Operation {
                 // get Ur of property
                 var newPropertyUr = inputUr.getShared(urPathToProperty);
                 // call function recursively
-                matchAndShiftVariablesRecursive(newPropertyUr, inputUr, outputUr, iteration + 1, matchingPathsIndices);
+                matchVariablesAndShiftRecursive(newPropertyUr, inputUr, outputUr, iteration + 1, matchingPathsIndices);
             }
             catch (IOException e) {
                 throw new OperationFailedException("Error occured when matching named variables.");
@@ -152,7 +150,7 @@ public class ShiftOperation implements Operation {
         }
     }
 
-    private void shiftMatchedVariablePath(Ur inputUr, Ur outputUr, Integer pathIndex) throws IOException {
+    private void shiftMatched(Ur inputUr, Ur outputUr, Integer pathIndex) throws IOException {
         var pathPair = variablePaths.get(pathIndex);
         var inputPath = pathPair.getLeft();
         var outputPaths = pathPair.getRight();
@@ -289,7 +287,7 @@ public class ShiftOperation implements Operation {
         else if (!inputUrPath.hasVariables() && !outputUrPath.hasVariables()) {
             var outputPathArray = new ArrayList<UrPath>();
             outputPathArray.add(outputUrPath.getUrPath());
-            noVariablePaths.add(Pair.of(inputUrPath.getUrPath(), outputPathArray));
+            nonVariablePaths.add(Pair.of(inputUrPath.getUrPath(), outputPathArray));
             return;
         }
 
@@ -326,7 +324,7 @@ public class ShiftOperation implements Operation {
                 }
                 outputPathArray.add(outputUrPath.getUrPath());
             }
-            noVariablePaths.add(Pair.of(inputUrPath.getUrPath(), outputPathArray));
+            nonVariablePaths.add(Pair.of(inputUrPath.getUrPath(), outputPathArray));
             return;
         }
 
