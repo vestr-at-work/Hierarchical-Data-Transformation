@@ -32,6 +32,16 @@
                     "value": 161
                 }
             ]
+        },
+        {
+            "operation": "filter",
+            "comment": "",
+            "specs": [
+                {
+                    "path": "/@var:idk:/@var:namedvar:",
+                    "predicate": "@value != 161"
+                }
+            ]
         }
     ]
 }

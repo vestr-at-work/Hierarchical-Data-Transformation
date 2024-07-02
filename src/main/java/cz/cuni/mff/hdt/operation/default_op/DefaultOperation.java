@@ -109,8 +109,7 @@ public class DefaultOperation implements Operation {
                     defaultMatched(outputUr, index);
                 }
                 catch (IOException e) {
-                    // TODO inputPath will not be printed as an readable UrPath. Add nice toString()
-                    throw new OperationFailedException("Value from '" + matchedPath + "' could not be removed");
+                    throw new OperationFailedException(e.getMessage());
                 }
 
                 // remove them from recursion
