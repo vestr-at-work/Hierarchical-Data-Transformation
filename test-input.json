@@ -2,7 +2,13 @@
     "person": {
         "name": "Aillish",
         "is_tall": true,
-        "age": 23
+        "age": 23,
+        "hello": {
+            "inner-hello": "hello"
+        },
+        "hello2": {
+            "inner-hello2": 43110
+        }
     },
     "entities": [
         "object", 

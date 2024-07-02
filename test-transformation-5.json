@@ -1,12 +1,16 @@
 {
     "operations": [
         {
-            "operation": "default",
+            "operation": "shift",
             "comment": "",
             "specs": [
                 {
-                    "path": "/person",
-                    "value": 3
+                    "input-path": "/entities/[@var:index:]",
+                    "output-path": "/idk/@var:index:"
+                },
+                {
+                    "input-path": "/person/name",
+                    "output-path": "/person/name"
                 }
             ]
         }
