@@ -22,6 +22,16 @@
                     "output-path": "/person/name"
                 }
             ]
+        },
+        {
+            "operation": "default",
+            "comment": "",
+            "specs": [
+                {
+                    "path": "/@var:idk:/new_prop",
+                    "value": 161
+                }
+            ]
         }
     ]
 }

@@ -145,12 +145,7 @@ public class RemoveOperation implements Operation {
 
     private void removeMatched(Ur outputUr, Integer pathIndex) throws IOException {
         var path = variablePaths.get(pathIndex).getUrPath();
-        try {
-            outputUr.delete(path);
-        }
-        catch (IOException e) {
-            throw new OperationFailedException(e.getMessage());
-        }
+        outputUr.delete(path);
     }
 
     private ArrayList<Integer> getMatchingPathIndices(String key, Ur.Type type, ArrayList<Integer> indicesToPaths, int tokenIndex) {
