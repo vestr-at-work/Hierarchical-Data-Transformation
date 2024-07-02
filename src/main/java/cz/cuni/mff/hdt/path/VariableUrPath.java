@@ -2,6 +2,7 @@ package cz.cuni.mff.hdt.path;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -14,6 +15,15 @@ public class VariableUrPath {
     protected static final String VARIABLE_NAME_DELIMETER = ":";
 
     private boolean hasVariables;
+    private HashMap<String, Integer> variableIndices;
+
+    // Class VariableUrPath
+    // - has variable tokens support
+    // - has export to UrPath when variable values provided
+    // - supports subPath
+    // - bool hasVariables() method
+    // - can copy itself
+    // - gets values of variables by name
 
     /**
      * Constructs a VariableUrPath from a string representation.
@@ -23,6 +33,7 @@ public class VariableUrPath {
      */
     public VariableUrPath(String path) throws IOException {
         hasVariables = false;
+        variableIndices = new HashMap<>();
         var pathStringTokens = path.split(UR_PATH_DELIMETER);
         if (pathStringTokens.length == 2 && pathStringTokens[1].equals("")) {
             tokens = new ArrayList<>();
@@ -92,14 +103,65 @@ public class VariableUrPath {
         return hasVariables;
     }
 
+    /**
+     * Returns hashmap with the variable names as keys and indices of variable tokens as values.
+     */
+    public HashMap<String, Integer> getVariableIndices() {
+        return variableIndices;
+    }
 
-    // Class VariableUrPath
-    // - has variable tokens support
-    // - has export to UrPath when variable values provided
-    // - supports subPath
-    // - bool hasVariables() method
-    // - can copy itself
-    // - gets values of variables by name
+    /**
+     * Set property variable on index. If not a property variable on given index do nothing.
+     * 
+     * @param index position of the variable starting from 0
+     * @param value value to set variable to
+     * @throws IndexOutOfBoundsException thrown then index out of bounds
+     */
+    public void trySetPropertyVariable(int index, String value) throws IndexOutOfBoundsException {
+        if (index >= tokens.size()) {
+            throw new IndexOutOfBoundsException("Invalid index provided");
+        }
+        var token = tokens.get(index);
+        if (token instanceof VariablePropertyToken) {
+            ((VariablePropertyToken)token).setKey(value);
+        }
+    }
+
+    /**
+     * Set array item variable on index. If not an array item variable on given index do nothing.
+     * 
+     * @param index position of the variable starting from 0
+     * @param value value to set variable to
+     * @throws IndexOutOfBoundsException thrown then index out of bounds
+     */
+    public void trySetArrayItemVariable(int index, Integer value) throws IndexOutOfBoundsException {
+        if (index >= tokens.size()) {
+            throw new IndexOutOfBoundsException("Invalid index provided");
+        }
+        var token = tokens.get(index);
+        if (token instanceof VariableArrayItemToken) {
+            ((VariableArrayItemToken)token).setIndex(value);
+        }
+    }
+
+    /**
+     * Reset variable on index. If not a variable on index do nothing.
+     * 
+     * @param index position of the variable starting from 0
+     * @throws IndexOutOfBoundsException thrown then index out of bounds
+     */
+    public void tryResetVariable(int index) throws IndexOutOfBoundsException {
+        if (index >= tokens.size()) {
+            throw new IndexOutOfBoundsException("Invalid index provided");
+        }
+        var token = tokens.get(index);
+        if (token instanceof VariableArrayItemToken) {
+            ((VariableArrayItemToken)token).setIndex(null);
+        }
+        else if (token instanceof VariablePropertyToken) {
+            ((VariablePropertyToken)token).setKey(null);
+        }
+    }
 
     protected List<UrPathToken> getParsedTokens(String[] pathStringTokens) throws IOException {
         ArrayList<UrPathToken> tokens = new ArrayList<>();
@@ -108,7 +170,9 @@ public class VariableUrPath {
             if (tokenIsArray(token)) {
                 if (tokenIsVariable(token)) {
                     hasVariables = true;
-                    tokens.add(new VariableArrayItemToken(getVariableName(token), null));
+                    var name = getVariableName(token);
+                    tokens.add(new VariableArrayItemToken(name, null));
+                    variableIndices.put(name, tokens.size() - 1);
                     continue;
                 }
                 
@@ -122,10 +186,12 @@ public class VariableUrPath {
             else { // is object property
                 if (tokenIsVariable(token)) {
                     hasVariables = true;
-                    tokens.add(new VariableArrayItemToken(getVariableName(token), null));
+                    var name = getVariableName(token);
+                    tokens.add(new VariablePropertyToken(name, null));
+                    variableIndices.put(name, tokens.size() - 1);
                     continue;
                 }
-                
+
                 tokens.add(new PropertyToken(getKey(token)));
             }
         }
@@ -168,7 +234,7 @@ public class VariableUrPath {
 
     protected String getVariableName(String token) {
         var parts = token.split(VARIABLE_NAME_DELIMETER);
-        if (parts.length < 3) {
+        if (parts.length < 2) {
             return null;
         }
         return parts[1];
