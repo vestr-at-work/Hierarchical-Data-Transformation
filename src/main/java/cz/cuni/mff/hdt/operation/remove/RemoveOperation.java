@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import cz.cuni.mff.hdt.operation.Operation;
 import cz.cuni.mff.hdt.operation.OperationFailedException;
+import cz.cuni.mff.hdt.operation.VariableHelper;
 import cz.cuni.mff.hdt.ur.Ur;
 import cz.cuni.mff.hdt.path.ArrayItemToken;
 import cz.cuni.mff.hdt.path.PropertyToken;
@@ -73,16 +74,7 @@ public class RemoveOperation implements Operation {
 
     private void resetVariables(ArrayList<Integer> matchingPathsIndices, int iteration) {
         for (var index : matchingPathsIndices) {
-            resetVariableValue(index, iteration);
-        }
-    }
-
-    private void resetVariableValue(Integer index, int iteration) {
-        try {
             variablePaths.get(index).tryResetVariable(iteration);
-        }
-        catch (IndexOutOfBoundsException e) {
-            throw new IllegalStateException("This should not happen if everything works correctly");
         }
     }
 
@@ -99,7 +91,8 @@ public class RemoveOperation implements Operation {
         }
         for (var key : keys) {
             ArrayList<Integer> matchingPathsIndices = getMatchingPathIndices(key, type, pathsIndices, iteration);
-            updateVariablePaths(key, type, matchingPathsIndices, iteration);
+            var matchingPaths = getVariablePaths(matchingPathsIndices);
+            VariableHelper.updateVariablePaths(key, type, matchingPaths, iteration);
 
             var fullyMatchedPaths = new ArrayList<Integer>();
             for (var index : matchingPathsIndices) {
@@ -116,7 +109,7 @@ public class RemoveOperation implements Operation {
                 }
 
                 // remove them from recursion
-                resetVariableValue(index, iteration);
+                variablePaths.get(index).tryResetVariable(iteration);
                 fullyMatchedPaths.add(index);
             }
             matchingPathsIndices.removeAll(fullyMatchedPaths);
@@ -141,6 +134,15 @@ public class RemoveOperation implements Operation {
         }
     }
 
+    private ArrayList<VariableUrPath> getVariablePaths(ArrayList<Integer> pathsIndices) {
+        var outputList = new ArrayList<VariableUrPath>();
+        for (var pathIndex : pathsIndices) {
+            var path = variablePaths.get(pathIndex);
+            outputList.add(path);
+        }
+        return outputList;
+    }
+
     private void removeMatched(Ur outputUr, Integer pathIndex) throws IOException {
         var path = variablePaths.get(pathIndex).getUrPath();
         try {
@@ -151,51 +153,15 @@ public class RemoveOperation implements Operation {
         }
     }
 
-    private void updateVariablePaths(String key, Ur.Type type, ArrayList<Integer> matchingPathsIndices, int tokenIndex) {
-        if (type == Ur.Type.Array) {
-            try {
-                var arrayIndex = Integer.parseInt(key);
-                for (var pathIndex : matchingPathsIndices) {
-                    var path = variablePaths.get(pathIndex);
-                    path.trySetArrayItemVariable(tokenIndex, arrayIndex);
-                }
-            }
-            catch (NumberFormatException e) {
-                throw new OperationFailedException("Incorrect Ur Array representaion. Indices not integers.");
-            }
-            return;
-        }
-
-        for (var pathIndex : matchingPathsIndices) {
-            var path = variablePaths.get(pathIndex);
-            path.trySetPropertyVariable(tokenIndex, key);
-        }
-    }
-
     private ArrayList<Integer> getMatchingPathIndices(String key, Ur.Type type, ArrayList<Integer> indicesToPaths, int tokenIndex) {
         var outputIndices = new ArrayList<Integer>();
-
         for (var pathIndex : indicesToPaths) {
             var path = variablePaths.get(pathIndex);
             var pathToken = path.tokens.get(tokenIndex);
-            if (type == Ur.Type.Object && pathToken instanceof PropertyToken) {
-                if (((PropertyToken)pathToken).getKey().equals(key)) {
-                    outputIndices.add(pathIndex);
-                }
-            }
-            else if (type == Ur.Type.Object && pathToken instanceof VariablePropertyToken) {
-                outputIndices.add(pathIndex);
-            }
-            else if (type == Ur.Type.Array && pathToken instanceof ArrayItemToken) {
-                if (((ArrayItemToken)pathToken).getIndex().toString().equals(key)) {
-                    outputIndices.add(pathIndex);
-                }
-            }
-            else if (type == Ur.Type.Array && pathToken instanceof VariableArrayItemToken) {
+            if (VariableHelper.tokenMatchesValue(pathToken, key, type)) {
                 outputIndices.add(pathIndex);
             }
         }
-
         return outputIndices;
     }
 
