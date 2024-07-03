@@ -357,16 +357,25 @@ public class Ur {
         for (int i = 0; i < path.length(); i++) {
             BaseUrPathToken pathToken = path.tokens.get(i);
             var key = getTokenKeyOrIndexString(pathToken);
-            if (key == null) { // if array item with no index
+            if (innerSubtree.has(key)) {
+                innerSubtree = getChildEntity(innerSubtree, key);
+                continue;
+            }
+
+            if (pathToken instanceof ArrayItemToken) {
                 if (innerSubtree == innerRepresentation && innerSubtree.keySet().isEmpty()) { // if empty root
                     innerSubtree.put(KEY_TYPE, new JSONArray().put(0, VALUE_ARRAY));
                 }
-                Integer nextIndex = getMaxIndex(innerSubtree) + 1;
+                Integer nextIndex = ((ArrayItemToken)pathToken).getIndex();
+                if (key == null) {
+                    var maxIndex = getMaxIndex(innerSubtree);
+                    nextIndex = maxIndex == null ? 0 : maxIndex + 1;
+                }
                 var restOfPath = new UrPath(path.tokens.subList(i + 1, path.length()));
                 innerSubtree.put(nextIndex.toString(), createSubtreeWithValue(restOfPath, value));
                 return;
             }
-            if (!innerSubtree.has(key)) {
+            else if (pathToken instanceof PropertyToken) {
                 if (innerSubtree == innerRepresentation && innerSubtree.keySet().isEmpty()) { // if empty root
                     innerSubtree.put(KEY_TYPE, new JSONArray().put(0, VALUE_OBJECT));
                 }
@@ -374,7 +383,6 @@ public class Ur {
                 innerSubtree.put(key, createSubtreeWithValue(restOfPath, value));
                 return;
             }
-            innerSubtree = getChildEntity(innerSubtree, key);
         }
         // unreachable
         throw new IllegalStateException("Unreachable code in set method in Ur.");
@@ -382,18 +390,24 @@ public class Ur {
 
     protected Integer getMaxIndex(JSONObject urArray) throws IOException {
         Integer maxIndex = 0;
+        boolean noKeyOrOnlyTypeKeyPresent = true;
+        
         for (var key : urArray.keySet()) {
             if (key.equals(KEY_TYPE)) {
                 continue;
             }
 
             try {
+                noKeyOrOnlyTypeKeyPresent = false;
                 var index = Integer.parseInt(key);
                 maxIndex = index > maxIndex ? index : maxIndex;
             }
             catch (NumberFormatException e) {
                 throw new IOException("Ur array not consisting of indexes only.");
             }
+        }
+        if (noKeyOrOnlyTypeKeyPresent) {
+            return null;
         }
         return maxIndex;
     }

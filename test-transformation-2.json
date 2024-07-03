@@ -1,11 +1,12 @@
 {
     "operations": [
         {
-            "operation": "remove",
+            "operation": "shift",
             "comment": "",
             "specs": [
                 {
-                    "path": "/person/"
+                    "input-path": "/@rows/[@var:index:]",
+                    "output-path": "/[]"
                 }
             ]
         }

@@ -48,7 +48,7 @@ public class Program {
             );
 
             var transformation = new Transformation(transformationDefinition);
-            Ur inputUr = new JsonInputConverter().convert(new ByteArrayInputStream(Files.readAllBytes(Paths.get(pathToInputFile))));
+            Ur inputUr = new CsvInputConverter().convert(new ByteArrayInputStream(Files.readAllBytes(Paths.get(pathToInputFile))));
 
             System.out.println("INPUT UR:");
             System.out.println(inputUr.getInnerRepresentation().toString(2));
