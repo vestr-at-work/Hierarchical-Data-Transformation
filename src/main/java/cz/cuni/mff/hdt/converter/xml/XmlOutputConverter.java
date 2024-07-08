@@ -34,6 +34,16 @@ public class XmlOutputConverter extends UrOutputConverter {
         this.indentation = newIndentation.toString();
     }
 
+    public XmlOutputConverter() {
+        this.prettyPrint = true;
+        var indentation = 2;
+        var newIndentation = new StringBuilder();
+        for (int i = 0; i < indentation; i++) {
+            newIndentation.append(" ");
+        }
+        this.indentation = newIndentation.toString();
+    }
+
     /**
      * Converts the Unified representation (Ur) data to XML format.
      *

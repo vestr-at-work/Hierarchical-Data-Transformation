@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.json.JSONArray;
 
+import cz.cuni.mff.hdt.operation.arraymap.ArrayMapOperation;
 import cz.cuni.mff.hdt.operation.default_op.DefaultOperation;
 import cz.cuni.mff.hdt.operation.filter.FilterOperation;
 import cz.cuni.mff.hdt.operation.remove.RemoveOperation;
@@ -18,6 +19,7 @@ public class BasicOperationFactory implements OperationFactory {
     public static final String OPERATION_FILTER = "filter";
     public static final String OPERATION_REMOVE = "remove";
     public static final String OPERATION_SHIFT = "shift";
+    public static final String OPERATION_ARRAYMAP = "array-map";
 
     /**
      * Creates an operation based on the given operation name and specifications.
@@ -29,20 +31,19 @@ public class BasicOperationFactory implements OperationFactory {
      */
     @Override
     public Optional<Operation> create(String operationName, JSONArray operationSpecs) throws IOException {
-        if (operationName.equals(OPERATION_DEFAULT)) {
-            return Optional.of(new DefaultOperation(operationSpecs));
-        }
-        else if (operationName.equals(OPERATION_FILTER)) {
-            return Optional.of(new FilterOperation(operationSpecs));
-        }
-        else if (operationName.equals(OPERATION_REMOVE)) {
-            return Optional.of(new RemoveOperation(operationSpecs));
-        }
-        else if (operationName.equals(OPERATION_SHIFT)) {
-            return Optional.of(new ShiftOperation(operationSpecs));
-        }
-        else {
-            return Optional.empty();
+        switch (operationName) {
+            case OPERATION_DEFAULT:
+                return Optional.of(new DefaultOperation(operationSpecs));
+            case OPERATION_FILTER:
+                return Optional.of(new FilterOperation(operationSpecs));
+            case OPERATION_SHIFT:
+                return Optional.of(new ShiftOperation(operationSpecs));
+            case OPERATION_REMOVE:
+                return Optional.of(new RemoveOperation(operationSpecs));
+            case OPERATION_ARRAYMAP:
+                return Optional.of(new ArrayMapOperation(operationSpecs));
+            default:
+                return Optional.empty();
         }
     }
 }

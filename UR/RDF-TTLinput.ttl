@@ -1,15 +1,17 @@
-<http://example.com/Bilish>
-  <http://example.com/name> "Bilish"@en ;
-  <http://example.com/friend> <http://example.com/Random> .
-
-<http://example.com/Ailish>
-  <http://example.com/name> "Ailish"@en ;
-  <http://example.com/age> 18 ;
-  <http://example.com/items> "Milk", "Bread" ;
-  <http://example.com/properties> [
-    <http://example.com/type> "inteligence" ;
-    <http://example.com/value> 100
-  ], [
-    <http://example.com/type> "knowledge" ;
-    <http://example.com/value> 100
-  ].
+<https://example.net/library>
+  <https://example.net/name> "Open Library" ;
+  <https://example.net/books> [
+      <https://example.net/attributes> [
+          <https://example.net/condition> "good" 
+      ] ;
+      <https://example.net/book-title> "Příliš hlučná samota"@cs ;
+      <https://example.net/author> "Bohumil Hrabal" ;
+      <https://example.net/page-count> 98
+  ] , [
+      <https://example.net/attributes> [
+          <https://example.net/condition> "torn"
+      ] ;
+      <https://example.net/book-title> "Nesmrtelnost"@cs ;
+      <https://example.net/author> "Milan Kundera" ;
+      <https://example.net/page-count> 352
+  ] .

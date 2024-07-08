@@ -1,12 +1,11 @@
 {
     "operations": [
         {
-            "operation": "shift",
+            "operation": "array-map",
             "comment": "",
             "specs": [
                 {
-                    "input-path": "/@rows/[@var:index:]",
-                    "output-path": "/[]"
+                    "path": "/person/@var:xs:"
                 }
             ]
         }

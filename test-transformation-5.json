@@ -38,7 +38,7 @@
             "comment": "",
             "specs": [
                 {
-                    "path": "/@var:idk:/@var:namedvar:",
+                    "path": "/@var:idk :/@var:namedvar:",
                     "predicate": "@value != 161"
                 }
             ]
