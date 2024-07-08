@@ -6,6 +6,7 @@ import cz.cuni.mff.hdt.converter.json.JsonInputConverter;
 import cz.cuni.mff.hdt.converter.json.JsonOutputConverter;
 import cz.cuni.mff.hdt.converter.rdf_trig.RdfTrigInputConverter;
 import cz.cuni.mff.hdt.converter.rdf_ttl.RdfTtlInputConverter;
+import cz.cuni.mff.hdt.converter.ur_inner.UrInnerOutputConverter;
 import cz.cuni.mff.hdt.converter.xml.XmlInputConverter;
 import cz.cuni.mff.hdt.converter.xml.XmlOutputConverter;
 import cz.cuni.mff.hdt.operation.BasicOperationFactory;
@@ -60,7 +61,7 @@ public class Program {
             System.out.println("OUTPUT UR:");
             System.out.println(outputUr.getInnerRepresentation().toString(2));
 
-            var output = new JsonOutputConverter().convert(outputUr);
+            var output = new UrInnerOutputConverter().convert(outputUr);
             
             System.out.println("----");
             System.out.println();
