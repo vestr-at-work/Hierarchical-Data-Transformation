@@ -10,11 +10,7 @@ import cz.cuni.mff.hdt.operation.Operation;
 import cz.cuni.mff.hdt.operation.OperationFailedException;
 import cz.cuni.mff.hdt.operation.VariableHelper;
 import cz.cuni.mff.hdt.ur.Ur;
-import cz.cuni.mff.hdt.path.ArrayItemToken;
-import cz.cuni.mff.hdt.path.PropertyToken;
 import cz.cuni.mff.hdt.path.UrPath;
-import cz.cuni.mff.hdt.path.VariableArrayItemToken;
-import cz.cuni.mff.hdt.path.VariablePropertyToken;
 import cz.cuni.mff.hdt.path.VariableUrPath;
 
 /**

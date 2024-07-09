@@ -8,6 +8,10 @@ import java.util.Optional;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import cz.cuni.mff.hdt.converter.InputConverter;
+import cz.cuni.mff.hdt.converter.InputConverterFactory;
+import cz.cuni.mff.hdt.converter.OutputConverter;
+import cz.cuni.mff.hdt.converter.OutputConverterFactory;
 import cz.cuni.mff.hdt.operation.Operation;
 import cz.cuni.mff.hdt.operation.OperationFactory;
 
@@ -18,6 +22,8 @@ public class TransformationDefinition {
     public static final String KEY_OPERATIONS = "operations";
     public static final String KEY_OPERATION = "operation";
     public static final String KEY_SPECIFICATION = "specs";
+    public static final String KEY_INPUT_CONVERTER = "input-converter";
+    public static final String KEY_OUTPUT_CONVERTER = "output-converter";
 
     /*
      * Operations to be executed in a transformations in order
@@ -25,12 +31,28 @@ public class TransformationDefinition {
     public List<Operation> operations = new ArrayList<>();
 
     /**
+     * Ur input converter of the transformation
+     */
+    public InputConverter inputConverter;
+
+    /**
+     * Ur output converter of the transformation
+     */
+    public OutputConverter outputConverter;
+
+    /**
      * Constructs a new {@code TransformationDefinition} with the specified list of operations.
      *
      * @param operations the list of operations
+     * @param inputConverter inputConverter to be used
+     * @param outputConverter outputConverter to be used
      */
-    public TransformationDefinition(List<Operation> operations) {
+    public TransformationDefinition(List<Operation> operations, InputConverter inputConverter, 
+            OutputConverter outputConverter) {
+                
         this.operations = operations;
+        this.inputConverter = inputConverter;
+        this.outputConverter = outputConverter;
     }
 
     /**
@@ -39,18 +61,63 @@ public class TransformationDefinition {
      *
      * @param transformationDefinitionObject the JSON object containing the transformation definition
      * @param operationFactory the factory to create operations
+     * @param inputFactory the factory to create Ur input converter
+     * @param outputFactory the factory to create Ur output converter
      * @return the created {@code TransformationDefinition}
      * @throws IllegalArgumentException if the JSON object is invalid or missing required keys
      */
     public static TransformationDefinition getTransformationDefinition(
-        JSONObject transformationDefinitionObject, OperationFactory operationFactory) {
+            JSONObject transformationDefinitionObject, OperationFactory operationFactory,
+            InputConverterFactory inputFactory, OutputConverterFactory outputFactory) throws IllegalArgumentException {
 
         ArrayList<Operation> newOperations = getOperations(transformationDefinitionObject, operationFactory);
-        return new TransformationDefinition(newOperations);
+        InputConverter inputConverter = getInputConverter(transformationDefinitionObject, inputFactory);
+        OutputConverter outputConverter = getOutputConverter(transformationDefinitionObject, outputFactory);
+        return new TransformationDefinition(newOperations, inputConverter, outputConverter);
+    }
+
+    private static OutputConverter getOutputConverter(JSONObject transformationDefinitionObject,
+            OutputConverterFactory outputFactory) {
+            
+        if (!transformationDefinitionObject.has(KEY_OUTPUT_CONVERTER)) {
+            throw new IllegalArgumentException("Transformation definition does not include mandatory '" + KEY_INPUT_CONVERTER + "' key");
+        }
+
+        var outputConverterValue = transformationDefinitionObject.get(KEY_OUTPUT_CONVERTER);
+        if (!(outputConverterValue instanceof String)) {
+            throw new IllegalArgumentException("Key '" + KEY_OUTPUT_CONVERTER + "' not a string");
+        }
+
+        var outputConverter = outputFactory.create((String)outputConverterValue);
+        if (outputConverter.isEmpty()) {
+            throw new IllegalArgumentException("Unsupported output converter '" + (String)outputConverterValue + "' provided in transformation definition");
+        }
+
+        return outputConverter.get();
+    }
+
+    private static InputConverter getInputConverter(JSONObject transformationDefinitionObject,
+            InputConverterFactory inputFactory) {
+
+        if (!transformationDefinitionObject.has(KEY_INPUT_CONVERTER)) {
+            throw new IllegalArgumentException("Transformation definition does not include mandatory '" + KEY_INPUT_CONVERTER + "' key");
+        }
+
+        var inputConverterValue = transformationDefinitionObject.get(KEY_INPUT_CONVERTER);
+        if (!(inputConverterValue instanceof String)) {
+            throw new IllegalArgumentException("Key '" + KEY_INPUT_CONVERTER + "' not a string");
+        }
+
+        var inputConverter = inputFactory.create((String)inputConverterValue);
+        if (inputConverter.isEmpty()) {
+            throw new IllegalArgumentException("Unsupported input converter '" + (String)inputConverterValue + "' provided in transformation definition");
+        }
+
+        return inputConverter.get();
     }
 
     private static ArrayList<Operation> getOperations(
-        JSONObject transformationDefinitionObject, OperationFactory operationFactory) {
+            JSONObject transformationDefinitionObject, OperationFactory operationFactory) throws IllegalArgumentException {
 
         if (!transformationDefinitionObject.has(KEY_OPERATIONS)) {
             throw new IllegalArgumentException("Transformation definition does not include mandatory '" + KEY_OPERATIONS + "' key");

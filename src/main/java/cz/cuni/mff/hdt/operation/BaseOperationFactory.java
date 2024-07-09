@@ -14,7 +14,7 @@ import cz.cuni.mff.hdt.operation.shift.ShiftOperation;
 /**
  * Factory class to create different types of operations based on their name.
  */
-public class BasicOperationFactory implements OperationFactory {
+public class BaseOperationFactory implements OperationFactory {
     public static final String OPERATION_DEFAULT = "default";
     public static final String OPERATION_FILTER = "filter";
     public static final String OPERATION_REMOVE = "remove";

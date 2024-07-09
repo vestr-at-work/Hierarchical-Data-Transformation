@@ -3,14 +3,12 @@ package cz.cuni.mff.hdt.operation.arraymap;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import cz.cuni.mff.hdt.operation.Operation;
 import cz.cuni.mff.hdt.operation.OperationFailedException;
 import cz.cuni.mff.hdt.operation.VariableHelper;
-import cz.cuni.mff.hdt.transformation.TypedValue;
 import cz.cuni.mff.hdt.ur.Ur;
 import cz.cuni.mff.hdt.ur.Ur.Type;
 import cz.cuni.mff.hdt.path.UrPath;

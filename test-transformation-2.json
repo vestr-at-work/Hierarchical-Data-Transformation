@@ -1,4 +1,6 @@
 {
+    "input-converter": "json-default",
+    "output-converter": "csv-default",
     "operations": [
         {
             "operation": "array-map",
@@ -6,6 +8,16 @@
             "specs": [
                 {
                     "path": "/person/@var:xs:"
+                }
+            ]
+        },
+        {
+            "operation": "shift",
+            "comment": "",
+            "specs": [
+                {
+                    "input-path": "/",
+                    "output-path": "/document"
                 }
             ]
         }
