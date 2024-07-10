@@ -2,15 +2,6 @@ package cz.cuni.mff.hdt.program;
 
 import cz.cuni.mff.hdt.converter.BaseInputConverterFactory;
 import cz.cuni.mff.hdt.converter.BaseOutputConverterFactory;
-import cz.cuni.mff.hdt.converter.csv.CsvInputConverter;
-import cz.cuni.mff.hdt.converter.csv.CsvOutputConverter;
-import cz.cuni.mff.hdt.converter.json.JsonInputConverter;
-import cz.cuni.mff.hdt.converter.json.JsonOutputConverter;
-import cz.cuni.mff.hdt.converter.rdf_trig.RdfTrigInputConverter;
-import cz.cuni.mff.hdt.converter.rdf_ttl.RdfTtlInputConverter;
-import cz.cuni.mff.hdt.converter.ur_inner.UrInnerOutputConverter;
-import cz.cuni.mff.hdt.converter.xml.XmlInputConverter;
-import cz.cuni.mff.hdt.converter.xml.XmlOutputConverter;
 import cz.cuni.mff.hdt.operation.BaseOperationFactory;
 import cz.cuni.mff.hdt.operation.OperationFailedException;
 import cz.cuni.mff.hdt.transformation.Transformation;

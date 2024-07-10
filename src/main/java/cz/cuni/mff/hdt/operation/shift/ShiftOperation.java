@@ -107,7 +107,9 @@ public class ShiftOperation implements Operation {
                     continue;
                 }
                 try {
-                    shiftMatched(inputUr, outputUr, index);
+                    if (!sameAsNonVariable(matchedPath)) {
+                        shiftMatched(inputUr, outputUr, index);
+                    }
                 }
                 catch (IOException e) {
                     // TODO inputPath will not be printed as an readable UrPath. Add nice toString()
@@ -138,6 +140,17 @@ public class ShiftOperation implements Operation {
 
             resetVariables(matchingPathsIndices, iteration);
         }
+    }
+
+    private boolean sameAsNonVariable(UrPath matchedPath) {
+        // TODO this is slow. we do it for every match
+        for (var pair : nonVariablePaths) {
+            var nonVariablePath = pair.getLeft();
+            if (matchedPath.equals(nonVariablePath)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void shiftMatched(Ur inputUr, Ur outputUr, Integer pathIndex) throws IOException {
@@ -276,10 +289,14 @@ public class ShiftOperation implements Operation {
     }
 
     private boolean outputVariablesValid(VariableUrPath inputUrPath, VariableUrPath outputUrPath) {
-        // TODO Auto-generated method stub !!!!!!!!
-        // throw new UnsupportedOperationException("Unimplemented method 'outputVariablesValid'");
+        var outputPathVariables = outputUrPath.getVariableIndices();
+        var inputPathVariables = inputUrPath.getVariableIndices();
 
-
+        for (var outputPathVariableName : outputPathVariables.keySet()) {
+            if (!inputPathVariables.containsKey(outputPathVariableName)) {
+                return false;
+            }
+        }
 
         return true;
     }

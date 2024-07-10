@@ -68,6 +68,16 @@ public class RemoveOperation implements Operation {
         return outputUr;
     }
 
+    private boolean sameAsNonVariable(UrPath matchedPath) {
+        // TODO this is slow. we do it for every match
+        for (var nonVariablePath : nonVariablePaths) {
+            if (matchedPath.equals(nonVariablePath)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void resetVariables(ArrayList<Integer> matchingPathsIndices, int iteration) {
         for (var index : matchingPathsIndices) {
             variablePaths.get(index).tryResetVariable(iteration);
@@ -97,7 +107,9 @@ public class RemoveOperation implements Operation {
                     continue;
                 }
                 try {
-                    removeMatched(outputUr, index);
+                    if (!sameAsNonVariable(matchedPath)) {
+                        removeMatched(outputUr, index);
+                    }
                 }
                 catch (IOException e) {
                     // TODO inputPath will not be printed as an readable UrPath. Add nice toString()

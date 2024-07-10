@@ -44,6 +44,38 @@ public class UrPath {
         return tokens.size();
     }
 
+    @Override
+    public boolean equals(Object other) {
+        // self check
+        if (this == other) {
+            return true;
+        }
+        // null check
+        if (other == null) {
+            return false;
+        }
+        // type check and cast
+        if (getClass() != other.getClass()) {
+            return false;
+        }
+        UrPath otherPath = (UrPath) other;
+        
+        // length check
+        if (length() != otherPath.length()) {
+            return false;
+        }
+
+        int index = 0;
+        for (var token : this.tokens) {
+            var otherToken = otherPath.tokens.get(index);
+            if (!token.equals(otherToken)) {
+                return false;
+            }
+            index++;
+        }
+        return true;
+    }
+
     protected List<BaseUrPathToken> getParsedTokens(String[] pathStringTokens) throws IOException {
         ArrayList<BaseUrPathToken> tokens = new ArrayList<>();
         for (int i = 1; i < pathStringTokens.length; i++) {

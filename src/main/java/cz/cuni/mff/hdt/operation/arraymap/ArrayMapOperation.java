@@ -128,7 +128,9 @@ public class ArrayMapOperation implements Operation {
                     continue;
                 }
                 try {
-                    arrayMapMatched(outputUr, index);
+                    if (!sameAsNonVariable(matchedPath)) {
+                        arrayMapMatched(outputUr, index);
+                    }
                 }
                 catch (IOException e) {
                     throw new OperationFailedException(e.getMessage());
@@ -158,6 +160,16 @@ public class ArrayMapOperation implements Operation {
 
             resetVariables(matchingPathsIndices, iteration);
         }
+    }
+
+    private boolean sameAsNonVariable(UrPath matchedPath) {
+        // TODO this is slow. we do it for every match
+        for (var nonVariablePath : nonVariablePaths) {
+            if (matchedPath.equals(nonVariablePath)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private ArrayList<VariableUrPath> getVariablePaths(ArrayList<Integer> pathsIndices) {

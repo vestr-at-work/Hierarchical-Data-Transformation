@@ -25,4 +25,23 @@ public class ArrayItemToken extends BaseUrPathToken {
     public Integer getIndex() {
         return index;
     }
+
+    @Override
+    public boolean equals(Object other) {
+        // self check
+        if (this == other) {
+            return true;
+        }
+        // null check
+        if (other == null) {
+            return false;
+        }
+        // type check and cast
+        if (getClass() != other.getClass()) {
+            return false;
+        }
+        ArrayItemToken otherToken = (ArrayItemToken) other;
+        // field comparison
+        return index.equals(otherToken.index);
+    }
 }
