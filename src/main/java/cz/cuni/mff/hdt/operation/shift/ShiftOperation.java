@@ -107,7 +107,7 @@ public class ShiftOperation implements Operation {
                     continue;
                 }
                 try {
-                    if (!sameAsNonVariable(matchedPath)) {
+                    if (!sameAsNonVariable(matchedPath) && inputUr.isPresent(matchedPath)) {
                         shiftMatched(inputUr, outputUr, index);
                     }
                 }

@@ -46,21 +46,21 @@ public class Program {
                 new ByteArrayInputStream(Files.readAllBytes(Paths.get(pathToInputFile)))
             );
 
-            System.out.println("INPUT UR:");
-            System.out.println(inputUr.getInnerRepresentation().toString(4));
+            // System.out.println("INPUT UR:");
+            // System.out.println(inputUr.getInnerRepresentation().toString(4));
 
             Ur outputUr = transformation.transform(inputUr);
 
-            System.out.println("----");
-            System.out.println();
-            System.out.println("OUTPUT UR:");
-            System.out.println(outputUr.getInnerRepresentation().toString(2));
+            // System.out.println("----");
+            // System.out.println();
+            // System.out.println("OUTPUT UR:");
+            // System.out.println(outputUr.getInnerRepresentation().toString(2));
 
             var output = transformationDefinition.outputConverter.convert(outputUr);
             
-            System.out.println("----");
-            System.out.println();
-            System.out.println("OUTPUT:");
+            // System.out.println("----");
+            // System.out.println();
+            // System.out.println("OUTPUT:");
             System.out.println(output);
         }
         catch (OperationFailedException e) {

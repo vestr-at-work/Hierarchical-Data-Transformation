@@ -7,6 +7,14 @@
                 {
                     "input-path": "/person/name",
                     "output-path": ["/human/called", "/temp/[1]"]
+                },
+                {
+                    "input-path": "/person/name",
+                    "output-path": ["/human/called", "/temp/[1]"]
+                },
+                {
+                    "input-path": "/person/name",
+                    "output-path": ["/human/called", "/temp/[1]"]
                 }
             ]
         },

@@ -3,14 +3,12 @@
     "output-converter": "json-default",
     "operations": [
         {
-            "operation": "remove",
+            "operation": "filter",
             "comment": "",
             "specs": [
                 {
-                    "path": "/person"
-                },
-                {
-                    "path": "/@var:root:"
+                    "path": "/@var:root:/@var:prop:",
+                    "predicate": "@value != 23"
                 }
             ]
         }

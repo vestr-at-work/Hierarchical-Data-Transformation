@@ -128,7 +128,7 @@ public class ArrayMapOperation implements Operation {
                     continue;
                 }
                 try {
-                    if (!sameAsNonVariable(matchedPath)) {
+                    if (!sameAsNonVariable(matchedPath) && inputUr.isPresent(matchedPath)) {
                         arrayMapMatched(outputUr, index);
                     }
                 }

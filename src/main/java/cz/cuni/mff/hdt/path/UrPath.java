@@ -76,6 +76,22 @@ public class UrPath {
         return true;
     }
 
+    @Override
+    public String toString() {
+        var builder = new StringBuilder();
+        for (var token : tokens) {
+            if (token instanceof PropertyToken) {
+                var property = (PropertyToken)token;
+                builder.append(UR_PATH_DELIMETER + property.getKey());
+            }
+            else if (token instanceof ArrayItemToken) {
+                var arrayItem = (ArrayItemToken)token;
+                builder.append(UR_PATH_DELIMETER + "[" + arrayItem.getIndex() + "]");
+            }
+        }
+        return builder.toString();
+    }
+
     protected List<BaseUrPathToken> getParsedTokens(String[] pathStringTokens) throws IOException {
         ArrayList<BaseUrPathToken> tokens = new ArrayList<>();
         for (int i = 1; i < pathStringTokens.length; i++) {

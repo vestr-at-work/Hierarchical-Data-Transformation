@@ -12,6 +12,8 @@ import cz.cuni.mff.hdt.operation.OperationFailedException;
 import cz.cuni.mff.hdt.operation.VariableHelper;
 import cz.cuni.mff.hdt.ur.Ur;
 import cz.cuni.mff.hdt.path.UrPath;
+import cz.cuni.mff.hdt.path.VariableArrayItemToken;
+import cz.cuni.mff.hdt.path.VariablePropertyToken;
 import cz.cuni.mff.hdt.path.VariableUrPath;
 
 /**
@@ -19,11 +21,16 @@ import cz.cuni.mff.hdt.path.VariableUrPath;
  * This operation filters elements from the input based on specified predicates.
  */
 public class FilterOperation implements Operation {
-    public static final String KEY_PATH = "path";
+    public static final String TESTED_KEY_PATH = "tested-path";
+    public static final String FILTERED_KEY_PATH = "filtered-path";
     public static final String KEY_PREDICATE = "predicate";
 
-    private ArrayList<Pair<UrPath, UrPredicate>> nonVariablePaths;
-    private ArrayList<Pair<VariableUrPath, UrPredicate>> variablePaths;
+    // left is tested path, right is filtered path
+    private ArrayList<Pair<UrPath, UrPath>> nonVariablePaths = new ArrayList<>();;
+    private ArrayList<Pair<VariableUrPath, VariableUrPath>> variablePaths = new ArrayList<>();;
+    // predicates have matching indices with coresponding paths
+    private ArrayList<UrPredicate> predicatesForNonVariablePaths = new ArrayList<>();;
+    private ArrayList<UrPredicate> predicatesForVariablePaths = new ArrayList<>();;
 
     /**
      * Constructs a FilterOperation with the given operation specifications.
@@ -32,8 +39,6 @@ public class FilterOperation implements Operation {
      * @throws IOException if there is an error parsing the specifications
      */
     public FilterOperation(JSONArray operationSpecs) throws IOException {
-        nonVariablePaths = new ArrayList<>();
-        variablePaths = new ArrayList<>();
         for (var spec : operationSpecs) {
             parseSpec(spec);
         }
@@ -49,13 +54,15 @@ public class FilterOperation implements Operation {
     @Override
     public Ur execute(Ur inputUr) throws OperationFailedException {
         var outputUr = new Ur(new JSONObject(inputUr.getInnerRepresentation().toMap()));
-        for (var pair : nonVariablePaths) {
-            var path = pair.getLeft();
-            var predicate = pair.getRight();
+        for (int i = 0; i < nonVariablePaths.size(); i++) {
+            var pair = nonVariablePaths.get(i);
+            var testedPath = pair.getLeft();
+            var filteredPath = pair.getRight();
+            var predicate = predicatesForNonVariablePaths.get(i);
             try {
-                var value = outputUr.get(path);
+                var value = inputUr.get(testedPath);
                 if (!predicate.evaluate(value)) {
-                    outputUr.delete(path);
+                    outputUr.delete(filteredPath);
                 }
             }
             catch (IOException e) {
@@ -104,7 +111,7 @@ public class FilterOperation implements Operation {
                     continue;
                 }
                 try {
-                    if (!sameAsNonVariable(matchedPath)) {
+                    if (!sameAsNonVariable(matchedPath) && outputUr.isPresent(matchedPath)) {
                         filterMatched(outputUr, index);
                     }
                 }
@@ -160,11 +167,56 @@ public class FilterOperation implements Operation {
 
     private void filterMatched(Ur outputUr, Integer pathIndex) throws IOException {
         var pair = variablePaths.get(pathIndex);
-        var path = pair.getLeft().getUrPath();
-        var predicate = pair.getRight();
-        var value = outputUr.get(path);
+        var testedPath = pair.getLeft();
+        var filteredPath = pair.getRight();
+        var value = outputUr.get(testedPath.getUrPath());
+
+        var predicate = predicatesForVariablePaths.get(pathIndex);
         if (!predicate.evaluate(value)) {
-            outputUr.delete(path);
+            fillFilteredPathVariables(testedPath, filteredPath);
+            var filteredPathNonVariable = filteredPath.getUrPath();
+            if (!outputUr.isPresent(filteredPathNonVariable)) {
+                return;
+            }
+
+            outputUr.delete(filteredPathNonVariable);
+        }
+    }
+
+    private void fillFilteredPathVariables(VariableUrPath testedPath, VariableUrPath filteredPath) throws IOException {
+        var filteredPathVariableMap = filteredPath.getVariableIndices();
+        var testedPathVariableMap = testedPath.getVariableIndices();
+
+        for (var filteredVariableName : filteredPathVariableMap.keySet()) {
+            var testedVariableIndex = testedPathVariableMap.get(filteredVariableName);
+            var filteredVariableIndex = filteredPathVariableMap.get(filteredVariableName);
+
+            var testedToken = testedPath.tokens.get(testedVariableIndex);
+            var filteredToken = filteredPath.tokens.get(filteredVariableIndex);
+
+            if (testedToken instanceof VariablePropertyToken) {
+                var value = ((VariablePropertyToken)testedToken).getKey();
+                if (filteredToken instanceof VariablePropertyToken) {
+                    ((VariablePropertyToken)filteredToken).setKey(value);
+                }
+                else {
+                    try {
+                        ((VariableArrayItemToken)filteredToken).setIndex(Integer.parseInt(value));
+                    }
+                    catch (NumberFormatException e) {
+                        throw new IOException("Non integer key matched for array item index");
+                    }
+                }
+            }
+            else if (testedToken instanceof VariableArrayItemToken) {
+                var value = ((VariableArrayItemToken)testedToken).getIndex();
+                if (filteredToken instanceof VariableArrayItemToken) {
+                    ((VariableArrayItemToken)filteredToken).setIndex(value);
+                }
+                else {
+                    ((VariablePropertyToken)filteredToken).setKey(value.toString());
+                }
+            }
         }
     }
 
@@ -182,31 +234,59 @@ public class FilterOperation implements Operation {
 
     private void parseSpec(Object spec) throws IOException {
         if (!(spec instanceof JSONObject)) {
-            throw new IOException("Incorrect type of an item in specs");
+            throw new IOException("Incorrect type of an item in filter operation specs");
         }
         var specObject = (JSONObject)spec;
-        if (!specObject.has(KEY_PATH) || !specObject.has(KEY_PREDICATE)) {
-            throw new IOException("Mandatory keys are missing from item in specs");
+        if (!specObject.has(TESTED_KEY_PATH) || !specObject.has(KEY_PREDICATE)) {
+            throw new IOException("Mandatory keys are missing from item in filter operation specs");
         }
-        var pathUnknown = specObject.get(KEY_PATH);
+        var testedPathUnknown = specObject.get(TESTED_KEY_PATH);
+        var filteredPathUnknown = specObject.get(FILTERED_KEY_PATH);
         var predicateUnknown = specObject.get(KEY_PREDICATE);
-        if (!(pathUnknown instanceof String)) {
-            throw new IOException("Incorrect type of key '" + KEY_PATH + "' in spec item");
+        if (!(testedPathUnknown instanceof String)) {
+            throw new IOException("Incorrect type of key '" + TESTED_KEY_PATH + "' in filter operation spec item");
+        }
+        if (!(filteredPathUnknown instanceof String)) {
+            throw new IOException("Incorrect type of key '" + FILTERED_KEY_PATH + "' in filter operation spec item");
         }
         if (!(predicateUnknown instanceof String)) {
-            throw new IOException("Incorrect type of key '" + KEY_PREDICATE + "' in spec item");
+            throw new IOException("Incorrect type of key '" + KEY_PREDICATE + "' in filter operation spec item");
         }
-        parsePath((String)pathUnknown, UrPredicateFactory.create((String)predicateUnknown));
+        parsePath((String)filteredPathUnknown, (String)testedPathUnknown, UrPredicateFactory.create((String)predicateUnknown));
     }
 
-    private void parsePath(String stringPath, UrPredicate predicate) throws IOException {
-        var path = new VariableUrPath(stringPath);
+    private void parsePath(String filteredPathString, String testedPathString, UrPredicate predicate) throws IOException {
+        var testedPath = new VariableUrPath(testedPathString);
+        var filteredPath = new VariableUrPath(filteredPathString);
 
-        if (path.hasVariables()) {
-            variablePaths.add(Pair.of(path, predicate));
+        if (!testedPath.hasVariables() && filteredPath.hasVariables()) {
+            throw new IOException("Unexpected variable in '" + FILTERED_KEY_PATH + "' in filter operation specs. No matching variable present in '" + TESTED_KEY_PATH + "'");
+        }
+        if (!testedPath.hasVariables() && !filteredPath.hasVariables()) {
+            nonVariablePaths.add(Pair.of(testedPath.getUrPath(), filteredPath.getUrPath()));
+            predicatesForNonVariablePaths.add(predicate);
             return;
         }
+
+        if (!filteredPathVariablesValid(testedPath, filteredPath)) {
+            throw new IOException("Unexpected variable in '" + FILTERED_KEY_PATH + "' in filter operation specs. No matching variable present in '" + TESTED_KEY_PATH + "'");
+        }
+
         
-        nonVariablePaths.add(Pair.of(path.getUrPath(), predicate));
+        variablePaths.add(Pair.of(testedPath, filteredPath));
+        predicatesForVariablePaths.add(predicate);
+    }
+
+    private boolean filteredPathVariablesValid(VariableUrPath testedUrPath, VariableUrPath filteredUrPath) {
+        var outputPathVariables = filteredUrPath.getVariableIndices();
+        var inputPathVariables = testedUrPath.getVariableIndices();
+
+        for (var outputPathVariableName : outputPathVariables.keySet()) {
+            if (!inputPathVariables.containsKey(outputPathVariableName)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

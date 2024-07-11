@@ -107,7 +107,7 @@ public class RemoveOperation implements Operation {
                     continue;
                 }
                 try {
-                    if (!sameAsNonVariable(matchedPath)) {
+                    if (!sameAsNonVariable(matchedPath) && inputUr.isPresent(matchedPath)) {
                         removeMatched(outputUr, index);
                     }
                 }
