@@ -106,6 +106,7 @@ public class DefaultOperation implements Operation {
                     continue;
                 }
                 try {
+                    // if (!sameAsNonVariable(matchedPath)) <- check not needed since it just stores default value
                     defaultMatched(outputUr, index);
                 }
                 catch (IOException e) {

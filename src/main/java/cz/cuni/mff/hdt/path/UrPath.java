@@ -92,6 +92,22 @@ public class UrPath {
         return builder.toString();
     }
 
+    /**
+     * Returns sub-path of base UrPath. 
+     * 
+     * @param length length of the output sub-path
+     * @return sub-path of original UrPath 
+     */
+    public UrPath getUrPath(Integer length) {
+        var outputTokens = new ArrayList<BaseUrPathToken>();
+        for (int i = 0; i < tokens.size() && i < length; i++) {
+            var token = tokens.get(i);
+            outputTokens.add(token);
+        }
+        
+        return new UrPath(outputTokens);
+    }
+
     protected List<BaseUrPathToken> getParsedTokens(String[] pathStringTokens) throws IOException {
         ArrayList<BaseUrPathToken> tokens = new ArrayList<>();
         for (int i = 1; i < pathStringTokens.length; i++) {

@@ -1,4 +1,4 @@
-package cz.cuni.mff.hdt.operation.arraymap;
+package cz.cuni.mff.hdt.operation.array_map;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -76,7 +76,7 @@ public class ArrayMapOperation implements Operation {
 
         var allPathsIndices = new ArrayList<Integer>();
         for (Integer i = 0; i < variablePaths.size(); i++) {allPathsIndices.add(i);};
-        matchVariablesAndDefaultRecursive(inputUr, inputUr, outputUr, 0, allPathsIndices);
+        matchVariablesAndArrayMapRecursive(inputUr, inputUr, outputUr, 0, allPathsIndices);
 
         return outputUr;
     }
@@ -105,7 +105,7 @@ public class ArrayMapOperation implements Operation {
         }
     }
 
-    private void matchVariablesAndDefaultRecursive(Ur propertyUr, Ur inputUr, Ur outputUr, int iteration,
+    private void matchVariablesAndArrayMapRecursive(Ur propertyUr, Ur inputUr, Ur outputUr, int iteration,
             ArrayList<Integer> pathsIndices) throws OperationFailedException {
 
         var keys = propertyUr.getKeys();
@@ -152,7 +152,7 @@ public class ArrayMapOperation implements Operation {
                 // get Ur of property
                 var newPropertyUr = inputUr.getShared(urPathToProperty);
                 // call function recursively
-                matchVariablesAndDefaultRecursive(newPropertyUr, inputUr, outputUr, iteration + 1, matchingPathsIndices);
+                matchVariablesAndArrayMapRecursive(newPropertyUr, inputUr, outputUr, iteration + 1, matchingPathsIndices);
             }
             catch (IOException e) {
                 throw new OperationFailedException("Error occured when matching named variables.");

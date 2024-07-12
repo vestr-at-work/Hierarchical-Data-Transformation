@@ -1,4 +1,4 @@
-package cz.cuni.mff.hdt.operation.shift;
+package cz.cuni.mff.hdt.operation.copy_by_id;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,27 +11,28 @@ import cz.cuni.mff.hdt.operation.Operation;
 import cz.cuni.mff.hdt.operation.OperationFailedException;
 import cz.cuni.mff.hdt.operation.VariableHelper;
 import cz.cuni.mff.hdt.ur.Ur;
+import cz.cuni.mff.hdt.path.PropertyToken;
 import cz.cuni.mff.hdt.path.UrPath;
 import cz.cuni.mff.hdt.path.VariableUrPath;
 
 /*
- * Class implementing the shift operation of the transformation language
+ * Class implementing the copy-by-id operation of the transformation language
  */
-public class ShiftOperation implements Operation {
-    public static final String KEY_INPUT_PATH = "input-path";
-    public static final String KEY_OUTPUT_PATH = "output-path";
+public class CopyByIdOperation implements Operation {
+    public static final String KEY_ID_PATH = "id-path";
+    public static final String KEY_ENTITY_PARENT_PATH = "entity-parent-path";
 
-    // first is input path, second is array of output paths
-    private ArrayList<Pair<UrPath, ArrayList<UrPath>>> nonVariablePaths;
-    private ArrayList<Pair<VariableUrPath, ArrayList<VariableUrPath>>> variablePaths;
+    // first is id path, second is entity parent path
+    private ArrayList<Pair<UrPath, UrPath>> nonVariablePaths;
+    private ArrayList<Pair<VariableUrPath, VariableUrPath>> variablePaths;
 
     /**
-     * Constructs a new ShiftOperation with the operation specifications.
+     * Constructs a new CopyByIdOperation with the operation specifications.
      *
      * @param operationSpecs the JSON array containing the operation specifications
      * @throws IOException if there is an error parsing the operation specifications
      */
-    public ShiftOperation(JSONArray operationSpecs) throws IOException {
+    public CopyByIdOperation(JSONArray operationSpecs) throws IOException {
         nonVariablePaths = new ArrayList<>();
         variablePaths = new ArrayList<>();
         for (var spec : operationSpecs) {
@@ -40,28 +41,38 @@ public class ShiftOperation implements Operation {
     }
 
     /**
-     * Executes the shift operation on the provided input {@code Ur} object.
+     * Executes the copy-by-id operation on the provided input {@code Ur} object.
      *
      * @param inputUr the input {@code Ur} object
-     * @return the resulting {@code Ur} object after the shift operation is applied
-     * @throws OperationFailedException if the shift operation fails
+     * @return the resulting {@code Ur} object after the copy-by-id operation is applied
+     * @throws OperationFailedException if the operation fails
      */
     @Override
     public Ur execute(Ur inputUr) throws OperationFailedException {
-        var outputUr = new Ur(new JSONObject());
+        var outputUr = new Ur(new JSONObject(inputUr.getInnerRepresentation().toMap()));
         // Part for nonVariables 
         for (var pair : nonVariablePaths) {
-            var inputPath = pair.getLeft();
-            var outputPaths = pair.getRight();
+            var idPath = pair.getLeft();
+            var entityCopyPath = pair.getRight();
             try {
-                Ur toShift = inputUr.get(inputPath);
-                for (var outputPath : outputPaths) {
-                    outputUr.set(outputPath, toShift);
+                Ur idUrPrimitive = inputUr.get(idPath);
+                String value = getPrimitiveValue(idUrPrimitive);
+                // add id to entity copy path
+                var idProperty = new PropertyToken(value);
+                entityCopyPath.tokens.add(idProperty);
+
+                Ur entityToCopy = inputUr.get(entityCopyPath);
+                // we want to replace the whole entity in which the id resided
+                if (idPath.length() == 0) {
+                    throw new OperationFailedException("Value from '" + entityCopyPath + "' could not be copied. Can not replace parent of root");
                 }
+                outputUr.set(idPath.getUrPath(idPath.length() - 1), entityToCopy);
+                // return to original state
+                entityCopyPath.tokens.remove(entityCopyPath.length() - 1);
             }
             catch (IOException e) {
                 // TODO inputPath will not be printed as an readable UrPath. Add nice toString()
-                throw new OperationFailedException("Value from '" + inputPath + "' could not be shifted");
+                throw new OperationFailedException("Value from '" + entityCopyPath + "' could not be copied");
             }
         }
 
@@ -72,9 +83,30 @@ public class ShiftOperation implements Operation {
 
         var allPathsIndices = new ArrayList<Integer>();
         for (Integer i = 0; i < variablePaths.size(); i++) {allPathsIndices.add(i);};
-        matchVariablesAndShiftRecursive(inputUr, inputUr, outputUr, 0, allPathsIndices);
+        matchVariablesAndCopyRecursive(inputUr, inputUr, outputUr, 0, allPathsIndices);
         
         return outputUr;
+    }
+
+    private String getPrimitiveValue(Ur idUrPrimitive) throws IOException {
+        var inner = idUrPrimitive.getInnerRepresentation();
+        if (!inner.has(Ur.KEY_VALUE)) {
+            throw new IOException("Ur has no '" + Ur.KEY_VALUE + "' key");
+        }
+        var valueArrayUnknown = inner.get(Ur.KEY_VALUE);
+        if (!(valueArrayUnknown instanceof JSONArray)) {
+            throw new IOException("Incorrect type of '" + Ur.KEY_VALUE + "' key.");
+        }
+        var valueArray = (JSONArray)valueArrayUnknown;
+        if (valueArray.isEmpty()) {
+            throw new IOException("Empty array in '" + Ur.KEY_VALUE + "' key.");
+        }
+        var valueUnknown = valueArray.get(0);
+        if (!(valueUnknown instanceof String)) {
+            throw new IOException("Incorrect type of first element of array in '" + Ur.KEY_VALUE + "' key.");
+        }
+
+        return (String)valueUnknown;
     }
 
     private void resetVariables(ArrayList<Integer> matchingPathsIndices, int iteration) {
@@ -83,7 +115,7 @@ public class ShiftOperation implements Operation {
         }
     }
 
-    private void matchVariablesAndShiftRecursive(Ur propertyUr, Ur inputUr, Ur outputUr, int iteration,
+    private void matchVariablesAndCopyRecursive(Ur propertyUr, Ur inputUr, Ur outputUr, int iteration,
             ArrayList<Integer> pathsIndices) throws OperationFailedException {
 
         var keys = propertyUr.getKeys();
@@ -106,7 +138,7 @@ public class ShiftOperation implements Operation {
                 }
                 try {
                     if (!sameAsNonVariable(matchedPath) && inputUr.isPresent(matchedPath)) {
-                        shiftMatched(inputUr, outputUr, index);
+                        copyMatched(inputUr, outputUr, index);
                     }
                 }
                 catch (IOException e) {
@@ -130,7 +162,7 @@ public class ShiftOperation implements Operation {
                 // get Ur of property
                 var newPropertyUr = inputUr.getShared(urPathToProperty);
                 // call function recursively
-                matchVariablesAndShiftRecursive(newPropertyUr, inputUr, outputUr, iteration + 1, matchingPathsIndices);
+                matchVariablesAndCopyRecursive(newPropertyUr, inputUr, outputUr, iteration + 1, matchingPathsIndices);
             }
             catch (IOException e) {
                 throw new OperationFailedException("Error occured when matching named variables.");
@@ -151,17 +183,30 @@ public class ShiftOperation implements Operation {
         return false;
     }
 
-    private void shiftMatched(Ur inputUr, Ur outputUr, Integer pathIndex) throws IOException {
+    private void copyMatched(Ur inputUr, Ur outputUr, Integer pathIndex) throws IOException {
         var pathPair = variablePaths.get(pathIndex);
-        var inputPath = pathPair.getLeft();
-        var outputPaths = pathPair.getRight();
-        var noVariableInputPath = inputPath.getUrPath();
+        var idPath = pathPair.getLeft();
+        var entityCopyPath = pathPair.getRight();
+        var noVariableIdPath = idPath.getUrPath();
 
-        Ur toShift = inputUr.get(noVariableInputPath);
-        for (var outputPath : outputPaths) {
-            VariableHelper.fillOutputPathVariables(inputPath, outputPath);
-            outputUr.set(outputPath.getUrPath(), toShift);
+        Ur idUrPrimitive = inputUr.get(noVariableIdPath);
+        String value = getPrimitiveValue(idUrPrimitive);
+
+        VariableHelper.fillOutputPathVariables(idPath, entityCopyPath);
+        var noVariableEntityCopyPath = entityCopyPath.getUrPath();
+        var idProperty = new PropertyToken(value);
+        noVariableEntityCopyPath.tokens.add(idProperty);
+
+        if (!inputUr.isPresent(noVariableEntityCopyPath)) {
+            return;
         }
+
+        Ur entityToCopy = inputUr.get(noVariableEntityCopyPath);
+        if (noVariableIdPath.length() == 0) {
+            throw new IOException("Can not replace parent of root");
+        }
+        noVariableIdPath.tokens.remove(noVariableIdPath.length() - 1);
+        outputUr.set(noVariableIdPath, entityToCopy);
     }
 
     private void updateVariablePaths(String key, Ur.Type type, ArrayList<Integer> matchingPathsIndices, int tokenIndex) {
@@ -202,51 +247,41 @@ public class ShiftOperation implements Operation {
             throw new IOException("Incorrect type of an item in specs");
         }
         var specObject = (JSONObject)spec;
-        if (!specObject.has(KEY_INPUT_PATH) || !specObject.has(KEY_OUTPUT_PATH)) {
+        if (!specObject.has(KEY_ID_PATH) || !specObject.has(KEY_ENTITY_PARENT_PATH)) {
             throw new IOException("Mandatory keys are missing from item in specs");
         }
 
-        var inputPathUnknown = specObject.get(KEY_INPUT_PATH);
-        var outputPathsUnknown = specObject.get(KEY_OUTPUT_PATH);
+        var idPathUnknown = specObject.get(KEY_ID_PATH);
+        var entityParentPathUnknown = specObject.get(KEY_ENTITY_PARENT_PATH);
 
-        if (!(inputPathUnknown instanceof String)) {
-            throw new IOException("Incorrect type of key '" + KEY_INPUT_PATH + "' in spec item");
+        if (!(idPathUnknown instanceof String)) {
+            throw new IOException("Incorrect type of key '" + KEY_ID_PATH + "' in spec item");
         }
-        if (!(outputPathsUnknown instanceof String) && !(outputPathsUnknown instanceof JSONArray)) {
-            throw new IOException("Incorrect type of key '" + KEY_OUTPUT_PATH + "' in spec item");
+        if (!(entityParentPathUnknown instanceof String)) {
+            throw new IOException("Incorrect type of key '" + KEY_ENTITY_PARENT_PATH + "' in spec item");
         }
 
-        if (outputPathsUnknown instanceof String) {
-            parsePaths((String)inputPathUnknown, (String)outputPathsUnknown);
-        }
-        else {
-            var outputPathsArray = (JSONArray)outputPathsUnknown;
-            parsePaths((String)inputPathUnknown, outputPathsArray);
-        }
+        parsePaths((String)idPathUnknown, (String)entityParentPathUnknown);
     }
 
-    private void parsePaths(String inputPath, String outputPath) throws IOException {
-        var inputUrPath = new VariableUrPath(inputPath);
-        var outputUrPath = new VariableUrPath(outputPath);
+    private void parsePaths(String idPath, String entityParentPath) throws IOException {
+        var idUrPath = new VariableUrPath(idPath);
+        var entityParentUrPath = new VariableUrPath(entityParentPath);
         
-        if (!inputUrPath.hasVariables() && outputUrPath.hasVariables()) {
-            throw new IOException("Unexpected variable in '" + KEY_OUTPUT_PATH + "'. No matching variable present in '" + KEY_INPUT_PATH + "'");
+        if (!idUrPath.hasVariables() && entityParentUrPath.hasVariables()) {
+            throw new IOException("Unexpected variable in '" + KEY_ENTITY_PARENT_PATH + "'. No matching variable present in '" + KEY_ID_PATH + "'");
         }
         // No variables
-        else if (!inputUrPath.hasVariables() && !outputUrPath.hasVariables()) {
-            var outputPathArray = new ArrayList<UrPath>();
-            outputPathArray.add(outputUrPath.getUrPath());
-            nonVariablePaths.add(Pair.of(inputUrPath.getUrPath(), outputPathArray));
+        else if (!idUrPath.hasVariables() && !entityParentUrPath.hasVariables()) {
+            nonVariablePaths.add(Pair.of(idUrPath.getUrPath(), entityParentUrPath.getUrPath()));
             return;
         }
 
-        if (!outputVariablesValid(inputUrPath, outputUrPath)) {
-            throw new IOException("Unexpected variable in '" + KEY_OUTPUT_PATH + "': " + outputPath + ". No matching variable present in '" + KEY_INPUT_PATH + "': " + inputPath);
+        if (!outputVariablesValid(idUrPath, entityParentUrPath)) {
+            throw new IOException("Unexpected variable in '" + KEY_ENTITY_PARENT_PATH + "': " + entityParentPath + ". No matching variable present in '" + KEY_ID_PATH + "': " + idPath);
         }
 
-        var outputPathArray = new ArrayList<VariableUrPath>();
-        outputPathArray.add(outputUrPath);
-        variablePaths.add(Pair.of(inputUrPath, outputPathArray));
+        variablePaths.add(Pair.of(idUrPath, entityParentUrPath));
     }
 
     private boolean outputVariablesValid(VariableUrPath inputUrPath, VariableUrPath outputUrPath) {
@@ -260,39 +295,5 @@ public class ShiftOperation implements Operation {
         }
 
         return true;
-    }
-
-    private void parsePaths(String inputPath, JSONArray outputPaths) throws IOException {
-        var inputUrPath = new VariableUrPath(inputPath);
-
-        if (!inputUrPath.hasVariables()) {
-            var outputPathArray = new ArrayList<UrPath>();
-            for (var outputPath : outputPaths) {
-                if (!(outputPath instanceof String)) {
-                    throw new IOException("Incorrect type of output path item");
-                }
-                var outputUrPath = new VariableUrPath((String)outputPath);
-                if (outputUrPath.hasVariables()) {
-                    throw new IOException("Unexpected variable in '" + KEY_OUTPUT_PATH + "'. No matching variable present in '" + KEY_INPUT_PATH + "'");
-                }
-                outputPathArray.add(outputUrPath.getUrPath());
-            }
-            nonVariablePaths.add(Pair.of(inputUrPath.getUrPath(), outputPathArray));
-            return;
-        }
-
-        // Else variables present
-        var outputPathArray = new ArrayList<VariableUrPath>();
-        for (var outputPath : outputPaths) {
-            if (!(outputPath instanceof String)) {
-                throw new IOException("Incorrect type of output path item");
-            }
-            var outputUrPath = new VariableUrPath((String)outputPath);
-            if (!outputVariablesValid(inputUrPath, outputUrPath)) {
-                throw new IOException("Unexpected variable in '" + KEY_OUTPUT_PATH + "': " + outputPath + ". No matching variable present in '" + KEY_INPUT_PATH + "': " + inputPath);
-            }
-            outputPathArray.add(outputUrPath);
-        }
-        variablePaths.add(Pair.of(inputUrPath, outputPathArray));
     }
 }

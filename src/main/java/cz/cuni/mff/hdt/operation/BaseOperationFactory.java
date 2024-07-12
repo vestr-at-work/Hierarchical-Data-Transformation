@@ -5,7 +5,8 @@ import java.util.Optional;
 
 import org.json.JSONArray;
 
-import cz.cuni.mff.hdt.operation.arraymap.ArrayMapOperation;
+import cz.cuni.mff.hdt.operation.array_map.ArrayMapOperation;
+import cz.cuni.mff.hdt.operation.copy_by_id.CopyByIdOperation;
 import cz.cuni.mff.hdt.operation.default_op.DefaultOperation;
 import cz.cuni.mff.hdt.operation.filter.FilterOperation;
 import cz.cuni.mff.hdt.operation.remove.RemoveOperation;
@@ -19,7 +20,8 @@ public class BaseOperationFactory implements OperationFactory {
     public static final String OPERATION_FILTER = "filter";
     public static final String OPERATION_REMOVE = "remove";
     public static final String OPERATION_SHIFT = "shift";
-    public static final String OPERATION_ARRAYMAP = "array-map";
+    public static final String OPERATION_ARRAY_MAP = "array-map";
+    public static final String OPERATION_COPY_BY_ID = "copy-by-id";
 
     /**
      * Creates an operation based on the given operation name and specifications.
@@ -40,8 +42,10 @@ public class BaseOperationFactory implements OperationFactory {
                 return Optional.of(new ShiftOperation(operationSpecs));
             case OPERATION_REMOVE:
                 return Optional.of(new RemoveOperation(operationSpecs));
-            case OPERATION_ARRAYMAP:
+            case OPERATION_ARRAY_MAP:
                 return Optional.of(new ArrayMapOperation(operationSpecs));
+            case OPERATION_COPY_BY_ID:
+                return Optional.of(new CopyByIdOperation(operationSpecs));
             default:
                 return Optional.empty();
         }
