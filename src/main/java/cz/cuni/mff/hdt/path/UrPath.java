@@ -9,20 +9,14 @@ import java.util.List;
  */
 public class UrPath {
     public List<BaseUrPathToken> tokens;
-    public static final String UR_PATH_DELIMETER = "/";
 
     /**
-     * Constructs a UrPath from a string representation.
+     * Constructs a UrPath from a string token representation.
      * 
-     * @param path the string representation of the path
+     * @param pathStringTokens the string token representation of the path
      * @throws IOException if there is an error parsing the path
      */
-    public UrPath(String path) throws IOException {
-        var pathStringTokens = path.split(UR_PATH_DELIMETER);
-        if (pathStringTokens.length == 2 && pathStringTokens[1].equals("")) {
-            tokens = new ArrayList<>();
-            return;
-        }
+    public UrPath(String[] pathStringTokens) throws IOException {
         tokens = getParsedTokens(pathStringTokens);
     }
 
@@ -79,14 +73,21 @@ public class UrPath {
     @Override
     public String toString() {
         var builder = new StringBuilder();
+        var first = true;
         for (var token : tokens) {
             if (token instanceof PropertyToken) {
                 var property = (PropertyToken)token;
-                builder.append(UR_PATH_DELIMETER + property.getKey());
+                if (!first) {
+                    builder.append(", ");
+                }
+                builder.append("\"" + property.getKey() + "\"");
             }
             else if (token instanceof ArrayItemToken) {
                 var arrayItem = (ArrayItemToken)token;
-                builder.append(UR_PATH_DELIMETER + "[" + arrayItem.getIndex() + "]");
+                if (!first) {
+                    builder.append(", ");
+                }
+                builder.append("\"[" + arrayItem.getIndex() + "]\"");
             }
         }
         return builder.toString();
@@ -128,9 +129,8 @@ public class UrPath {
     }
 
     protected String getKey(String token) {
-        return token.replace("~1", UR_PATH_DELIMETER)
-            .replace("~2", "[")
-            .replace("~3", "]")
+        return token.replace("~1", "[")
+            .replace("~2", "]")
             .replace("~0", "~");
     }
 

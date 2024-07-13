@@ -13,7 +13,7 @@ import org.json.JSONObject;
 import cz.cuni.mff.hdt.converter.InputConverter;
 import cz.cuni.mff.hdt.ur.Ur;
 import cz.cuni.mff.hdt.ur.Ur.Type;
-import cz.cuni.mff.hdt.utils.PrimitiveParser;
+import cz.cuni.mff.hdt.utils.ParserHelper;
 
 public class CsvInputConverter implements InputConverter {
 
@@ -72,7 +72,7 @@ public class CsvInputConverter implements InputConverter {
                     continue;
                 }
                 var value = row.get(name);
-                Type type = PrimitiveParser.getPrimitiveType(value);
+                Type type = ParserHelper.getPrimitiveType(value);
                 JSONObject primitiveObject = getPrimitiveObject(type, value);
                 rowObject.put(name, new JSONArray().put(primitiveObject));
             }

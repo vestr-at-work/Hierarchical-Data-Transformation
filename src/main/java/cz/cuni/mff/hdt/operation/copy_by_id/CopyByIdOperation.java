@@ -11,6 +11,7 @@ import cz.cuni.mff.hdt.operation.Operation;
 import cz.cuni.mff.hdt.operation.OperationFailedException;
 import cz.cuni.mff.hdt.operation.VariableHelper;
 import cz.cuni.mff.hdt.ur.Ur;
+import cz.cuni.mff.hdt.utils.ParserHelper;
 import cz.cuni.mff.hdt.path.PropertyToken;
 import cz.cuni.mff.hdt.path.UrPath;
 import cz.cuni.mff.hdt.path.VariableUrPath;
@@ -143,7 +144,7 @@ public class CopyByIdOperation implements Operation {
                 }
                 catch (IOException e) {
                     // TODO inputPath will not be printed as an readable UrPath. Add nice toString()
-                    throw new OperationFailedException("Value from '" + matchedPath + "' could not be shifted");
+                    throw new OperationFailedException("Entity with ID from '" + matchedPath + "' could not be copied");
                 }
 
                 // remove them from recursion
@@ -254,19 +255,21 @@ public class CopyByIdOperation implements Operation {
         var idPathUnknown = specObject.get(KEY_ID_PATH);
         var entityParentPathUnknown = specObject.get(KEY_ENTITY_PARENT_PATH);
 
-        if (!(idPathUnknown instanceof String)) {
+        if (!(idPathUnknown instanceof JSONArray)) {
             throw new IOException("Incorrect type of key '" + KEY_ID_PATH + "' in spec item");
         }
-        if (!(entityParentPathUnknown instanceof String)) {
+        if (!(entityParentPathUnknown instanceof JSONArray)) {
             throw new IOException("Incorrect type of key '" + KEY_ENTITY_PARENT_PATH + "' in spec item");
         }
 
-        parsePaths((String)idPathUnknown, (String)entityParentPathUnknown);
+        var idPathStringTokens = ParserHelper.getStringTokens((JSONArray)idPathUnknown);
+        var entityParentPathStringTokens = ParserHelper.getStringTokens((JSONArray)entityParentPathUnknown);
+        parsePaths(idPathStringTokens, entityParentPathStringTokens);
     }
 
-    private void parsePaths(String idPath, String entityParentPath) throws IOException {
-        var idUrPath = new VariableUrPath(idPath);
-        var entityParentUrPath = new VariableUrPath(entityParentPath);
+    private void parsePaths(String[] idPathStringTokens, String[] entityParentPathStringTokens) throws IOException {
+        var idUrPath = new VariableUrPath(idPathStringTokens);
+        var entityParentUrPath = new VariableUrPath(entityParentPathStringTokens);
         
         if (!idUrPath.hasVariables() && entityParentUrPath.hasVariables()) {
             throw new IOException("Unexpected variable in '" + KEY_ENTITY_PARENT_PATH + "'. No matching variable present in '" + KEY_ID_PATH + "'");
@@ -278,7 +281,7 @@ public class CopyByIdOperation implements Operation {
         }
 
         if (!outputVariablesValid(idUrPath, entityParentUrPath)) {
-            throw new IOException("Unexpected variable in '" + KEY_ENTITY_PARENT_PATH + "': " + entityParentPath + ". No matching variable present in '" + KEY_ID_PATH + "': " + idPath);
+            throw new IOException("Unexpected variable in '" + KEY_ENTITY_PARENT_PATH + "': " + entityParentPathStringTokens + ". No matching variable present in '" + KEY_ID_PATH + "': " + idPathStringTokens);
         }
 
         variablePaths.add(Pair.of(idUrPath, entityParentUrPath));

@@ -11,6 +11,7 @@ import cz.cuni.mff.hdt.operation.Operation;
 import cz.cuni.mff.hdt.operation.OperationFailedException;
 import cz.cuni.mff.hdt.operation.VariableHelper;
 import cz.cuni.mff.hdt.ur.Ur;
+import cz.cuni.mff.hdt.utils.ParserHelper;
 import cz.cuni.mff.hdt.path.UrPath;
 import cz.cuni.mff.hdt.path.VariableArrayItemToken;
 import cz.cuni.mff.hdt.path.VariablePropertyToken;
@@ -138,7 +139,7 @@ public class FilterOperation implements Operation {
                 matchVariablesAndFilterRecursive(newPropertyUr, inputUr, outputUr, iteration + 1, matchingPathsIndices);
             }
             catch (IOException e) {
-                throw new OperationFailedException("Error occured when matching named variables.");
+                throw new OperationFailedException("Error occured when matching named variables in filter operation");
             }
 
             resetVariables(matchingPathsIndices, iteration);
@@ -234,33 +235,35 @@ public class FilterOperation implements Operation {
 
     private void parseSpec(Object spec) throws IOException {
         if (!(spec instanceof JSONObject)) {
-            throw new IOException("Incorrect type of an item in filter operation specs");
+            throw new IOException("Incorrect type of an item in specs");
         }
         var specObject = (JSONObject)spec;
-        if (!specObject.has(TESTED_KEY_PATH) || !specObject.has(KEY_PREDICATE)) {
-            throw new IOException("Mandatory keys are missing from item in filter operation specs");
+        if (!specObject.has(TESTED_KEY_PATH) || !specObject.has(FILTERED_KEY_PATH)|| !specObject.has(KEY_PREDICATE)) {
+            throw new IOException("Mandatory keys are missing from item in specs");
         }
         var testedPathUnknown = specObject.get(TESTED_KEY_PATH);
         var filteredPathUnknown = specObject.get(FILTERED_KEY_PATH);
         var predicateUnknown = specObject.get(KEY_PREDICATE);
-        if (!(testedPathUnknown instanceof String)) {
-            throw new IOException("Incorrect type of key '" + TESTED_KEY_PATH + "' in filter operation spec item");
+        if (!(testedPathUnknown instanceof JSONArray)) {
+            throw new IOException("Incorrect type of key '" + TESTED_KEY_PATH + "' in spec item");
         }
-        if (!(filteredPathUnknown instanceof String)) {
-            throw new IOException("Incorrect type of key '" + FILTERED_KEY_PATH + "' in filter operation spec item");
+        if (!(filteredPathUnknown instanceof JSONArray)) {
+            throw new IOException("Incorrect type of key '" + FILTERED_KEY_PATH + "' in spec item");
         }
         if (!(predicateUnknown instanceof String)) {
-            throw new IOException("Incorrect type of key '" + KEY_PREDICATE + "' in filter operation spec item");
+            throw new IOException("Incorrect type of key '" + KEY_PREDICATE + "' in spec item");
         }
-        parsePath((String)filteredPathUnknown, (String)testedPathUnknown, UrPredicateFactory.create((String)predicateUnknown));
+        var filteredPathStringTokens = ParserHelper.getStringTokens((JSONArray)filteredPathUnknown);
+        var testedPathStringTokens = ParserHelper.getStringTokens((JSONArray)testedPathUnknown);
+        parsePath(filteredPathStringTokens, testedPathStringTokens, UrPredicateFactory.create((String)predicateUnknown));
     }
 
-    private void parsePath(String filteredPathString, String testedPathString, UrPredicate predicate) throws IOException {
-        var testedPath = new VariableUrPath(testedPathString);
-        var filteredPath = new VariableUrPath(filteredPathString);
+    private void parsePath(String[] filteredPathStringTokens, String[] testedPathStringTokens, UrPredicate predicate) throws IOException {
+        var testedPath = new VariableUrPath(testedPathStringTokens);
+        var filteredPath = new VariableUrPath(filteredPathStringTokens);
 
         if (!testedPath.hasVariables() && filteredPath.hasVariables()) {
-            throw new IOException("Unexpected variable in '" + FILTERED_KEY_PATH + "' in filter operation specs. No matching variable present in '" + TESTED_KEY_PATH + "'");
+            throw new IOException("Unexpected variable in '" + FILTERED_KEY_PATH + "' in specs. No matching variable present in '" + TESTED_KEY_PATH + "'");
         }
         if (!testedPath.hasVariables() && !filteredPath.hasVariables()) {
             nonVariablePaths.add(Pair.of(testedPath.getUrPath(), filteredPath.getUrPath()));

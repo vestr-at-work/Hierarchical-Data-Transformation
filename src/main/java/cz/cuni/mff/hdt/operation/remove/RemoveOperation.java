@@ -10,6 +10,7 @@ import cz.cuni.mff.hdt.operation.Operation;
 import cz.cuni.mff.hdt.operation.OperationFailedException;
 import cz.cuni.mff.hdt.operation.VariableHelper;
 import cz.cuni.mff.hdt.ur.Ur;
+import cz.cuni.mff.hdt.utils.ParserHelper;
 import cz.cuni.mff.hdt.path.UrPath;
 import cz.cuni.mff.hdt.path.VariableUrPath;
 
@@ -135,7 +136,7 @@ public class RemoveOperation implements Operation {
                 matchVariablesAndRemoveRecursive(newPropertyUr, inputUr, outputUr, iteration + 1, matchingPathsIndices);
             }
             catch (IOException e) {
-                throw new OperationFailedException("Error occured when matching named variables.");
+                throw new OperationFailedException("Error occured when matching named variables in remove operation");
             }
 
             resetVariables(matchingPathsIndices, iteration);
@@ -177,14 +178,15 @@ public class RemoveOperation implements Operation {
             throw new IOException("Mandatory key is missing from item in specs");
         }
         var pathObject = specObject.get(KEY_PATH);
-        if (!(pathObject instanceof String)) {
+        if (!(pathObject instanceof JSONArray)) {
             throw new IOException("Incorrect type of key '" + KEY_PATH + "' in spec item");
         }
-        parsePath((String)pathObject);
+        var stringPathTokens = ParserHelper.getStringTokens((JSONArray)pathObject);
+        parsePath(stringPathTokens);
     }
 
-    private void parsePath(String stringPath) throws IOException {
-        var path = new VariableUrPath(stringPath);
+    private void parsePath(String[] stringPathTokens) throws IOException {
+        var path = new VariableUrPath(stringPathTokens);
 
         if (path.hasVariables()) {
             variablePaths.add(path);

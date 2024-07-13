@@ -157,7 +157,7 @@ public class TransformationDefinition {
                 parsedOperation = operationFactory.create(operationTypeString, specsObject);
             }
             catch (IOException e) {
-                throw new IllegalArgumentException("Incorrect specification in '" + operationTypeString + "' operation");
+                throw new IllegalArgumentException("Incorrect specification in '" + operationTypeString + "' operation. " + e.getMessage());
             }
             
             if (parsedOperation.isEmpty()) {

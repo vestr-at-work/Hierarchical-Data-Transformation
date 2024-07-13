@@ -10,35 +10,21 @@ import java.util.List;
  */
 public class VariableUrPath {
     public List<UrPathToken> tokens;
-    public static final String UR_PATH_DELIMETER = "/";
     protected static final String VARIABLE = "@var";
     protected static final String VARIABLE_NAME_DELIMETER = ":";
 
     private boolean hasVariables;
     private HashMap<String, Integer> variableIndices;
 
-    // Class VariableUrPath
-    // - has variable tokens support
-    // - has export to UrPath when variable values provided
-    // - supports subPath
-    // - bool hasVariables() method
-    // - can copy itself
-    // - gets values of variables by name
-
     /**
-     * Constructs a VariableUrPath from a string representation.
+     * Constructs a VariableUrPath from a string token representation.
      * 
-     * @param path the string representation of the path
+     * @param pathStringTokens list of the path string token
      * @throws IOException if there is an error parsing the path
      */
-    public VariableUrPath(String path) throws IOException {
+    public VariableUrPath(String[] pathStringTokens) throws IOException {
         hasVariables = false;
         variableIndices = new HashMap<>();
-        var pathStringTokens = path.split(UR_PATH_DELIMETER);
-        if (pathStringTokens.length == 2 && pathStringTokens[1].equals("")) {
-            tokens = new ArrayList<>();
-            return;
-        }
         tokens = getParsedTokens(pathStringTokens);
     }
 
@@ -165,7 +151,7 @@ public class VariableUrPath {
 
     protected List<UrPathToken> getParsedTokens(String[] pathStringTokens) throws IOException {
         ArrayList<UrPathToken> tokens = new ArrayList<>();
-        for (int i = 1; i < pathStringTokens.length; i++) {
+        for (int i = 0; i < pathStringTokens.length; i++) {
             var token = pathStringTokens[i];
             if (tokenIsArray(token)) {
                 if (tokenIsVariable(token)) {
@@ -199,9 +185,8 @@ public class VariableUrPath {
     }
 
     protected String getKey(String token) {
-        return token.replace("~1", UR_PATH_DELIMETER)
-            .replace("~2", "[")
-            .replace("~3", "]")
+        return token.replace("~1", "[")
+            .replace("~2", "]")
             .replace("~0", "~");
     }
 

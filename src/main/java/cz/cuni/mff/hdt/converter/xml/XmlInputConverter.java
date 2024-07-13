@@ -20,7 +20,7 @@ import org.xml.sax.SAXException;
 
 import cz.cuni.mff.hdt.converter.InputConverter;
 import cz.cuni.mff.hdt.ur.Ur;
-import cz.cuni.mff.hdt.utils.PrimitiveParser;
+import cz.cuni.mff.hdt.utils.ParserHelper;
 
 /**
  * Converter implementation for converting XML to Unified representation (Ur).
@@ -149,7 +149,7 @@ public class XmlInputConverter implements InputConverter {
     }
 
     private static String getPrimitiveValueType(String value) throws IOException {
-        var type = PrimitiveParser.getPrimitiveType(value);
+        var type = ParserHelper.getPrimitiveType(value);
         switch (type) {
             case Boolean:
                 return Ur.VALUE_BOOLEAN;

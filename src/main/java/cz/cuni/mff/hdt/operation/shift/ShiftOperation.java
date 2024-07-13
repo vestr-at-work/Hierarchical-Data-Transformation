@@ -11,6 +11,7 @@ import cz.cuni.mff.hdt.operation.Operation;
 import cz.cuni.mff.hdt.operation.OperationFailedException;
 import cz.cuni.mff.hdt.operation.VariableHelper;
 import cz.cuni.mff.hdt.ur.Ur;
+import cz.cuni.mff.hdt.utils.ParserHelper;
 import cz.cuni.mff.hdt.path.UrPath;
 import cz.cuni.mff.hdt.path.VariableUrPath;
 
@@ -209,25 +210,30 @@ public class ShiftOperation implements Operation {
         var inputPathUnknown = specObject.get(KEY_INPUT_PATH);
         var outputPathsUnknown = specObject.get(KEY_OUTPUT_PATH);
 
-        if (!(inputPathUnknown instanceof String)) {
+        if (!(inputPathUnknown instanceof JSONArray)) {
             throw new IOException("Incorrect type of key '" + KEY_INPUT_PATH + "' in spec item");
         }
-        if (!(outputPathsUnknown instanceof String) && !(outputPathsUnknown instanceof JSONArray)) {
+        String[] inputPathTokens = ParserHelper.getStringTokens((JSONArray)inputPathUnknown);
+
+        if (!(outputPathsUnknown instanceof JSONArray)) {
             throw new IOException("Incorrect type of key '" + KEY_OUTPUT_PATH + "' in spec item");
         }
+        var outputPaths = (JSONArray)outputPathsUnknown;
 
-        if (outputPathsUnknown instanceof String) {
-            parsePaths((String)inputPathUnknown, (String)outputPathsUnknown);
+        // there is only one output path
+        if (outputPaths.isEmpty() || outputPaths.optJSONArray(0) == null) {
+            String[] outputPathTokens = ParserHelper.getStringTokens(outputPaths);
+            parsePaths(inputPathTokens,  outputPathTokens);
+            return;
         }
-        else {
-            var outputPathsArray = (JSONArray)outputPathsUnknown;
-            parsePaths((String)inputPathUnknown, outputPathsArray);
-        }
+
+        // multiple output paths
+        parsePaths(inputPathTokens, outputPaths);
     }
 
-    private void parsePaths(String inputPath, String outputPath) throws IOException {
-        var inputUrPath = new VariableUrPath(inputPath);
-        var outputUrPath = new VariableUrPath(outputPath);
+    private void parsePaths(String[] inputPathTokens, String[] outputPathTokens) throws IOException {
+        var inputUrPath = new VariableUrPath(inputPathTokens);
+        var outputUrPath = new VariableUrPath(outputPathTokens);
         
         if (!inputUrPath.hasVariables() && outputUrPath.hasVariables()) {
             throw new IOException("Unexpected variable in '" + KEY_OUTPUT_PATH + "'. No matching variable present in '" + KEY_INPUT_PATH + "'");
@@ -241,7 +247,7 @@ public class ShiftOperation implements Operation {
         }
 
         if (!outputVariablesValid(inputUrPath, outputUrPath)) {
-            throw new IOException("Unexpected variable in '" + KEY_OUTPUT_PATH + "': " + outputPath + ". No matching variable present in '" + KEY_INPUT_PATH + "': " + inputPath);
+            throw new IOException("Unexpected variable in '" + KEY_OUTPUT_PATH + "'. No matching variable present in '" + KEY_INPUT_PATH + "'");
         }
 
         var outputPathArray = new ArrayList<VariableUrPath>();
@@ -262,16 +268,17 @@ public class ShiftOperation implements Operation {
         return true;
     }
 
-    private void parsePaths(String inputPath, JSONArray outputPaths) throws IOException {
-        var inputUrPath = new VariableUrPath(inputPath);
+    private void parsePaths(String[] inputPathTokens, JSONArray outputPaths) throws IOException {
+        var inputUrPath = new VariableUrPath(inputPathTokens);
 
         if (!inputUrPath.hasVariables()) {
             var outputPathArray = new ArrayList<UrPath>();
             for (var outputPath : outputPaths) {
-                if (!(outputPath instanceof String)) {
+                if (!(outputPath instanceof JSONArray)) {
                     throw new IOException("Incorrect type of output path item");
                 }
-                var outputUrPath = new VariableUrPath((String)outputPath);
+                String[] outputPathTokens = ParserHelper.getStringTokens((JSONArray)outputPath);
+                var outputUrPath = new VariableUrPath(outputPathTokens);
                 if (outputUrPath.hasVariables()) {
                     throw new IOException("Unexpected variable in '" + KEY_OUTPUT_PATH + "'. No matching variable present in '" + KEY_INPUT_PATH + "'");
                 }
@@ -284,12 +291,13 @@ public class ShiftOperation implements Operation {
         // Else variables present
         var outputPathArray = new ArrayList<VariableUrPath>();
         for (var outputPath : outputPaths) {
-            if (!(outputPath instanceof String)) {
+            if (!(outputPath instanceof JSONArray)) {
                 throw new IOException("Incorrect type of output path item");
             }
-            var outputUrPath = new VariableUrPath((String)outputPath);
+            String[] outputPathTokens = ParserHelper.getStringTokens((JSONArray)outputPath);
+            var outputUrPath = new VariableUrPath(outputPathTokens);
             if (!outputVariablesValid(inputUrPath, outputUrPath)) {
-                throw new IOException("Unexpected variable in '" + KEY_OUTPUT_PATH + "': " + outputPath + ". No matching variable present in '" + KEY_INPUT_PATH + "': " + inputPath);
+                throw new IOException("Unexpected variable in '" + KEY_OUTPUT_PATH + "': " + outputPath + ". No matching variable present in '" + KEY_INPUT_PATH + "': " + inputPathTokens);
             }
             outputPathArray.add(outputUrPath);
         }

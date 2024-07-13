@@ -12,6 +12,7 @@ import cz.cuni.mff.hdt.operation.OperationFailedException;
 import cz.cuni.mff.hdt.operation.VariableHelper;
 import cz.cuni.mff.hdt.transformation.TypedValue;
 import cz.cuni.mff.hdt.ur.Ur;
+import cz.cuni.mff.hdt.utils.ParserHelper;
 import cz.cuni.mff.hdt.path.UrPath;
 import cz.cuni.mff.hdt.path.VariableUrPath;
 
@@ -180,14 +181,15 @@ public class DefaultOperation implements Operation {
         var pathObject = specObject.get(KEY_PATH);
         var value = specObject.get(KEY_VALUE);
         var type = Ur.getPrimitiveUrString(value);
-        if (!(pathObject instanceof String)) {
+        if (!(pathObject instanceof JSONArray)) {
             throw new IOException("Incorrect type of key '" + KEY_PATH + "' in spec item");
         }
-        parsePath((String)pathObject, new TypedValue(type, value.toString()));
+        var pathStringTokens = ParserHelper.getStringTokens((JSONArray)pathObject);
+        parsePath(pathStringTokens, new TypedValue(type, value.toString()));
     }
 
-    private void parsePath(String stringPath, TypedValue value) throws IOException {
-        var path = new VariableUrPath(stringPath);
+    private void parsePath(String[] pathStringTokens, TypedValue value) throws IOException {
+        var path = new VariableUrPath(pathStringTokens);
 
         if (path.hasVariables()) {
             variablePaths.add(Pair.of(path, value));
