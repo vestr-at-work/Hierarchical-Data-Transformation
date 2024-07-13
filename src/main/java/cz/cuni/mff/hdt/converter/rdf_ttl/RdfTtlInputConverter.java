@@ -107,20 +107,28 @@ public class RdfTtlInputConverter implements InputConverter {
 
                 if (literal.getDatatypeURI() != null && !literal.getLanguage().isEmpty()) {
                     outputObject.put(Ur.KEY_TYPE, new JSONArray().put(Ur.VALUE_LANG_STRING_URI));
-                    outputObject.put(Ur.KEY_RDF_LANGUAGE, new JSONArray().put(literal.getLanguage()));
-                } else if (literal.getDatatypeURI() != null) {
+                    var langPrimitive = new JSONObject()
+                        .put(Ur.KEY_VALUE, new JSONArray().put(literal.getLanguage()))
+                        .put(Ur.KEY_TYPE, new JSONArray().put(Ur.VALUE_STRING));
+                    outputObject.put(Ur.KEY_RDF_LANGUAGE, new JSONArray().put(langPrimitive));
+                } 
+                else if (literal.getDatatypeURI() != null) {
                     outputObject.put(Ur.KEY_TYPE, new JSONArray().put(literal.getDatatypeURI()));
-                } else {
+                } 
+                else {
                     outputObject.put(Ur.KEY_TYPE, new JSONArray().put(Ur.VALUE_STRING_URI));
                 }
-            } else if (object.isResource()) {
+            } 
+            else if (object.isResource()) {
                 Resource resource = object.asResource();
 
                 if (resource.isAnon()) {
                     convertBlankNode(resource, outputObject, knownResources, resourcesToCheck);
-                } else if (knownResources.containsKey(resource.getURI())) {
+                } 
+                else if (knownResources.containsKey(resource.getURI())) {
                     outputObject = knownResources.get(resource.getURI());
-                } else {
+                } 
+                else {
                     var idLiteral = getIdLiteral(resource.getURI());
                     outputObject.put(Ur.KEY_RDF_ID, new JSONArray().put(idLiteral));
                     resourcesToCheck.put(resource.getURI(), new SimpleEntry<>(parentJson, propertyUri));
@@ -143,7 +151,8 @@ public class RdfTtlInputConverter implements InputConverter {
                 }
                 
                 propertyCounts.put(propertyUri, count + 1);
-            } else {
+            } 
+            else {
                 propertyCounts.put(propertyUri, 1);
                 JSONArray propertyArray = new JSONArray();
                 propertyArray.put(outputObject);
