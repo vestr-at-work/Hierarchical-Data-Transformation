@@ -185,8 +185,9 @@ public class ArrayMapOperation implements Operation {
     private void arrayMapMatched(Ur outputUr, Integer pathIndex) throws IOException {
         var path = variablePaths.get(pathIndex).getUrPath();
         Ur entityToBeConverted = outputUr.getShared(path);
-        if (entityToBeConverted.getRootType() != Type.Object) {
-            // if not an object do nothing
+        if (!(entityToBeConverted.getRootType() == Type.Object 
+                || entityToBeConverted.getRootType() == Type.Array)) {
+            // if not an object or array do nothing
             return;
         }
         
