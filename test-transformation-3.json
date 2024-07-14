@@ -1,12 +1,15 @@
 {
+    "input-converter": "json-default",
+    "output-converter": "json-default",
     "operations": [
         {
             "operation": "filter",
             "comment": "",
             "specs": [
                 {
-                    "path": "/entities/[2]",
-                    "predicate": "@value != false"
+                    "tested-path": ["entities", "[@var:index:]"],
+                    "filtered-path": ["entities", "[@var:index:]"],
+                    "predicate": "@value == object random"
                 }
             ]
         }
