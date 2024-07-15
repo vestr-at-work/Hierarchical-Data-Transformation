@@ -42,11 +42,20 @@ public class XmlInputConverter implements InputConverter {
             Document doc = dBuilder.parse(input);
             doc.getDocumentElement().normalize();
 
-            JSONObject resultJson = new JSONObject().put(Ur.KEY_TYPE, new JSONArray().put(0, Ur.VALUE_OBJECT));
-            resultJson.put(Ur.KEY_XML_ENCODING, new JSONArray().put(0, doc.getXmlEncoding()));
-            resultJson.put(Ur.KEY_XML_VERSION, new JSONArray().put(0, doc.getXmlVersion()));
+            JSONObject resultJson = new JSONObject().put(Ur.KEY_TYPE, new JSONArray().put(Ur.VALUE_OBJECT));
+
+            var encodingPrimitive = new JSONObject()
+                .put(Ur.KEY_TYPE, new JSONArray().put(Ur.VALUE_STRING))
+                .put(Ur.KEY_VALUE, new JSONArray().put(doc.getXmlEncoding()));
+            resultJson.put(Ur.KEY_XML_ENCODING, new JSONArray().put(encodingPrimitive));
+
+            var versionPrimitive = new JSONObject()
+                .put(Ur.KEY_TYPE, new JSONArray().put(Ur.VALUE_STRING))
+                .put(Ur.KEY_VALUE, new JSONArray().put(doc.getXmlVersion()));
+            resultJson.put(Ur.KEY_XML_VERSION, new JSONArray().put(versionPrimitive));
+            
             var rootInner = getXmlUrRecursive(doc.getDocumentElement());
-            resultJson.put(doc.getDocumentElement().getTagName(), new JSONArray().put(0, rootInner));
+            resultJson.put(doc.getDocumentElement().getTagName(), new JSONArray().put(rootInner));
             return new Ur(resultJson);
         }
         catch (ParserConfigurationException e) {
@@ -64,14 +73,14 @@ public class XmlInputConverter implements InputConverter {
         JSONObject outputObject = new JSONObject();
 
         if (!attributes.isEmpty()) {
-            outputObject.put(Ur.KEY_XML_ATTRIBUTES, new JSONArray().put(0, attributes.get()));
+            outputObject.put(Ur.KEY_XML_ATTRIBUTES, new JSONArray().put(attributes.get()));
         }
 
         if (tagCounts.isEmpty()) {
             var textValue = element.getTextContent();
             String type = getPrimitiveValueType(textValue);
-            outputObject.put(Ur.KEY_TYPE, new JSONArray().put(0, type));
-            outputObject.put(Ur.KEY_VALUE, new JSONArray().put(0, textValue));
+            outputObject.put(Ur.KEY_TYPE, new JSONArray().put(type));
+            outputObject.put(Ur.KEY_VALUE, new JSONArray().put(textValue));
             return outputObject;
         }
 
@@ -82,27 +91,27 @@ public class XmlInputConverter implements InputConverter {
 
             if (count > 1) {
                 JSONObject tagArrayObject = getArrayObject(element, tag);
-                outputObject.put(tag, new JSONArray().put(0, tagArrayObject));
+                outputObject.put(tag, new JSONArray().put(tagArrayObject));
                 continue;
             }
             var tagElement = getTagElement(element, tag);
-            outputObject.put(tag, new JSONArray().put(0, getXmlUrRecursive(tagElement)));
+            outputObject.put(tag, new JSONArray().put(getXmlUrRecursive(tagElement)));
         }
 
-        outputObject.put(Ur.KEY_TYPE, new JSONArray().put(0, Ur.VALUE_OBJECT));
+        outputObject.put(Ur.KEY_TYPE, new JSONArray().put(Ur.VALUE_OBJECT));
         return outputObject;
     }
 
     private static JSONObject getArrayObject(Element element, String tag) throws IOException {
         var nodes = element.getElementsByTagName(tag);
-        var outputObject = new JSONObject().put(Ur.KEY_TYPE, new JSONArray().put(0, Ur.VALUE_ARRAY));
+        var outputObject = new JSONObject().put(Ur.KEY_TYPE, new JSONArray().put(Ur.VALUE_ARRAY));
         for (Integer i = 0; i < nodes.getLength(); i++) {
             var node = nodes.item(i);
             if (node.getNodeType() != Node.ELEMENT_NODE) {
                 throw new IOException("Unsupported XML node type");
             }
             Element tagElement = (Element)node;
-            outputObject.put(i.toString(), new JSONArray().put(0, getXmlUrRecursive(tagElement)));
+            outputObject.put(i.toString(), new JSONArray().put(getXmlUrRecursive(tagElement)));
         }
         return outputObject;
     }
@@ -134,15 +143,15 @@ public class XmlInputConverter implements InputConverter {
         if (attributes.getLength() == 0) {
             return Optional.empty();
         }
-        var attributesObject = new JSONObject().put(Ur.KEY_TYPE, new JSONArray().put(0, Ur.VALUE_OBJECT));
+        var attributesObject = new JSONObject().put(Ur.KEY_TYPE, new JSONArray().put(Ur.VALUE_OBJECT));
         for (int i = 0; i < attributes.getLength(); i++) {
             var attribute = attributes.item(i);
             var textValue = attribute.getNodeValue();
             var primitiveObject = new JSONObject();
             String type = getPrimitiveValueType(textValue);
-            primitiveObject.put(Ur.KEY_TYPE, new JSONArray().put(0, type));
-            primitiveObject.put(Ur.KEY_VALUE, new JSONArray().put(0, textValue));
-            attributesObject.put(attribute.getNodeName(), new JSONArray().put(0, primitiveObject));
+            primitiveObject.put(Ur.KEY_TYPE, new JSONArray().put(type));
+            primitiveObject.put(Ur.KEY_VALUE, new JSONArray().put(textValue));
+            attributesObject.put(attribute.getNodeName(), new JSONArray().put(primitiveObject));
         }
 
         return Optional.of(attributesObject);

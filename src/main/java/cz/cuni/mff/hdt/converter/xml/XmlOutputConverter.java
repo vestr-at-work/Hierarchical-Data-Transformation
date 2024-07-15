@@ -90,17 +90,20 @@ public class XmlOutputConverter extends UrOutputConverter {
         }
     }
 
+    // TODO this two functions should be merged into one
     private Optional<String> getVersion(JSONObject root) throws IOException {
         if (!root.has(Ur.KEY_XML_VERSION)) {
             return Optional.empty();
         }
 
-        var versionObject = root.get(Ur.KEY_XML_VERSION);
-        assertArray(versionObject);
-        var versionValueArray = (JSONArray)versionObject;
+        var versionArray = root.get(Ur.KEY_XML_VERSION);
+        assertArray(versionArray);
+        var versionValueArray = (JSONArray)versionArray;
         assertSingleElementArray(versionValueArray);
-        var version = versionValueArray.get(0).toString();
-        return Optional.of(version);
+        var versionPrimitive = versionValueArray.get(0);
+        assertObject(versionPrimitive);
+        var value = getValueInnerValue((JSONObject)versionPrimitive);
+        return Optional.of(value);
     }
 
     private Optional<String> getEncoding(JSONObject root) throws IOException {
@@ -112,8 +115,10 @@ public class XmlOutputConverter extends UrOutputConverter {
         assertArray(encodingObject);
         var encodingValueArray = (JSONArray)encodingObject;
         assertSingleElementArray(encodingValueArray);
-        var encoding = encodingValueArray.get(0).toString();
-        return Optional.of(encoding);
+        var encodingPrimitive = encodingValueArray.get(0);
+        assertObject(encodingPrimitive);
+        var value = getValueInnerValue((JSONObject)encodingPrimitive);
+        return Optional.of(value);
     }
 
     private String getRootName(JSONObject rootObject) throws IOException {

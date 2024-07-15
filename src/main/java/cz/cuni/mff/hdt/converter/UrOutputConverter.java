@@ -94,6 +94,12 @@ public abstract class UrOutputConverter implements OutputConverter {
         }
     }
 
+    protected void assertObject(Object potentialJSONObject) throws IOException {
+        if (!(potentialJSONObject instanceof JSONObject)) {
+            throw new IOException("Incorrect Unified representation provided. Entity not in object.");
+        }
+    }
+
     protected void assertTypeKey(JSONObject object) throws IOException {
         if (!object.has(Ur.KEY_TYPE)) {
             throw new IOException("Incorrect Unified representation provided. Not all entities do have " + Ur.KEY_TYPE + " key.");
