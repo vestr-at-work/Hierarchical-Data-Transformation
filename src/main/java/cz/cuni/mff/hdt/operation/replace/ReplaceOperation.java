@@ -1,4 +1,4 @@
-package cz.cuni.mff.hdt.operation.copy_by_id;
+package cz.cuni.mff.hdt.operation.replace;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -17,9 +17,9 @@ import cz.cuni.mff.hdt.path.UrPath;
 import cz.cuni.mff.hdt.path.VariableUrPath;
 
 /*
- * Class implementing the copy-by-id operation of the transformation language
+ * Class implementing the replace operation of the transformation language
  */
-public class CopyByIdOperation implements Operation {
+public class ReplaceOperation implements Operation {
     public static final String KEY_ID_PATH = "id-path";
     public static final String KEY_ENTITY_PARENT_PATH = "entity-parent-path";
 
@@ -28,12 +28,12 @@ public class CopyByIdOperation implements Operation {
     private ArrayList<Pair<VariableUrPath, VariableUrPath>> variablePaths;
 
     /**
-     * Constructs a new CopyByIdOperation with the operation specifications.
+     * Constructs a new ReplaceOperation with the operation specifications.
      *
      * @param operationSpecs the JSON array containing the operation specifications
      * @throws IOException if there is an error parsing the operation specifications
      */
-    public CopyByIdOperation(JSONArray operationSpecs) throws IOException {
+    public ReplaceOperation(JSONArray operationSpecs) throws IOException {
         nonVariablePaths = new ArrayList<>();
         variablePaths = new ArrayList<>();
         for (var spec : operationSpecs) {
@@ -42,10 +42,10 @@ public class CopyByIdOperation implements Operation {
     }
 
     /**
-     * Executes the copy-by-id operation on the provided input {@code Ur} object.
+     * Executes the replace operation on the provided input {@code Ur} object.
      *
      * @param inputUr the input {@code Ur} object
-     * @return the resulting {@code Ur} object after the copy-by-id operation is applied
+     * @return the resulting {@code Ur} object after the replace operation is applied
      * @throws OperationFailedException if the operation fails
      */
     @Override
@@ -84,7 +84,7 @@ public class CopyByIdOperation implements Operation {
 
         var allPathsIndices = new ArrayList<Integer>();
         for (Integer i = 0; i < variablePaths.size(); i++) {allPathsIndices.add(i);};
-        matchVariablesAndCopyRecursive(inputUr, inputUr, outputUr, 0, allPathsIndices);
+        matchVariablesAndReplaceRecursive(inputUr, inputUr, outputUr, 0, allPathsIndices);
         
         return outputUr;
     }
@@ -116,7 +116,7 @@ public class CopyByIdOperation implements Operation {
         }
     }
 
-    private void matchVariablesAndCopyRecursive(Ur propertyUr, Ur inputUr, Ur outputUr, int iteration,
+    private void matchVariablesAndReplaceRecursive(Ur propertyUr, Ur inputUr, Ur outputUr, int iteration,
             ArrayList<Integer> pathsIndices) throws OperationFailedException {
 
         var keys = propertyUr.getKeys();
@@ -139,7 +139,7 @@ public class CopyByIdOperation implements Operation {
                 }
                 try {
                     if (!sameAsNonVariable(matchedPath) && inputUr.isPresent(matchedPath)) {
-                        copyMatched(inputUr, outputUr, index);
+                        replaceMatched(inputUr, outputUr, index);
                     }
                 }
                 catch (IOException e) {
@@ -163,7 +163,7 @@ public class CopyByIdOperation implements Operation {
                 // get Ur of property
                 var newPropertyUr = inputUr.getShared(urPathToProperty);
                 // call function recursively
-                matchVariablesAndCopyRecursive(newPropertyUr, inputUr, outputUr, iteration + 1, matchingPathsIndices);
+                matchVariablesAndReplaceRecursive(newPropertyUr, inputUr, outputUr, iteration + 1, matchingPathsIndices);
             }
             catch (IOException e) {
                 throw new OperationFailedException("Error occured when matching named variables.");
@@ -184,7 +184,7 @@ public class CopyByIdOperation implements Operation {
         return false;
     }
 
-    private void copyMatched(Ur inputUr, Ur outputUr, Integer pathIndex) throws IOException {
+    private void replaceMatched(Ur inputUr, Ur outputUr, Integer pathIndex) throws IOException {
         var pathPair = variablePaths.get(pathIndex);
         var idPath = pathPair.getLeft();
         var entityCopyPath = pathPair.getRight();

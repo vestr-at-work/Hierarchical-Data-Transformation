@@ -6,10 +6,10 @@ import java.util.Optional;
 import org.json.JSONArray;
 
 import cz.cuni.mff.hdt.operation.array_map.ArrayMapOperation;
-import cz.cuni.mff.hdt.operation.copy_by_id.CopyByIdOperation;
 import cz.cuni.mff.hdt.operation.default_op.DefaultOperation;
 import cz.cuni.mff.hdt.operation.filter.FilterOperation;
 import cz.cuni.mff.hdt.operation.remove.RemoveOperation;
+import cz.cuni.mff.hdt.operation.replace.ReplaceOperation;
 import cz.cuni.mff.hdt.operation.shift.ShiftOperation;
 
 /**
@@ -45,7 +45,7 @@ public class BaseOperationFactory implements OperationFactory {
             case OPERATION_ARRAY_MAP:
                 return Optional.of(new ArrayMapOperation(operationSpecs));
             case OPERATION_COPY_BY_ID:
-                return Optional.of(new CopyByIdOperation(operationSpecs));
+                return Optional.of(new ReplaceOperation(operationSpecs));
             default:
                 return Optional.empty();
         }
