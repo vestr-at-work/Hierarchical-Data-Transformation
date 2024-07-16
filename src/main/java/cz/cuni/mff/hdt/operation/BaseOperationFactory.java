@@ -21,7 +21,7 @@ public class BaseOperationFactory implements OperationFactory {
     public static final String OPERATION_REMOVE = "remove";
     public static final String OPERATION_SHIFT = "shift";
     public static final String OPERATION_ARRAY_MAP = "array-map";
-    public static final String OPERATION_COPY_BY_ID = "copy-by-id";
+    public static final String OPERATION_REPLACE = "replace";
 
     /**
      * Creates an operation based on the given operation name and specifications.
@@ -44,7 +44,7 @@ public class BaseOperationFactory implements OperationFactory {
                 return Optional.of(new RemoveOperation(operationSpecs));
             case OPERATION_ARRAY_MAP:
                 return Optional.of(new ArrayMapOperation(operationSpecs));
-            case OPERATION_COPY_BY_ID:
+            case OPERATION_REPLACE:
                 return Optional.of(new ReplaceOperation(operationSpecs));
             default:
                 return Optional.empty();
