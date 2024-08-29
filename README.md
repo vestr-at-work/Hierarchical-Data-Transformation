@@ -1,6 +1,7 @@
 # Transformace hierarchických dat
 
 > TOTO JE DOKUMENTACE KE STARŠÍ VERZI. PRINCIPY ZŮSTÁVAJÍ, ALE DETAILY SE MĚNILY.
+> AKTUÁLNÍ VERZE DOKUMENTACE JE SOUČÁSTÍ [BAKALÁŘSKÉ PRÁCE](Transformace_hierarchických_dat_BP.pdf) VIZ KAPITOLA 5.
 
 ## Návrh transformačního nástroje
 
