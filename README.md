@@ -1,5 +1,7 @@
 # Transformace hierarchických dat
 
+> TOTO JE DOKUMENTACE KE STARŠÍ VERZI. PRINCIPY ZŮSTÁVAJÍ, ALE DETAILY SE MĚNILY.
+
 ## Návrh transformačního nástroje
 
 Návrh stojí na dvou stěžejních konceptech.  
@@ -7,8 +9,6 @@ Prvním je Unifikovaná reprezentace (zkráceně Ur) hierarchických dat, umož�
 Zjednodušeně si lze Ur představit jako JSON s výhradně řetězcovými hodnotami.
 Druhým konceptem je pak transformace pracující s Unifikovanou reprezentací na svém vstupu i výstupu.
 Pro celou transformaci tedy nejdříve data ve vstupním formátu převedeme do Ur, vykonáme transformaci a následně výstup exportujeme z Ur do zvoleného formátu.
-
-> V této chvíli nástroj podporuje pouze vstup formátu JSON
 
 ## Unifikovaná reprezentace
 
